@@ -1,0 +1,12 @@
+# Editor directories
+.vs/
+.vscode/
+
+# Visual Studio Project Files
+*.user
+*.sln
+*.vcxproj
+*.vcxproj.filters
+
+# Binary files
+bin/

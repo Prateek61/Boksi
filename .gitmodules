@@ -1,0 +1,4 @@
+[submodule "Boksi/vendor/spdlog"]
+	path = Boksi/vendor/spdlog
+	url = https://github.com/gabime/spdlog.git
+	shallow = true
