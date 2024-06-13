@@ -9,20 +9,17 @@ Debugging Tools
 
 # This is a computer graphics college project done by three groups of students. The components are divided between the three groups such that each group has equal amount of graphics/non-graphics work. Also all groups work simultaneously so that the project can be completed in time.
 
-## Group 1 - PP & yub
+## Group 1 - PP & Yubraj
 - Renderer
 - Core
 - Event System (Input, Window Events, etc.)
-- Particles
 
-## Group 2 - Lijan & Sujan
-- UI - imgui
+## Group 2 - Lijan & Kiran
+- UI System
 - Voxel World Manager
 - Resource Manager
-- Lighting
 
-## Group 3 - Prashant & Sujan
-- Collision Detection & Physics
+## Group 3 - Prashant & Aaditya
 - Camera
-- Entity Component System
-- Post Processing
+- Collision Detection & Physics
+- Particles
