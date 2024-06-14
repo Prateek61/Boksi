@@ -10,3 +10,8 @@
 
 # Binary files
 bin/
+
+#MakeFile
+Makefile
+
+*.make
