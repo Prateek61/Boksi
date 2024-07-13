@@ -10,6 +10,6 @@
 	shallow = true
 [submodule "Boksi/vendor/GLFW/GLFW"]
 	path = Boksi/vendor/GLFW/GLFW
-	url = git@github.com:glfw/glfw.git
+	url = https://github.com/glfw/glfw
 	branch = latest
 	shallow = true

@@ -38,4 +38,31 @@ project "Boksi"
     filter "system:windows"
         systemversion "latest"
 
+        defines
+        {
+        }
+
+        links
+        {
+            "%{Library.WinSock}",
+            "%{Library.WinMM}",
+            "%{Library.WinVersion}",
+            "%{Library.BCrypt}"
+        }
+
+    filter "configurations:Debug"
+        defines "BK_DEBUG"
+        runtime "Debug"
+        symbols "on"
+
+    filter "configurations:Release"
+        defines "BK_RELEASE"
+        runtime "Release"
+        optimize "on"
+
+    filter "configurations:Dist"
+        defines "BK_DIST"
+        runtime "Release"
+        optimize "on"
+
         
