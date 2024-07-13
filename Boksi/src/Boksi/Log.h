@@ -5,7 +5,7 @@
 
 namespace Boksi
 {
-	class BOKSI_API Log
+	class Log
 	{
 	public:
 		static void Init();

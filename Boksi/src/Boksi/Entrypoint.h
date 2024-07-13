@@ -1,7 +1,5 @@
 #pragma once
 
-#ifdef BK_PLATFORM_WINDOWS
-
 extern Boksi::Application* Boksi::CreateApplication();
 
 int main(int argc, char** argv)
@@ -11,5 +9,3 @@ int main(int argc, char** argv)
 	int a = 5;
 	BK_INFO("Hello! Var={0}", a);
 }
-
-#endif

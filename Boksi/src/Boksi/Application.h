@@ -4,7 +4,7 @@
 
 namespace Boksi
 {
-	class BOKSI_API Application
+	class Application
 	{
 	public:
 		Application();

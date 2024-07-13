@@ -8,3 +8,8 @@
 	url = https://github.com/g-truc/glm
 	branch = master
 	shallow = true
+[submodule "Boksi/vendor/GLFW/GLFW"]
+	path = Boksi/vendor/GLFW/GLFW
+	url = git@github.com:glfw/glfw.git
+	branch = latest
+	shallow = true

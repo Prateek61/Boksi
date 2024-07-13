@@ -1,8 +1,8 @@
 -- Boksi Dependencies
 
 IncludeDir = {}
-IncludeDir["GLFW"] = "%{wks.location}/Boksi/vendor/GLFW/include"
-includeDir["Glad"] = "%{wks.location}/Boksi/vendor/GLAD/include"
+IncludeDir["GLFW"] = "%{wks.location}/Boksi/vendor/GLFW/GLFW/include"
+IncludeDir["Glad"] = "%{wks.location}/Boksi/vendor/GLAD/include"
 IncludeDir["glm"] = "%{wks.location}/Boksi/vendor/GLM"
 IncludeDir["spdlog"] = "%{wks.location}/Boksi/vendor/spdlog/include"
 

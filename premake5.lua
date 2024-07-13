@@ -14,11 +14,11 @@ workspace "Boksi"
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 group "Dependencies"
-    include "Boksi/vendor/GLAD",
-    include "Boksi/vendor/GLFW_premake",
+    include "Boksi/vendor/GLAD"
+    include "Boksi/vendor/GLFW"
 group ""
 
-gorup "Core"
+group "Core"
     include "Boksi"
 group ""
 
