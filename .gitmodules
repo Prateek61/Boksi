@@ -1,4 +1,10 @@
 [submodule "Boksi/vendor/spdlog"]
 	path = Boksi/vendor/spdlog
 	url = https://github.com/gabime/spdlog.git
+	branch = v1.x
+	shallow = true
+[submodule "Boksi/vendor/GLM"]
+	path = Boksi/vendor/GLM
+	url = https://github.com/g-truc/glm
+	branch = master
 	shallow = true

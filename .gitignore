@@ -1,17 +1,19 @@
 # Editor directories
-.vs/
 .vscode/
 
 # Visual Studio Project Files
-*.user
-*.sln
-*.vcxproj
-*.vcxproj.filters
+.vs/
+**.user
+**.sln
+**.vcxproj
+**.vcxproj.filters
+**.csproj
 
 # Binary files
-bin/
+**/bin/
+bin-int/
+Intermediates/
 
 #MakeFile
-Makefile
-
-*.make
+**/MakeFile
+**.make
