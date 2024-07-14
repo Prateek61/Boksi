@@ -1,8 +1,13 @@
 #pragma once
 
-#include "Boksi/Core.h"
-#include "Boksi/Application.h"
-#include "Boksi/Log.h"
+// For use by Boksi applications
 
-// Entry Point
-#include "Boksi/EntryPoint.h"
+#include "Boksi/Core/Base.h"
+
+#include "Boksi/Core/Application.h"
+#include "Boksi/Core/Log.h"
+#include "Boksi/Core/Assert.h"
+
+// ---Entry Point---
+#include "Boksi/Core/Entrypoint.h"
+// -----------------

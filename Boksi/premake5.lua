@@ -7,6 +7,9 @@ project "Boksi"
     targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
     objdir ("%{wks.location}/bin/int/" .. outputdir .. "/%{prj.name}")
 
+    pchheader "bkpch.h"
+    pchsource "src/bkpch.cpp"
+
     files
     {
         "src/**.h",
