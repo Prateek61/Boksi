@@ -1,7 +1,5 @@
 #pragma once
-
-#include "Boksi/Core/PlatformDetection.h"
-#include <memory>
+#include "bkpch.h"
 
 #ifdef BK_DEBUG
 #if defined(BK_PLATFORM_WINDOWS)

@@ -7,6 +7,7 @@
 #include <utility>
 #include <algorithm>
 #include <functional>
+#include <cstdint>
 
 #include <string>
 #include <sstream>
@@ -17,6 +18,7 @@
 
 #include "Boksi/Core/Base.h"
 #include "Boksi/Core/Log.h"
+#include "Boksi/Core/Assert.h"
 
 #ifdef BK_PLATFORM_WINDOWS
 #include <Windows.h>

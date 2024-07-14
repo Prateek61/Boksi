@@ -1,4 +1,7 @@
 #pragma once
+#include "bkpch.h"
+
+#include "Boksi/Core/Window.h"
 
 namespace Boksi
 {
@@ -8,6 +11,9 @@ namespace Boksi
 		Application();
 		virtual ~Application();
 		void Run();
+	private:
+		Scope<Window> m_Window;
+		bool m_Running = true;
 	};
 
 	// To be defined in CLIENT
