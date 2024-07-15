@@ -41,19 +41,22 @@ project "Boksi"
     filter "system:windows"
         systemversion "latest"
 
-        defines
-        {
-        }
-
-        links
-        {
-            "%{Library.WinSock}",
-            "%{Library.WinMM}",
-            "%{Library.WinVersion}",
-            "%{Library.BCrypt}",
-            "%{Library.User32}",
-            "%{Library.GDI32}"
-        }
+        -- If build system is Visual Studio
+        if _ACTION and string.startswith(_ACTION, "vs") then
+            links
+            {
+                "%{Library.WinSock}",
+                "%{Library.WinMM}",
+                "%{Library.WinVersion}",
+                "%{Library.BCrypt}"
+            }
+        else
+            links
+            {
+                "%{Library.User32}",
+                "%{Library.GDI32}"
+            }
+        end
 
     filter "configurations:Debug"
         defines "BK_DEBUG"

@@ -154,6 +154,4 @@ namespace Boksi
 		glfwPollEvents();
 		glfwSwapBuffers(m_Window);
 	}
-
-	
 }
