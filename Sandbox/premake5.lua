@@ -30,6 +30,16 @@ project "Sandbox"
     filter "system:windows"
         systemversion "latest"
 
+        links
+        {
+            "%{Library.WinSock}",
+            "%{Library.WinMM}",
+            "%{Library.WinVersion}",
+            "%{Library.BCrypt}",
+            "%{Library.User32}",
+            "%{Library.GDI32}"
+        }
+
     filter "configurations:Debug"
         defines "BK_DEBUG"
         runtime "Debug"

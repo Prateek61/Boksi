@@ -37,7 +37,7 @@ project "Boksi"
         "Glad",
         "opengl32.lib"
     }
-
+     
     filter "system:windows"
         systemversion "latest"
 
@@ -50,7 +50,9 @@ project "Boksi"
             "%{Library.WinSock}",
             "%{Library.WinMM}",
             "%{Library.WinVersion}",
-            "%{Library.BCrypt}"
+            "%{Library.BCrypt}",
+            "%{Library.User32}",
+            "%{Library.GDI32}"
         }
 
     filter "configurations:Debug"
