@@ -17,12 +17,14 @@ project "Sandbox"
     {
         "%{wks.location}/Boksi/src",
         "%{IncludeDir.glm}",
-        "%{IncludeDir.spdlog}"
+        "%{IncludeDir.spdlog}",
+        "%{wks.location}/Boksi/vendor"
     }
 
     links
     {
-        "Boksi"
+        "Boksi",
+        "GLFW",
     }
 
     filter "system:windows"

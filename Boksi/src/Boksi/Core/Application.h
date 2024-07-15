@@ -2,6 +2,7 @@
 #include "bkpch.h"
 
 #include "Boksi/Core/Window.h"
+#include "Boksi/Events/ApplicationEvent.h"
 
 namespace Boksi
 {
@@ -11,9 +12,13 @@ namespace Boksi
 		Application();
 		virtual ~Application();
 		void Run();
+
+		void OnEvent(Event& e);	
 	private:
 		Scope<Window> m_Window;
 		bool m_Running = true;
+		bool OnWindowClose(WindowCloseEvent& e);
+
 	};
 
 	// To be defined in CLIENT
