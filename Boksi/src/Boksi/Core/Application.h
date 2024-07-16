@@ -2,6 +2,7 @@
 #include "bkpch.h"
 
 #include "Boksi/Core/Window.h"
+#include "Boksi/Core/LayerStack.h"
 #include "Boksi/Events/ApplicationEvent.h"
 
 namespace Boksi
@@ -14,11 +15,15 @@ namespace Boksi
 		void Run();
 
 		void OnEvent(Event& e);	
+
+		void PushLayer(Layer* layer);
+		void PushOverlay(Layer* overlay);
 	private:
 		Scope<Window> m_Window;
 		bool m_Running = true;
-		bool OnWindowClose(WindowCloseEvent& e);
+		LayerStack m_LayerStack;
 
+		bool OnWindowClose(WindowCloseEvent& e);
 	};
 
 	// To be defined in CLIENT

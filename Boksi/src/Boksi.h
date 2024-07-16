@@ -5,6 +5,7 @@
 #include "Boksi/Core/Base.h"
 
 #include "Boksi/Core/Application.h"
+#include "Boksi/Core/Layer.h"
 #include "Boksi/Core/Log.h"
 #include "Boksi/Core/Assert.h"
 
