@@ -30,7 +30,8 @@ namespace Boksi
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "KeyPressedEvent: " << m_KeyCode << " (" << (m_IsRepeat ? "Repeat" : "Not Repeat") << ")";
+
+			ss << "KeyPressedEvent: " << KeyCodeToString(m_KeyCode) << " (" << (m_IsRepeat ? "Repeat" : "Not Repeat") << ")";
 			return ss.str();
 		}
 		
@@ -48,7 +49,7 @@ namespace Boksi
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "KeyReleasedEvent: " << m_KeyCode;
+			ss << "KeyReleasedEvent: " << KeyCodeToString(m_KeyCode);
 			return ss.str();
 		}
 
@@ -64,7 +65,7 @@ namespace Boksi
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "KeyTypedEvent: " << m_KeyCode;
+			ss << "KeyTypedEvent: " << KeyCodeToString(m_KeyCode);
 			return ss.str();
 		}
 

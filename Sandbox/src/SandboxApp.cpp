@@ -10,12 +10,12 @@ public:
 
 	void OnUpdate() override
 	{
-		BK_INFO("ExampleLayer::Update");
+		// BK_INFO("ExampleLayer::Update");
 	}
 
 	void OnEvent(Boksi::Event& event) override
 	{
-		BK_TRACE("{0}", event.ToString());
+		// BK_TRACE("{0}", event.ToString());
 	}
 };
 
@@ -25,6 +25,7 @@ public:
 	Sandbox() 
 	{
 		PushLayer(new ExampleLayer());
+		PushOverlay(new Boksi::ImGuiLayer());
 	}
 	~Sandbox() {};
 };

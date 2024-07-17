@@ -18,16 +18,34 @@ namespace Boksi
 
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* overlay);
+
+		inline Window& GetWindow();
+		inline static Application& Get();
 	private:
 		Scope<Window> m_Window;
 		bool m_Running = true;
 		LayerStack m_LayerStack;
 
 		bool OnWindowClose(WindowCloseEvent& e);
+	private:
+		static Application* s_Instance;
 	};
 
 	// To be defined in CLIENT
 	Application* CreateApplication();
+}
+
+namespace Boksi
+{
+	Window& Application::GetWindow()
+	{
+		return *m_Window;
+	}
+
+	Application& Application::Get()
+	{
+		return *s_Instance;
+	}
 }
 
 

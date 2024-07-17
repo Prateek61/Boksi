@@ -13,3 +13,8 @@
 	url = https://github.com/glfw/glfw
 	branch = latest
 	shallow = true
+[submodule "Boksi/vendor/imgui/imgui"]
+	path = Boksi/vendor/imgui/imgui
+	url = https://github.com/ocornut/imgui.git
+	branch = docking
+	shallow = true

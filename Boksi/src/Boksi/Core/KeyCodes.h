@@ -1,4 +1,5 @@
 #pragma once
+
 #include "bkpch.h"
 
 namespace Boksi
@@ -142,4 +143,6 @@ namespace Boksi
 			Menu = 348
 		};
 	}
+
+	std::string KeyCodeToString(KeyCode keycode);
 }

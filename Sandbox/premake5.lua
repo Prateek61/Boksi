@@ -23,8 +23,7 @@ project "Sandbox"
 
     links
     {
-        "Boksi",
-        "GLFW",
+        "Boksi"
     }
 
     filter "system:windows"
@@ -32,17 +31,12 @@ project "Sandbox"
 
         -- If build system is Visual Studio
         if _ACTION and string.startswith(_ACTION, "vs") then
-            links
-            {
-                "%{Library.WinSock}",
-                "%{Library.WinMM}",
-                "%{Library.WinVersion}",
-                "%{Library.BCrypt}"
-            }
         else
             links
             {
-                "GLFW", 
+                "GLFW",
+                "GLAD",
+                "ImGui",
                 "%{Library.User32}",
                 "%{Library.GDI32}"
             }
