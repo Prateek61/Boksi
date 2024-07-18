@@ -1,5 +1,6 @@
 #include "bkpch.h"
 #include "Application.h"
+#include "GLAD/glad.h"
 
 #include "Boksi/Events/ApplicationEvent.h"
 
@@ -23,7 +24,11 @@ namespace Boksi
 	void Application::Run()
 	{
 		while (m_Running)
-		{
+		{	
+			// Add color to the window
+			glClearColor(0,0,0, 1);
+			glClear(GL_COLOR_BUFFER_BIT);
+			
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
 
