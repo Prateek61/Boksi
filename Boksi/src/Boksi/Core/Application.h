@@ -4,6 +4,7 @@
 #include "Boksi/Core/Window.h"
 #include "Boksi/Core/LayerStack.h"
 #include "Boksi/Events/ApplicationEvent.h"
+#include "Boksi/Imgui/ImGuiLayer.h"
 
 namespace Boksi
 {
@@ -23,6 +24,7 @@ namespace Boksi
 		inline static Application& Get();
 	private:
 		Scope<Window> m_Window;
+		ImGuiLayer* m_ImGuiLayer;
 		bool m_Running = true;
 		LayerStack m_LayerStack;
 

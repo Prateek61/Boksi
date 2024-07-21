@@ -30,6 +30,7 @@ project "Boksi"
         "%{IncludeDir.glm}",
         "%{IncludeDir.ImGui}",
         "%{IncludeDir.spdlog}"
+
     }
 
     links

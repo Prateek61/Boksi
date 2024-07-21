@@ -1,4 +1,5 @@
 #include <Boksi.h>
+#include "imgui/imgui/imgui.h"
 
 class ExampleLayer : public Boksi::Layer
 {
@@ -10,27 +11,42 @@ public:
 
 	void OnUpdate() override
 	{
-		// BK_INFO("ExampleLayer::Update");
+
+		// if (Boksi::Input::IsKeyPressed(Boksi::Key::Tab))
+		// 	BK_TRACE("Tab key is pressed!");
 	}
 
-	void OnEvent(Boksi::Event& event) override
+	virtual void OnImGuiRender() override
 	{
-		// BK_TRACE("{0}", event.ToString());
+		ImGui::Begin("Test");
+		ImGui::Text("Hello World!");
+		ImGui::End();
+	}
+
+	void OnEvent(Boksi::Event &event) override
+	{
+
+		if (event.GetEventType() == Boksi::EventType::KeyPressed)
+		{
+			Boksi::KeyPressedEvent &e = (Boksi::KeyPressedEvent &)event;
+			if (e.GetKeyCode() == Boksi::Key::Tab)
+				BK_TRACE("Tab key is pressed (event)!");
+			BK_TRACE("{0}", (char)e.GetKeyCode());
+		}
 	}
 };
 
 class Sandbox : public Boksi::Application
 {
 public:
-	Sandbox() 
+	Sandbox()
 	{
 		PushLayer(new ExampleLayer());
-		PushOverlay(new Boksi::ImGuiLayer());
 	}
-	~Sandbox() {};
+	~Sandbox(){};
 };
 
-Boksi::Application* Boksi::CreateApplication()
+Boksi::Application *Boksi::CreateApplication()
 {
 	return new Sandbox();
 }
