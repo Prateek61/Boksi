@@ -1,10 +1,14 @@
 #include "bkpch.h"
 #include "Platform/Windows/WindowsWindow.h"
 
-#include "glad/glad.h"
 #include "Boksi/Events/ApplicationEvent.h"
 #include "Boksi/Events/MouseEvent.h"
 #include "Boksi/Events/KeyEvent.h"
+#include "Boksi/Renderer/GraphicsContext.h"
+
+#include <GLFW/glfw3.h>
+
+#include "Platform/OpenGL/OpenGLContext.h"
 
 namespace Boksi
 {
@@ -57,11 +61,9 @@ namespace Boksi
 		}
 
 		m_Window = glfwCreateWindow(static_cast<int>(props.Width), static_cast<int>(props.Height), m_Data.Title.c_str(), nullptr, nullptr);
-		glfwMakeContextCurrent(m_Window);
+		m_Context = new OpenGLContext(m_Window);
 
-		// Glad: load OpenGL functions
-		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-		BK_CORE_ASSERT(status, "Failed to initialize Glad!");
+		m_Context->Init();
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(true);
@@ -159,6 +161,6 @@ namespace Boksi
 	void WindowsWindow::OnUpdate()
 	{
 		glfwPollEvents();
-		glfwSwapBuffers(m_Window);
-	}
+		m_Context->SwapBuffers();
+		}
 }

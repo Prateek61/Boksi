@@ -20,6 +20,7 @@ public:
 	{
 		ImGui::Begin("Test");
 		ImGui::Text("Hello World!");
+		ImGui::ColorEdit4("Square Color", new float[4]{0.2f, 0.3f, 0.8f, 1.0f});
 		ImGui::End();
 	}
 
