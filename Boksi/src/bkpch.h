@@ -1,4 +1,4 @@
-#pragma once
+// #pragma once
 
 #ifndef BK_DIST
 	#define BK_ENABLE_ASSERTS
