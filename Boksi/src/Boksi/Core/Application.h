@@ -7,6 +7,7 @@
 #include "Boksi/Imgui/ImGuiLayer.h"
 #include "Boksi/Renderer/Shader.h"
 #include "Boksi/Renderer/Buffer.h"
+#include "Boksi/Renderer/VertexArray.h"
 
 namespace Boksi
 {
@@ -32,10 +33,11 @@ namespace Boksi
 		LayerStack m_LayerStack;
 
 		bool OnWindowClose(WindowCloseEvent &e);
-		unsigned int m_VertexArray;
-		std::unique_ptr<Shader> m_Shader;
-		std::unique_ptr<VertexBuffer> m_VertexBuffer;
-		std::unique_ptr<IndexBuffer> m_IndexBuffer;
+
+		Ref<Shader> m_Shader;
+		Ref<VertexBuffer> m_VertexBuffer;
+		Ref<IndexBuffer> m_IndexBuffer;
+		Ref<VertexArray> m_VertexArray;
 
 	private:
 		static Application *s_Instance;

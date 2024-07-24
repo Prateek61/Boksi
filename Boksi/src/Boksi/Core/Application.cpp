@@ -11,27 +11,6 @@ namespace Boksi
 {
 	Application *Application::s_Instance = nullptr;
 
-	static GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type)
-	{
-		switch (type)
-		{
-			case Boksi::ShaderDataType::Float: return GL_FLOAT;
-			case Boksi::ShaderDataType::Float2: return GL_FLOAT;
-			case Boksi::ShaderDataType::Float3: return GL_FLOAT;
-			case Boksi::ShaderDataType::Float4: return GL_FLOAT;
-			case Boksi::ShaderDataType::Mat3: return GL_FLOAT;
-			case Boksi::ShaderDataType::Mat4: return GL_FLOAT;
-			case Boksi::ShaderDataType::Int: return GL_INT;
-			case Boksi::ShaderDataType::Int2: return GL_INT;
-			case Boksi::ShaderDataType::Int3: return GL_INT;
-			case Boksi::ShaderDataType::Int4: return GL_INT;
-			case Boksi::ShaderDataType::Bool: return GL_BOOL;
-		}
-
-		BK_CORE_ASSERT(false, "Unknown ShaderDataType!");
-		return 0;
-	}
-
 	Application::Application()
 		: m_Window(Window::Create())
 	{
@@ -43,8 +22,7 @@ namespace Boksi
 		PushOverlay(m_ImGuiLayer);
 
 		// Vertex Array
-		glGenVertexArrays(1, &m_VertexArray);
-		glBindVertexArray(m_VertexArray);
+		m_VertexArray.reset(VertexArray::Create());
 
 		// full screen square
 		float vertices[3 * (3 + 4)] = {
@@ -60,25 +38,14 @@ namespace Boksi
 			{ ShaderDataType::Float4, "a_Color" }
 		};
 		m_VertexBuffer->SetLayout(layout);
-
-		uint32_t index = 0;
-		for (const auto& element: m_VertexBuffer->GetLayout())
-		{
-			glEnableVertexAttribArray(index);
-			glVertexAttribPointer(index, element.GetComponentCount(), 
-				ShaderDataTypeToOpenGLBaseType(element.Type), 
-				element.Normalized ? GL_TRUE : GL_FALSE, 
-				layout.GetStride(), 
-				(const void*)element.Offset);
-			index++;
-		}
+		m_VertexArray->AddVertexBuffer(m_VertexBuffer);
 
 		// Index Buffer
 		uint32_t indices[3] = {
 			0, 1, 2, // First triangle
 		};
-
 		m_IndexBuffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
+		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 
 		// Shader
 		std::string vertexSrc = R"(
@@ -129,20 +96,16 @@ namespace Boksi
 
 			m_Shader->Bind();
 
-			glBindVertexArray(m_VertexArray);
+			m_VertexArray->Bind();
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
 			for (Layer *layer : m_LayerStack)
 				layer->OnUpdate();
 
 			m_ImGuiLayer->Begin();
-
 			for (Layer *layer : m_LayerStack)
 				layer->OnImGuiRender();
 			m_ImGuiLayer->End();
-
-			// auto [x, y] = Input::GetMousePosition();
-			// BK_CORE_TRACE("Mouse Position: {0}, {1}", x, y);
 
 			m_Window->OnUpdate();
 		}

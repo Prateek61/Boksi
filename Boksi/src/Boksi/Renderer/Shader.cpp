@@ -107,9 +107,6 @@ namespace Boksi{
         // Always detach shaders after a successful link.
         glDetachShader(m_RendererID, vertexShader);
         glDetachShader(m_RendererID, fragmentShader);
-
-
-        
     }    
 
     Shader::~Shader()
