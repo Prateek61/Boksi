@@ -12,7 +12,6 @@ namespace Boksi
     // --------------------------------------------------------------------------------------------
     VertexBuffer *VertexBuffer::Create(float *vertices, uint32_t size)
     {
-
         switch (Renderer::GetAPI())
         {
         case RendererAPI::None:
@@ -21,6 +20,9 @@ namespace Boksi
         case RendererAPI::OpenGL:
             return new OpenGLVertexBuffer(vertices, size);
         }
+
+        BK_CORE_ASSERT(false, "Unknown RendererAPI!");
+        return nullptr;
     }
 
     // --------------------------------------------------------------------------------------------
@@ -38,5 +40,8 @@ namespace Boksi
         case RendererAPI::OpenGL:
             return new OpenGLIndexBuffer(indices, count);
         }
+
+        BK_CORE_ASSERT(false, "Unknown RendererAPI!");
+        return nullptr;
     }
 }

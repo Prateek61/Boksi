@@ -6,8 +6,7 @@
 
 namespace Boksi
 {
-
-    OpenGLVertexBuffer::OpenGLVertexBuffer(float *vertices, uint32_t size)
+	OpenGLVertexBuffer::OpenGLVertexBuffer(float *vertices, uint32_t size)
     {
         glGenBuffers(1, &m_RendererID);
         glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
@@ -27,6 +26,16 @@ namespace Boksi
     void OpenGLVertexBuffer::Unbind() const
     {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
+    const BufferLayout& OpenGLVertexBuffer::GetLayout() const
+    {
+        return m_Layout;
+    }
+
+    void OpenGLVertexBuffer::SetLayout(const BufferLayout& layout)
+    {
+        m_Layout = layout;
     }
 
     OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t *indices, uint32_t count)

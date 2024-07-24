@@ -2,7 +2,7 @@
 
 #include "Boksi/Renderer/GraphicsContext.h"
 
-class GLFWwindow;
+struct GLFWwindow;
 
 namespace Boksi
 {
