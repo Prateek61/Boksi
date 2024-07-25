@@ -13,6 +13,15 @@
 #include "Boksi/Core/KeyCodes.h"
 #include "Boksi/Core/MouseCodes.h"
 
+// ---Renderer-----------------
+#include "Boksi/Renderer/Renderer.h"
+#include "Boksi/Renderer/RenderCommand.h"
+#include "Boksi/Renderer/Buffer.h"
+#include "Boksi/Renderer/Shader.h"
+#include "Boksi/Renderer/VertexArray.h"
+#include "Boksi/Renderer/OrthographicCamera.h"
+// -----------------------------
+
 // ---Entry Point---
 #include "Boksi/Core/Entrypoint.h"
 // -----------------

@@ -3,9 +3,11 @@
 #include "GLAD/glad.h"
 
 #include "Boksi/Events/ApplicationEvent.h"
-#include "Boksi/Renderer/Buffer.h"
 
+#include "Boksi/Renderer/Buffer.h"
 #include "Boksi/Renderer/Renderer.h"
+
+#include "Platform/OpenGL/OpenGLShader.h"
 
 #include "Input.h"
 
@@ -22,83 +24,6 @@ namespace Boksi
 		m_Window->SetEventCallback(BK_BIND_EVENT_FN(OnEvent));
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
-
-		// Vertex Array
-		m_VertexArray.reset(VertexArray::Create());
-
-		// full screen square
-		float vertices[3 * (3 + 4)] = {
-			-0.5f,
-			-0.5f,
-			0.0f,
-			1.0f,
-			0.0f,
-			1.0f,
-			1.0f,
-			0.5f,
-			-0.5f,
-			0.0f,
-			0.0f,
-			0.0f,
-			1.0f,
-			1.0f,
-			0.0f,
-			0.5f,
-			0.0f,
-			1.0f,
-			1.0f,
-			0.0f,
-			1.0f,
-		};
-
-		m_VertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
-
-		BufferLayout layout = {
-			{ShaderDataType::Float3, "a_Position"},
-			{ShaderDataType::Float4, "a_Color"}};
-		m_VertexBuffer->SetLayout(layout);
-		m_VertexArray->AddVertexBuffer(m_VertexBuffer);
-
-		// Index Buffer
-		uint32_t indices[3] = {
-			0, 1, 2, // First triangle
-		};
-		m_IndexBuffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
-		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
-
-		// Shader
-		std::string vertexSrc = R"(
-			#version 330 core
-
-			layout(location = 0) in vec3 a_Position;
-			layout(location = 1) in vec4 a_Color;
-
-			out vec3 v_Position;
-			out vec4 v_Color;
-
-			void main()
-			{	
-				v_Position = a_Position;
-				v_Color = a_Color;
-				gl_Position = vec4(v_Position, 1.0);
-			}
-		)";
-
-		std::string fragmentSrc = R"(
-			#version 330 core
-
-			layout(location = 0) out vec4 color;
-			in vec3 v_Position;
-			in vec4 v_Color;
-
-			void main()
-			{
-				color = vec4(v_Position * 0.5 + 0.5, 1.0);
-				color = v_Color;
-			}
-		)";
-
-		m_Shader = std::make_unique<Shader>(vertexSrc, fragmentSrc);
 	}
 
 	Application::~Application()
@@ -109,18 +34,6 @@ namespace Boksi
 	{
 		while (m_Running)
 		{
-			// Add color to the window
-			RenderCommand::Clear();
-			RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
-
-			// Render
-			Renderer::BeginScene();
-
-			m_Shader->Bind();
-			m_VertexArray->Bind();
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-
-			Renderer::EndScene();
 
 			for (Layer *layer : m_LayerStack)
 				layer->OnUpdate();
