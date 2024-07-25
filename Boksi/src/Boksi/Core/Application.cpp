@@ -5,6 +5,8 @@
 #include "Boksi/Events/ApplicationEvent.h"
 #include "Boksi/Renderer/Buffer.h"
 
+#include "Boksi/Renderer/Renderer.h"
+
 #include "Input.h"
 
 namespace Boksi
@@ -26,17 +28,34 @@ namespace Boksi
 
 		// full screen square
 		float vertices[3 * (3 + 4)] = {
-			-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-			0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,
-			0.0f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+			-0.5f,
+			-0.5f,
+			0.0f,
+			1.0f,
+			0.0f,
+			1.0f,
+			1.0f,
+			0.5f,
+			-0.5f,
+			0.0f,
+			0.0f,
+			0.0f,
+			1.0f,
+			1.0f,
+			0.0f,
+			0.5f,
+			0.0f,
+			1.0f,
+			1.0f,
+			0.0f,
+			1.0f,
 		};
 
 		m_VertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
 
 		BufferLayout layout = {
-			{ ShaderDataType::Float3, "a_Position" },
-			{ ShaderDataType::Float4, "a_Color" }
-		};
+			{ShaderDataType::Float3, "a_Position"},
+			{ShaderDataType::Float4, "a_Color"}};
 		m_VertexBuffer->SetLayout(layout);
 		m_VertexArray->AddVertexBuffer(m_VertexBuffer);
 
@@ -91,13 +110,17 @@ namespace Boksi
 		while (m_Running)
 		{
 			// Add color to the window
-			glClearColor(0, 0, 0, 1);
-			glClear(GL_COLOR_BUFFER_BIT);
+			RenderCommand::Clear();
+			RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
+
+			// Render
+			Renderer::BeginScene();
 
 			m_Shader->Bind();
-
 			m_VertexArray->Bind();
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
+			Renderer::EndScene();
 
 			for (Layer *layer : m_LayerStack)
 				layer->OnUpdate();
