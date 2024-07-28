@@ -4,6 +4,7 @@
 
 #include "Boksi/Renderer/Shader.h"
 #include "Platform/OpenGL/OpenGLShader.h"
+#include "Shader.h"
 
 namespace Boksi
 {
@@ -21,4 +22,6 @@ namespace Boksi
         BK_CORE_ASSERT(false, "Unknown RendererAPI!");
         return nullptr;
     }
-}
+
+
+    }

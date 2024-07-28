@@ -17,6 +17,8 @@ namespace Boksi
 
         inline static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
 
+        static std::string ReadFile(const std::string &filepath);
+
     private:
         struct SceneData
         {

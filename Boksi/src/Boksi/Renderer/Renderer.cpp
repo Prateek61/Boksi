@@ -24,4 +24,22 @@ namespace Boksi
         RenderCommand::DrawIndexed(vertexArray);
     }
 
+    std::string Renderer::ReadFile(const std::string &filepath)
+    {
+        if (!std::filesystem::exists(filepath))
+        {
+            // Use your custom assert function or handle the error as needed
+            BK_CORE_ASSERT(false, "File does not exist!");
+            return "";
+        }
+
+        std::ifstream file(filepath);
+        std::string result;
+        std::string line;
+        while (std::getline(file, line))
+        {
+            result += line + "\n";
+        }
+        return result;
+    }
 }; // namespace Boksi

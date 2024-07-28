@@ -1,4 +1,4 @@
-// #pragma once
+#pragma once
 
 #include "Boksi/Core/PlatformDetection.h"
 

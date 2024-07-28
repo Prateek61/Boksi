@@ -14,82 +14,45 @@ public:
 		m_VertexArray.reset(Boksi::VertexArray::Create());
 
 		// full screen square
-		float vertices[3 * (3 + 4)] = {
-			-0.5f,
-			-0.5f,
+		float vertices[] = {
+			-1.0f,
+			-1.0f,
 			0.0f,
+
 			1.0f,
+			-1.0f,
 			0.0f,
-			1.0f,
-			1.0f,
-			0.5f,
-			-0.5f,
-			0.0f,
-			0.0f,
-			0.0f,
+
 			1.0f,
 			1.0f,
 			0.0f,
-			0.5f,
+
+			-1.0f,
+			1.0f,
 			0.0f,
-			1.0f,
-			1.0f,
-			0.0f,
-			1.0f,
+
 		};
 
 		m_VertexBuffer.reset(Boksi::VertexBuffer::Create(vertices, sizeof(vertices)));
 
 		Boksi::BufferLayout layout = {
 			{Boksi::ShaderDataType::Float3, "a_Position"},
-			{Boksi::ShaderDataType::Float4, "a_Color"}};
+		};
 		m_VertexBuffer->SetLayout(layout);
 		m_VertexArray->AddVertexBuffer(m_VertexBuffer);
 
 		// Index Buffer
-		uint32_t indices[3] = {
+		uint32_t indices[6] = {
 			0, 1, 2, // First triangle
+			2, 3, 0	 // Second triangle
 		};
 		m_IndexBuffer.reset(Boksi::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
 		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 
 		// Shader
-		std::string vertexSrc = R"(
-			#version 330 core
+		std::string vertexSrc = Boksi::Renderer::ReadFile("Boksi/res/Shaders/test.vertex.glsl");
 
-			layout(location = 0) in vec3 a_Position;
-			layout(location = 1) in vec4 a_Color;
-
-			uniform mat4 u_ViewProjection;
-
-			out vec3 v_Position;
-			out vec4 v_Color;
-
-			void main()
-			{	
-				v_Position = a_Position;
-				v_Color = a_Color;
-				
-				gl_Position = u_ViewProjection * vec4(a_Position, 1.0);
-			}
-		)";
-
-		std::string fragmentSrc = R"(
-			#version 330 core
-
-			layout(location = 0) out vec4 color;
-			in vec3 v_Position;
-			in vec4 v_Color;
-
-			uniform vec4 u_Color;
-
-			void main()
-			{
-
-				color = vec4(v_Position * 0.5 + 0.5, 1.0);
-				color = u_Color;
-			}
-		)";
+		std::string fragmentSrc = Boksi::Renderer::ReadFile("Boksi/res/Shaders/test.fragment.glsl");
 
 		m_Shader.reset(Boksi::Shader::Create(vertexSrc, fragmentSrc));
 	}
