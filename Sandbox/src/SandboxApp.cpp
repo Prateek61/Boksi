@@ -149,7 +149,7 @@ public:
 	{
 		PushLayer(new ExampleLayer());
 	}
-	~Sandbox(){};
+	~Sandbox() override = default;
 };
 
 Boksi::Application *Boksi::CreateApplication()

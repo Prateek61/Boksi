@@ -1,9 +1,5 @@
 // #pragma once
 
-#ifndef BK_DIST
-	#define BK_ENABLE_ASSERTS
-#endif
-
 #include "Boksi/Core/PlatformDetection.h"
 
 #include <iostream>

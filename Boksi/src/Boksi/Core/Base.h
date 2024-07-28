@@ -1,6 +1,10 @@
 #pragma once
 #include "bkpch.h"
 
+#ifndef BK_DIST
+#define BK_ENABLE_ASSERTS
+#endif
+
 #ifdef BK_DEBUG
 #if defined(BK_PLATFORM_WINDOWS)
 #define BK_DEBUGBREAK() __debugbreak()
