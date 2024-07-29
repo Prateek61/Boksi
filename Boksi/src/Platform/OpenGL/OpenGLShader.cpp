@@ -137,7 +137,22 @@ namespace Boksi{
         glUniform4f(location, values.x, values.y, values.z, values.w);
     }
 
+    void OpenGLShader::UploadUniformFloat3(const std::string& name, const glm::vec3& values)
+    {
+    	GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		glUniform3f(location, values.x, values.y, values.z);
+    }
 
-        
+    void OpenGLShader::UploadUniformFloat(const std::string& name, float value)
+    {
+    	GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		glUniform1f(location, value);
+    }
+
+    void OpenGLShader::UploadUniformFloat2(const std::string& name, const glm::vec2& values)
+    {
+    	GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+        glUniform2f(location, values.x, values.y);
+    }
 
 }

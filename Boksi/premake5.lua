@@ -13,7 +13,8 @@ project "Boksi"
     files
     {
         "src/**.h",
-        "src/**.cpp"
+        "src/**.cpp",
+        "res/**.glsl"
     }
 
     defines
@@ -75,5 +76,11 @@ project "Boksi"
         defines "BK_DIST"
         runtime "Release"
         optimize "on"
+
+    -- Clear the filter
+    filter {}
+    
+    -- Add command to copy shaders to the build directory every time
+    
 
         

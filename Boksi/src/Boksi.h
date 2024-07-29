@@ -20,6 +20,8 @@
 #include "Boksi/Renderer/Shader.h"
 #include "Boksi/Renderer/VertexArray.h"
 #include "Boksi/Renderer/OrthographicCamera.h"
+#include "Boksi/Renderer/Camera.h"
+#include "Boksi/World/CameraController.h"
 // -----------------------------
 
 // ---Entry Point---

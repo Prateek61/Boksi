@@ -26,5 +26,5 @@ uniform Camera u_Camera;
 
 void main()
 {
-	color = vec4(u_Camera.Direction, 1.0);
+	color = vec4(u_Camera.Position, 1.0);
 }

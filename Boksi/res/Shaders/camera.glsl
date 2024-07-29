@@ -1,11 +1,6 @@
 #version 330 core
 
-layout(location = 0) out vec4 color;
-in vec3 v_Position;
-in vec4 v_Color;
-
-uniform vec4 u_Color;
-
+// Define the camera struct
 struct Camera
 {
     vec3 Position;
@@ -21,10 +16,3 @@ struct Camera
     float PixelWidth;
     vec2 ScreenSize;
 };
-uniform Camera u_Camera;
-
-
-void main()
-{
-	color = vec4(u_Camera.Direction, 1.0);
-}

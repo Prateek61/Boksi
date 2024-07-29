@@ -30,6 +30,8 @@ namespace Boksi
         {
             // Use your custom assert function or handle the error as needed
             BK_CORE_ASSERT(false, "File does not exist!");
+            // Print the current file path of the current execution
+
             return "";
         }
 

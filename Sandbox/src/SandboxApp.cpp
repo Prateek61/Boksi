@@ -3,18 +3,20 @@
 
 #include "Platform/OpenGL/OpenGLShader.h"
 
+const std::string res_path = "res/";
+
 class ExampleLayer : public Boksi::Layer
 {
 public:
 	ExampleLayer()
-		: Layer("Example"), m_Camera(-1.6f, 1.6f, -0.9f, 0.9f)
+		: Layer("Example"), m_Camera(-1.6f, 1.6f, -0.9f, 0.9f),
+		m_CameraController(1280.0f, 720.0f)
 	{
-
 		// Vertex Array
 		m_VertexArray.reset(Boksi::VertexArray::Create());
 
 		// full screen square
-		float vertices[] = {
+		float vertices[] = { 
 			-1.0f,
 			-1.0f,
 			0.0f,
@@ -50,9 +52,9 @@ public:
 		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 
 		// Shader
-		std::string vertexSrc = Boksi::Renderer::ReadFile("Boksi/res/Shaders/test.vertex.glsl");
+		const std::string vertexSrc = Boksi::Renderer::ReadFile(res_path + "Shaders/test.vertex.glsl");
 
-		std::string fragmentSrc = Boksi::Renderer::ReadFile("Boksi/res/Shaders/test.fragment.glsl");
+		const std::string fragmentSrc = Boksi::Renderer::ReadFile(res_path +"Shaders/test.fragment.glsl");
 
 		m_Shader.reset(Boksi::Shader::Create(vertexSrc, fragmentSrc));
 	}
@@ -70,6 +72,7 @@ public:
 		Boksi::Renderer::BeginScene(m_Camera);
 
 		std::dynamic_pointer_cast<Boksi::OpenGLShader>(m_Shader)->UploadUniformFloat4("u_Color", glm::vec4(0.2f, 0.9f, 0.8f, 1.0f));
+		m_CameraController.GetCamera().AddToShader(m_Shader);
 
 		Boksi::Renderer::Submit(m_Shader, m_VertexArray);
 
@@ -90,9 +93,27 @@ public:
 		if (event.GetEventType() == Boksi::EventType::KeyPressed)
 		{
 			Boksi::KeyPressedEvent &e = (Boksi::KeyPressedEvent &)event;
-			if (e.GetKeyCode() == Boksi::Key::Tab)
-				BK_TRACE("Tab key is pressed (event)!");
-			BK_TRACE("{0}", (char)e.GetKeyCode());
+			if (e.GetKeyCode() == Boksi::Key::W)
+			{
+				m_CameraController.MoveForward(0.1f);
+			}
+			if (e.GetKeyCode() == Boksi::Key::S)
+			{
+				m_CameraController.MoveBackward(0.1f);
+			}
+			if (e.GetKeyCode() == Boksi::Key::A)
+			{
+				m_CameraController.MoveLeft(0.1f);
+			}
+			if (e.GetKeyCode() == Boksi::Key::D)
+			{
+				m_CameraController.MoveRight(0.1f);
+			}
+		}
+		if (event.GetEventType() == Boksi::EventType::MouseMoved)
+		{
+			Boksi::MouseMovedEvent &e = (Boksi::MouseMovedEvent &)event;
+			m_CameraController.Rotate(e.GetX(), e.GetY());
 		}
 	}
 
@@ -103,6 +124,7 @@ private:
 	std::shared_ptr<Boksi::IndexBuffer> m_IndexBuffer;
 
 	Boksi::OrthographicCamera m_Camera;
+	Boksi::CameraController m_CameraController;
 };
 
 class Sandbox : public Boksi::Application
@@ -117,5 +139,5 @@ public:
 
 Boksi::Application *Boksi::CreateApplication()
 {
-	return new Sandbox();
+	return new Sandbox(); 
 }

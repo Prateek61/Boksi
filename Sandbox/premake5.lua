@@ -58,3 +58,6 @@ project "Sandbox"
         defines "BK_DIST"
         runtime "Release"
         optimize "on"
+    
+    -- Clear the filter
+    filter {}
