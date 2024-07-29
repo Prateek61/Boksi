@@ -3,7 +3,7 @@
 
 #include "Platform/OpenGL/OpenGLShader.h"
 
-const std::string res_path = "res/";
+const std::string res_path = "Boksi/res/";
 
 class ExampleLayer : public Boksi::Layer
 {
@@ -66,7 +66,6 @@ public:
 		Boksi::RenderCommand::Clear();
 		Boksi::RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
 
-		m_Camera.SetRotation(45.0f);
 
 		// Render
 		Boksi::Renderer::BeginScene(m_Camera);
@@ -109,12 +108,19 @@ public:
 			{
 				m_CameraController.MoveRight(0.1f);
 			}
+
+			if (e.GetKeyCode() == Boksi::Key::Up)
+			{
+				m_CameraController.m_Camera.LookAt += glm::vec3(0.0f, 0.0f, 0.1f);
+			}
+			if (e.GetKeyCode() == Boksi::Key::Down)
+			{
+				m_CameraController.m_Camera.LookAt -= glm::vec3(0.0f, 0.0f, 0.1f);
+			}
+			
+			m_CameraController.m_Camera.Update();
 		}
-		if (event.GetEventType() == Boksi::EventType::MouseMoved)
-		{
-			Boksi::MouseMovedEvent &e = (Boksi::MouseMovedEvent &)event;
-			m_CameraController.Rotate(e.GetX(), e.GetY());
-		}
+		
 	}
 
 private:
