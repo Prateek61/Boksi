@@ -24,13 +24,15 @@ struct Camera {
 };
 
 uniform Camera u_Camera;
-uniform int u_Dim;
+
 
 layout(rgba8, binding = 0) uniform image2D img_output;
 
 void main() {
     ivec2 pixelCoords = ivec2(gl_GlobalInvocationID.xy);
     vec4 color = vec4(0.529, 0.808, 0.922, 1.0); // Default color (sky blue)
+
+    int u_Dim = 64;
 
     float voxelSize = 0.05;
     float iVoxelSize = 1.0 / voxelSize;
