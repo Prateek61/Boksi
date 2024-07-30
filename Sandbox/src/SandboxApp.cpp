@@ -70,6 +70,10 @@ public:
 		spec.Format = Boksi::ImageFormat::RGBA8;
 		m_Texture = Boksi::Texture2D::Create(spec);
 
+		// Send Dimensions as Unfiorm
+		m_ComputeShader->Bind();
+		m_ComputeShader->UniformUploader->UploadUniformInt3("u_Dimensions", {m_World->GetSize().x, m_World->GetSize().y, m_World->GetSize().z});
+
 		// Storage Buffer
 		uint32_t size = m_World->GetVoxelCount() * sizeof(Boksi::Voxel);
 		m_StorageBuffer.reset(Boksi::StorageBuffer::Create(size));

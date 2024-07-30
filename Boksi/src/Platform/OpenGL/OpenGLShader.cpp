@@ -177,6 +177,11 @@ namespace Boksi{
         glUniform1i(location, value);
     }
 
+    void OpenGLShaderUniformUploader::UploadUniformInt3(const std::string &name, const glm::ivec3 &values) const
+    {
+        GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+        glUniform3i(location, values.x, values.y, values.z);
+    }
 
     OpenGLComputeShader::OpenGLComputeShader(const std::string& computeSrc)
     {

@@ -17,8 +17,8 @@ struct Camera{
     vec2 ScreenSize;
 };
 uniform Camera u_Camera;
+uniform ivec3 u_Dimensions;
 
-const int u_Dim=64;// Ensure this matches your voxel grid size
 const float iVoxelSize=.5;
 const float tMax=100.;
 const float tDelta=.1;
@@ -27,7 +27,6 @@ layout(rgba8,binding=0)uniform image2D img_output;
 
 ivec2 pixel_coords=ivec2(gl_GlobalInvocationID.xy);
 
-
 vec3 GetRayDirection(ivec2 pixel_coords)
 {
     vec4 ndc=vec4(2.*vec2(pixel_coords)/u_Camera.ScreenSize-1.,1.,1.);
@@ -35,7 +34,6 @@ vec3 GetRayDirection(ivec2 pixel_coords)
     clip=vec4(clip.xyz/clip.w,0.);
     vec4 world=u_Camera.InverseView*clip;
     vec3 dir=normalize(world.xyz);
-    dir*=-1;
     return dir;
 }
 
@@ -87,11 +85,11 @@ void main()
         
         ivec3 voxel_coords=ivec3(floor(currentPos/iVoxelSize));
         
-        if(voxel_coords.x>=0&&voxel_coords.x<u_Dim&&
-            voxel_coords.y>=0&&voxel_coords.y<u_Dim&&
-        voxel_coords.z>=0&&voxel_coords.z<u_Dim){
+        if(voxel_coords.x>=0&&voxel_coords.x<u_Dimensions.x&&
+            voxel_coords.y>=0&&voxel_coords.y<u_Dimensions.y&&
+        voxel_coords.z>=0&&voxel_coords.z<u_Dimensions.z){
             
-            int index=voxel_coords.x+voxel_coords.y*u_Dim+voxel_coords.z*u_Dim*u_Dim;
+            int index=voxel_coords.x + voxel_coords.y*u_Dimensions.x + voxel_coords.z * u_Dimensions.x * u_Dimensions.y;
             
             // assume a voxel at 0,0,0 is a solid material
             if(data[index].materialID==1){

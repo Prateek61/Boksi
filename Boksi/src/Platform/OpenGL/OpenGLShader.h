@@ -17,6 +17,7 @@ namespace Boksi
         void UploadUniformFloat(const std::string& name, float value) const override;
         void UploadUniformFloat2(const std::string& name, const glm::vec2& values) const override;
         void UploadUniformInt(const std::string& name, int value) const override;
+        void UploadUniformInt3(const std::string& name, const glm::ivec3& values) const override;
 
     private:
         uint32_t m_RendererID;
