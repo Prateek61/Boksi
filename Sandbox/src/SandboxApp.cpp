@@ -104,10 +104,17 @@ public:
 
 	virtual void OnImGuiRender() override
 	{
-		// ImGui::Begin("Test");
-		// ImGui::Text("Hello World!");
-		// ImGui::ColorEdit4("Square Color", new float[4]{0.2f, 0.3f, 0.8f, 1.0f});
-		// ImGui::End();
+		ImGui::Begin("Data");
+		
+		ImGui::Text("Camera Position: (%f, %f, %f)", m_CameraController.m_Camera.Position.x, m_CameraController.m_Camera.Position.y, m_CameraController.m_Camera.Position.z);
+		ImGui::Text("Camera LookAt: (%f, %f, %f)", m_CameraController.m_Camera.LookAt.x, m_CameraController.m_Camera.LookAt.y, m_CameraController.m_Camera.LookAt.z);
+		ImGui::Text("Camera Up: (%f, %f, %f)", m_CameraController.m_Camera.Up.x, m_CameraController.m_Camera.Up.y, m_CameraController.m_Camera.Up.z);
+		ImGui::Text("Camera FOV: %f", m_CameraController.m_Camera.FOV);
+		ImGui::Text("Camera Aspect Ratio: %f", m_CameraController.m_Camera.AspectRatio);
+		
+		
+		
+		ImGui::End();
 	}
 
 	void OnEvent(Boksi::Event &event) override

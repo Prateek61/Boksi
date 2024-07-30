@@ -57,12 +57,12 @@ namespace Boksi
 			// Calculate the width of a single pixel
 			PixelWidth = 2.0f * half_width / ScreenSize.x;
 
-			// Display the camera's position and look-at point for debugging
-			BK_CORE_TRACE("Look from: {0} , {1} , {2}", Position.x, Position.y, Position.z);
-			BK_CORE_TRACE("Look at: {0} , {1} , {2}", LookAt.x, LookAt.y, LookAt.z);
-			BK_CORE_TRACE("Direction: {0} , {1} , {2}", Direction.x, Direction.y, Direction.z);
-			BK_CORE_TRACE("Focal Length: {0}", FocalLength);
-			BK_CORE_TRACE("Lower Left Corner: {0} , {1} , {2}", LowerLeftCorner.x, LowerLeftCorner.y, LowerLeftCorner.z);
+			// // Display the camera's position and look-at point for debugging
+			// BK_CORE_TRACE("Look from: {0} , {1} , {2}", Position.x, Position.y, Position.z);
+			// BK_CORE_TRACE("Look at: {0} , {1} , {2}", LookAt.x, LookAt.y, LookAt.z);
+			// BK_CORE_TRACE("Direction: {0} , {1} , {2}", Direction.x, Direction.y, Direction.z);
+			// BK_CORE_TRACE("Focal Length: {0}", FocalLength);
+			// BK_CORE_TRACE("Lower Left Corner: {0} , {1} , {2}", LowerLeftCorner.x, LowerLeftCorner.y, LowerLeftCorner.z);
 		}
 
 		void AddToShader(const Ref<ComputeShader>& shader) const
