@@ -20,4 +20,23 @@ namespace Boksi
         glDrawElements(GL_TRIANGLES, vertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
     }
 
+    void OpenGLRendererAPI::DispatchCompute(uint32_t numGroupsX, uint32_t numGroupsY, uint32_t numGroupsZ)
+    {
+    	glDispatchCompute(numGroupsX, numGroupsY, numGroupsZ);
+    }
+
+    void OpenGLRendererAPI::AddMemoryBarrier()
+    {
+		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+    }
+
+    void OpenGLRendererAPI::CheckForErrors()
+    {
+    	GLenum error;
+		while ((error = glGetError()) != GL_NO_ERROR)
+		{
+			BK_CORE_ERROR("OpenGL Error: {0}", error);
+		}
+    }
+
 } // namespace Boksi

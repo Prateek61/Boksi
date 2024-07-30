@@ -7,7 +7,6 @@
 #include "Boksi/Renderer/Buffer.h"
 #include "Boksi/Renderer/Renderer.h"
 
-#include "Platform/OpenGL/OpenGLShader.h"
 
 #include "Input.h"
 

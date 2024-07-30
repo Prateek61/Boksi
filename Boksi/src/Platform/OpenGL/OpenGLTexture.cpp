@@ -9,6 +9,7 @@ namespace Boksi::Utils
 		{
 			case ImageFormat::RGB8: return GL_RGB;
 			case ImageFormat::RGBA8: return GL_RGBA;
+			case ImageFormat::RGBA32F: return GL_RGBA;
 		}
 
 		BK_CORE_ASSERT(false, "Invalid Image Foramt!");
@@ -21,6 +22,7 @@ namespace Boksi::Utils
 		{
 			case ImageFormat::RGB8: return GL_RGB8;
 			case ImageFormat::RGBA8: return GL_RGBA8;
+			case ImageFormat::RGBA32F: return GL_RGBA32F;
 		}
 
 		BK_CORE_ASSERT(false, "Invalid Image Format!");
@@ -67,5 +69,9 @@ namespace Boksi
 	void OpenGLTexture2D::Bind(uint32_t slot) const
 	{
 		glBindTextureUnit(slot, m_RendererID);
+	}
+	void OpenGLTexture2D::BindWrite(uint32_t slot) const
+	{
+		glBindImageTexture(slot, m_RendererID, 0, GL_FALSE, 0, GL_WRITE_ONLY, m_InternalFormat);
 	}
 }

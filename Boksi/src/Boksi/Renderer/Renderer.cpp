@@ -1,17 +1,14 @@
 #include "bkpch.h"
 #include "Renderer.h"
 #include "Shader.h"
-#include "Platform/OpenGL/OpenGLShader.h"
 #include "OrthographicCamera.h"
 
 namespace Boksi
 {
-    Renderer::SceneData *Renderer::m_SceneData = new Renderer::SceneData();
-
-    void Renderer::BeginScene(const OrthographicCamera &camera)
+	void Renderer::BeginScene()
     {
-        m_SceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
     }
+
     void Renderer::EndScene()
     {
     }
@@ -19,9 +16,14 @@ namespace Boksi
     void Renderer::Submit(const std::shared_ptr<Shader> &shader, const std::shared_ptr<VertexArray> &vertexArray)
     {
         shader->Bind();
-        std::dynamic_pointer_cast<OpenGLShader>(shader)->UploadUniformMat4("u_ViewProjection", m_SceneData->ViewProjectionMatrix);
         vertexArray->Bind();
         RenderCommand::DrawIndexed(vertexArray);
+    }
+
+    void Renderer::DispatchCompute(Ref<ComputeShader>& shader, uint32_t numGroupsX, uint32_t numGroupsY, uint32_t numGroupsZ)
+    {
+        shader->Bind();
+        RenderCommand::DispatchCompute(numGroupsX, numGroupsY, numGroupsZ);
     }
 
     std::string Renderer::ReadFile(const std::string &filepath)

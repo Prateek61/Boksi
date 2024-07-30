@@ -20,13 +20,36 @@ namespace Boksi
 
         // Getters
         const glm::uvec3& GetSize() const { return m_Size; }
+        const uint32_t GetVoxelCount() const { return m_Size.x * m_Size.y * m_Size.z; }
         const Voxel& GetVoxel(const glm::uvec3& position) const { return m_Voxels[position.x + position.y * m_Size.x + position.z * m_Size.x * m_Size.y]; }
         const std::vector<Voxel>& GetVoxels() const { return m_Voxels; }
+        std::vector<Voxel>& GetVoxels() { return m_Voxels; }
+        const void* GetVoxelsData() const { return m_Voxels.data(); }
+        void* GetVoxelsData() { return m_Voxels.data(); }
 
         // Setters
-        void SetVoxel(const glm::uvec3& position, const uint8_t materialID) { m_Voxels[position.x + position.y * m_Size.x + position.z * m_Size.x * m_Size.y].SetMaterialID(materialID); }
+        // void SetVoxel(const glm::uvec3& position, const uint8_t materialID) { m_Voxels[position.x + position.y * m_Size.x + position.z * m_Size.x * m_Size.y] = materialID; }
         void SetVoxel(const glm::uvec3& position, const Voxel& voxel) { m_Voxels[position.x + position.y * m_Size.x + position.z * m_Size.x * m_Size.y] = voxel; }
-        void UnfillVoxel(const glm::uvec3& position) { m_Voxels[position.x + position.y * m_Size.x + position.z * m_Size.x * m_Size.y].Unfill(); }
+        void UnfillVoxel(const glm::uvec3& position) { m_Voxels[position.x + position.y * m_Size.x + position.z * m_Size.x * m_Size.y] = 0; }
+
+        // Utility functions
+        void Randomize(const float density, const std::vector<uint8_t>& materialIDs)
+        {
+	        for (uint32_t x = 0; x < m_Size.x; x++)
+	        {
+		        for (uint32_t y = 0; y < m_Size.y; y++)
+		        {
+			        for (uint32_t z = 0; z < m_Size.z; z++)
+			        {
+				        if (rand() / (float)RAND_MAX < density)
+				        {
+					        SetVoxel(glm::uvec3(x, y, z), materialIDs[rand() % materialIDs.size()]);
+				        }
+			        }
+		        }
+	        }
+        }
+
     private:
         std::vector<Voxel> m_Voxels;
         glm::uvec3 m_Size;

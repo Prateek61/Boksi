@@ -12,6 +12,8 @@
 #include "Boksi/Core/Input.h"
 #include "Boksi/Core/KeyCodes.h"
 #include "Boksi/Core/MouseCodes.h"
+#include "Boksi/World/World.h"
+#include "Boksi/World/Material.h"
 
 // ---Renderer-----------------
 #include "Boksi/Renderer/Renderer.h"
@@ -21,6 +23,7 @@
 #include "Boksi/Renderer/VertexArray.h"
 #include "Boksi/Renderer/OrthographicCamera.h"
 #include "Boksi/Renderer/Camera.h"
+#include "Boksi/Renderer/Texture.h"
 #include "Boksi/World/CameraController.h"
 // -----------------------------
 

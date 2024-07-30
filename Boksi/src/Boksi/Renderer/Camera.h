@@ -41,22 +41,20 @@ namespace Boksi
 			PixelWidth = 2.0f * half_width / ScreenSize.x;
 		}
 
-		void AddToShader(Ref<Shader>& shader) const
+		void AddToShader(const Ref<ComputeShader>& shader) const
 		{
-			auto shader_ptr = std::dynamic_pointer_cast<OpenGLShader>(shader);
+			shader->UniformUploader->UploadUniformFloat3("u_Camera.Position", Position);
+			shader->UniformUploader->UploadUniformFloat3("u_Camera.Direction", Direction);
+			shader->UniformUploader->UploadUniformFloat3("u_Camera.Up", Up);
+			shader->UniformUploader->UploadUniformFloat("u_Camera.FOV", FOV);
+			shader->UniformUploader->UploadUniformFloat("u_Camera.FocalLength", FocalLength);
+			shader->UniformUploader->UploadUniformFloat("u_Camera.AspectRatio", AspectRatio);
 
-			shader_ptr->UploadUniformFloat3("u_Camera.Position", Position);
-			shader_ptr->UploadUniformFloat3("u_Camera.Direction", Direction);
-			shader_ptr->UploadUniformFloat3("u_Camera.Up", Up);
-			shader_ptr->UploadUniformFloat("u_Camera.FOV", FOV);
-			shader_ptr->UploadUniformFloat("u_Camera.FocalLength", FocalLength);
-			shader_ptr->UploadUniformFloat("u_Camera.AspectRatio", AspectRatio);
-
-			shader_ptr->UploadUniformFloat3("u_Camera.LowerLeftCorner", LowerLeftCorner);
-			shader_ptr->UploadUniformFloat3("u_Camera.Horizontal", Horizontal);
-			shader_ptr->UploadUniformFloat3("u_Camera.Vertical", Vertical);
-			shader_ptr->UploadUniformFloat("u_Camera.PixelWidth", PixelWidth);
-			shader_ptr->UploadUniformFloat2("u_Camera.ScreenSize", ScreenSize);
+			shader->UniformUploader->UploadUniformFloat3("u_Camera.LowerLeftCorner", LowerLeftCorner);
+			shader->UniformUploader->UploadUniformFloat3("u_Camera.Horizontal", Horizontal);
+			shader->UniformUploader->UploadUniformFloat3("u_Camera.Vertical", Vertical);
+			shader->UniformUploader->UploadUniformFloat("u_Camera.PixelWidth", PixelWidth);
+			shader->UniformUploader->UploadUniformFloat2("u_Camera.ScreenSize", ScreenSize);
 		}
 	};
 }

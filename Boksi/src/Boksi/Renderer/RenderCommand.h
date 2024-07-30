@@ -23,6 +23,17 @@ namespace Boksi
             s_RendererAPI->DrawIndexed(vertexArray);
         }
 
+        inline static void DispatchCompute(uint32_t numGroupsX, uint32_t numGroupsY, uint32_t numGroupsZ)
+		{
+			s_RendererAPI->DispatchCompute(numGroupsX, numGroupsY, numGroupsZ);
+            s_RendererAPI->AddMemoryBarrier();
+		}
+
+        inline static void CheckForErrors()
+		{
+			s_RendererAPI->CheckForErrors();
+		}
+
     private:
         static RendererAPI *s_RendererAPI;
     };

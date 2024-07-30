@@ -102,11 +102,6 @@ namespace Boksi
 			m_Camera.Update();
 		}
 
-		void AddToShader(Ref<Shader>& shader)
-		{
-			m_Camera.AddToShader(shader);
-		}
-
 		const Camera& GetCamera() const { return m_Camera; }
 
 	private:

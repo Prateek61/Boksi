@@ -17,6 +17,9 @@ namespace Boksi
         virtual void SetClearColor(const glm::vec4 &color) = 0;
         virtual void Clear() = 0;
         virtual void DrawIndexed(const Ref<VertexArray> &vertexArray) = 0;
+        virtual void DispatchCompute(uint32_t numGroupsX, uint32_t numGroupsY, uint32_t numGroupsZ) = 0;
+        virtual void AddMemoryBarrier() = 0;
+        virtual void CheckForErrors() = 0;
 
         inline static API GetAPI() { return s_API; }
 

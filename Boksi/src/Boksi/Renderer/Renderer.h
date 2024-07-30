@@ -10,21 +10,15 @@ namespace Boksi
     {
 
     public:
-        static void BeginScene(const OrthographicCamera &camera);
+        static void BeginScene();
         static void EndScene();
 
         static void Submit(const std::shared_ptr<Shader> &shader, const std::shared_ptr<VertexArray> &vertexArray);
+        static void DispatchCompute(Ref<ComputeShader>& shader, uint32_t numGroupsX, uint32_t numGroupsY, uint32_t numGroupsZ);
 
-        inline static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
+        static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
 
         static std::string ReadFile(const std::string &filepath);
-
-    private:
-        struct SceneData
-        {
-            glm::mat4 ViewProjectionMatrix;
-        };
-        static SceneData *m_SceneData;
     };
 
 }; // namespace Boksi

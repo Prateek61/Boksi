@@ -20,6 +20,7 @@ namespace Boksi
 		const TextureSpecification& GetSpecification() const override { return m_Specification; }
 		void SetData(void* data, uint32_t size) override;
 		void Bind(uint32_t slot = 0) const override;
+		void BindWrite(uint32_t slot = 0) const override;
 		bool IsLoaded() const override { return m_IsLoaded; }
 		bool operator==(const Texture& other) const override
 		{

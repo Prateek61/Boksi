@@ -1,79 +1,106 @@
 #include <Boksi.h>
 #include "imgui/imgui/imgui.h"
 
-#include "Platform/OpenGL/OpenGLShader.h"
-
-const std::string res_path = "res/";
+const std::string res_path = "../Boksi/res/";
 
 class ExampleLayer : public Boksi::Layer
 {
 public:
 	ExampleLayer()
-		: Layer("Example"), m_Camera(-1.6f, 1.6f, -0.9f, 0.9f),
-		m_CameraController(1280.0f, 720.0f)
+		: Layer("Example"),
+		m_CameraController(1280.0f, 720.0f),
+		m_World(new Boksi::World({ 32, 32, 32 }))
 	{
+		AttachShadersAndBuffers();
+
+		// Randomize the world
+		m_World->Randomize(0.5f, { 0, 1 });
+
+		// Set the clear color
+		Boksi::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
+	}
+
+	void AttachShadersAndBuffers()
+	{
+		// Compute Shader
+		const std::string compute_src = Boksi::Renderer::ReadFile(res_path + "Shaders/ray_trace.comp.glsl");
+		m_ComputeShader.reset(Boksi::ComputeShader::Create(compute_src));
+
+		// Normal frag and vertex shader
+		const std::string vertex_src = Boksi::Renderer::ReadFile(res_path + "Shaders/texture.vertex.glsl");
+		const std::string fragment_src = Boksi::Renderer::ReadFile(res_path + "Shaders/texture.fragment.glsl");
+
+		m_Shader.reset(Boksi::Shader::Create(vertex_src, fragment_src));
+
 		// Vertex Array
 		m_VertexArray.reset(Boksi::VertexArray::Create());
-
-		// full screen square
-		float vertices[] = { 
-			-1.0f,
-			-1.0f,
-			0.0f,
-
-			1.0f,
-			-1.0f,
-			0.0f,
-
-			1.0f,
-			1.0f,
-			0.0f,
-
-			-1.0f,
-			1.0f,
-			0.0f,
-
+		// Full screen quad
+		float quad_vertices[] = {
+			// positions        // texture Coords
+			-1.0f,  1.0f,		0.0f, 1.0f,
+			-1.0f, -1.0f,		0.0f, 0.0f,
+			 1.0f, -1.0f,		1.0f, 0.0f,
+			 1.0f,  1.0f,		1.0f, 1.0f
+		};
+		unsigned int  indices[] = {
+			0, 1, 2,
+			2, 3, 0
 		};
 
-		m_VertexBuffer.reset(Boksi::VertexBuffer::Create(vertices, sizeof(vertices)));
 
 		Boksi::BufferLayout layout = {
-			{Boksi::ShaderDataType::Float3, "a_Position"},
+			{Boksi::ShaderDataType::Float2, "a_Position"},
+			{Boksi::ShaderDataType::Float2, "a_TexCoord"}
 		};
-		m_VertexBuffer->SetLayout(layout);
-		m_VertexArray->AddVertexBuffer(m_VertexBuffer);
+		std::shared_ptr<Boksi::VertexBuffer> vertex_buffer;
+		vertex_buffer.reset(Boksi::VertexBuffer::Create(quad_vertices, sizeof(quad_vertices)));
+		vertex_buffer->SetLayout(layout);
+		m_VertexArray->AddVertexBuffer(vertex_buffer);
 
 		// Index Buffer
-		uint32_t indices[6] = {
-			0, 1, 2, // First triangle
-			2, 3, 0	 // Second triangle
-		};
-		m_IndexBuffer.reset(Boksi::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
-		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
+		std::shared_ptr<Boksi::IndexBuffer> index_buffer;
+		index_buffer.reset(Boksi::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
+		m_VertexArray->SetIndexBuffer(index_buffer);
 
-		// Shader
-		const std::string vertexSrc = Boksi::Renderer::ReadFile(res_path + "Shaders/test.vertex.glsl");
+		// Texture
+		Boksi::TextureSpecification spec;
+		spec.Width = 1280;
+		spec.Height = 720;
+		spec.Format = Boksi::ImageFormat::RGBA8;
+		m_Texture = Boksi::Texture2D::Create(spec);
 
-		const std::string fragmentSrc = Boksi::Renderer::ReadFile(res_path +"Shaders/test.fragment.glsl");
-
-		m_Shader.reset(Boksi::Shader::Create(vertexSrc, fragmentSrc));
+		// Storage Buffer
+		uint32_t size = m_World->GetVoxelCount() * sizeof(Boksi::Voxel);
+		m_StorageBuffer.reset(Boksi::StorageBuffer::Create(size));
 	}
 
 	void OnUpdate() override
 	{
-
-		// Add color to the window
 		Boksi::RenderCommand::Clear();
-		Boksi::RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
-
-		m_Camera.SetRotation(45.0f);
 
 		// Render
-		Boksi::Renderer::BeginScene(m_Camera);
+		Boksi::Renderer::BeginScene();
+		
+		// Compute Shader
+		m_ComputeShader->Bind();
+		// Set the SSBO
+		m_StorageBuffer->SetData(m_World->GetVoxelsData(), m_World->GetVoxelCount() * sizeof(Boksi::Voxel));
+		// Bind SSBO
+		m_StorageBuffer->Bind(1);
+		// Camera Uniforms
+		m_CameraController.GetCamera().AddToShader(m_ComputeShader);
+		// Bind the texture
+		m_Texture->BindWrite(0);
+		// Dispatch Compute Shader
+		Boksi::Renderer::DispatchCompute(m_ComputeShader, 1280 / 16, 720 / 16, 1);
 
-		std::dynamic_pointer_cast<Boksi::OpenGLShader>(m_Shader)->UploadUniformFloat4("u_Color", glm::vec4(0.2f, 0.9f, 0.8f, 1.0f));
-		m_CameraController.GetCamera().AddToShader(m_Shader);
+		// Check for errors
+		Boksi::RenderCommand::CheckForErrors();
 
+		// Render the texture to the screen
+		m_Texture->Bind(0);
+		m_Shader->Bind();
+		m_Shader->UniformUploader->UploadUniformInt("screenTexture", 0);
 		Boksi::Renderer::Submit(m_Shader, m_VertexArray);
 
 		Boksi::Renderer::EndScene();
@@ -81,10 +108,10 @@ public:
 
 	virtual void OnImGuiRender() override
 	{
-		ImGui::Begin("Test");
-		ImGui::Text("Hello World!");
-		ImGui::ColorEdit4("Square Color", new float[4]{0.2f, 0.3f, 0.8f, 1.0f});
-		ImGui::End();
+		// ImGui::Begin("Test");
+		// ImGui::Text("Hello World!");
+		// ImGui::ColorEdit4("Square Color", new float[4]{0.2f, 0.3f, 0.8f, 1.0f});
+		// ImGui::End();
 	}
 
 	void OnEvent(Boksi::Event &event) override
@@ -120,11 +147,11 @@ public:
 private:
 	std::shared_ptr<Boksi::Shader> m_Shader;
 	std::shared_ptr<Boksi::VertexArray> m_VertexArray;
-	std::shared_ptr<Boksi::VertexBuffer> m_VertexBuffer;
-	std::shared_ptr<Boksi::IndexBuffer> m_IndexBuffer;
-
-	Boksi::OrthographicCamera m_Camera;
+	std::shared_ptr<Boksi::ComputeShader> m_ComputeShader;
 	Boksi::CameraController m_CameraController;
+	std::shared_ptr<Boksi::World> m_World;
+	std::shared_ptr<Boksi::Texture2D> m_Texture;
+	std::shared_ptr<Boksi::StorageBuffer> m_StorageBuffer;
 };
 
 class Sandbox : public Boksi::Application

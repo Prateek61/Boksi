@@ -44,4 +44,19 @@ namespace Boksi
         BK_CORE_ASSERT(false, "Unknown RendererAPI!");
         return nullptr;
     }
+
+    StorageBuffer* StorageBuffer::Create(uint32_t size)
+    {
+        switch (Renderer::GetAPI())
+        {
+			case RendererAPI::API::None:
+				BK_CORE_ASSERT(false, "RendererAPI::API::None is currently not supported!");
+				return nullptr;
+            case RendererAPI::API::OpenGL:
+				return new OpenGLStorageBuffer(size);
+        }
+
+        BK_CORE_ASSERT(false, "Unknown RendererAPI!");
+        return nullptr;
+    }
 }

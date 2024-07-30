@@ -1,4 +1,5 @@
 // Material Class
+#pragma once
 #include "bkpch.h"
 
 #include <glm/glm.hpp>
