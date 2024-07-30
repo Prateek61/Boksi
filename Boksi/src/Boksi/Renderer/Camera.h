@@ -4,8 +4,61 @@
 #include <cmath>
 #include <glm/glm.hpp>
 #include "Boksi/Renderer/Shader.h"
-#include "Platform/OpenGL/OpenGLShader.h"
 
+namespace Boksi
+{
+	class Camera
+	{
+	public:
+		Camera(float verticalFOV, float nearClip, float farClip);
+
+		void UpdateChanges();
+		void OnResize(uint32_t width, uint32_t height);
+
+		const glm::mat4& GetProjection() const { return m_Projection; }
+		const glm::mat4& GetView() const { return m_View; }
+		const glm::mat4& GetInverseProjection() const { return m_InverseProjection; }
+		const glm::mat4& GetInverseView() const { return m_InverseView; }
+
+		const glm::vec3& GetPosition() const { return m_Position; }
+		const glm::vec3& GetForwardDirection() const { return m_ForwardDirection; }
+		const glm::vec3& GetUpDirection() const { return m_UpDirection; }
+		float GetVerticalFOV() const { return m_VerticalFOV; }
+		void SetVerticalFOV(float verticalFOV) { m_VerticalFOV = verticalFOV; m_RecalculateProjection = true; }
+
+		void SetPosition(const glm::vec3& position) { m_Position = position; m_Moved = true; }
+		void SetForwardDirection(const glm::vec3& forwardDirection) { m_ForwardDirection = forwardDirection; m_Moved = true; }
+		void Rotate(const float pitchDelta, const float yawDelta);
+
+	public:
+		static void UploadCameraUniformToShader(const Ref<ShaderUniformUploader>& uniformUploader, const Camera& camera);
+
+	private:
+		void RecalculateProjection();
+		void RecalculateView();
+
+	private:
+		glm::mat4 m_Projection{1.0f};
+		glm::mat4 m_View{1.0f};
+		glm::mat4 m_InverseProjection{ 1.0f };
+		glm::mat4 m_InverseView{ 1.0f };
+
+		float m_VerticalFOV;
+		float m_NearClip;
+		float m_FarClip;
+
+		glm::vec3 m_Position{ 0.0f, 0.0f, 0.0f };
+		glm::vec3 m_ForwardDirection{ 0.0f, 0.0f, 0.0f };
+		glm::vec3 m_UpDirection{ 0.0f, 0.0f, 0.0f };
+
+		bool m_Moved = false;
+		bool m_RecalculateProjection = false;
+		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
+	};
+}
+
+
+/*
 namespace Boksi
 {
 	struct Camera
@@ -56,13 +109,6 @@ namespace Boksi
 
 			// Calculate the width of a single pixel
 			PixelWidth = 2.0f * half_width / ScreenSize.x;
-
-			// // Display the camera's position and look-at point for debugging
-			// BK_CORE_TRACE("Look from: {0} , {1} , {2}", Position.x, Position.y, Position.z);
-			// BK_CORE_TRACE("Look at: {0} , {1} , {2}", LookAt.x, LookAt.y, LookAt.z);
-			// BK_CORE_TRACE("Direction: {0} , {1} , {2}", Direction.x, Direction.y, Direction.z);
-			// BK_CORE_TRACE("Focal Length: {0}", FocalLength);
-			// BK_CORE_TRACE("Lower Left Corner: {0} , {1} , {2}", LowerLeftCorner.x, LowerLeftCorner.y, LowerLeftCorner.z);
 		}
 
 		void AddToShader(const Ref<ComputeShader>& shader) const
@@ -80,5 +126,5 @@ namespace Boksi
 			shader->UniformUploader->UploadUniformFloat("u_Camera.PixelWidth", PixelWidth);
 			shader->UniformUploader->UploadUniformFloat2("u_Camera.ScreenSize", ScreenSize);
 		}
-	};
-}
+	}
+*/

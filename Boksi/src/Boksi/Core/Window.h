@@ -36,6 +36,6 @@ namespace Boksi
         virtual void* GetNativeWindow() const = 0;
 
         // virtual void* GetNativeWindow() const = 0;
-        static Scope<Window> Create(const WindowProps& props = WindowProps());
+        static std::unique_ptr<Window> Create(const WindowProps& props = WindowProps());
     };
 }

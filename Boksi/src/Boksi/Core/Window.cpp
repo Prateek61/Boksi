@@ -7,7 +7,7 @@
 
 namespace Boksi
 {
-	Scope<Window> Window::Create(const WindowProps& props)
+	std::unique_ptr<Window> Window::Create(const WindowProps& props)
 	{
 		#ifdef BK_PLATFORM_WINDOWS
 			return CreateScope<WindowsWindow>(props);

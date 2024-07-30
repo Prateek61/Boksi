@@ -11,115 +11,27 @@ namespace Boksi
 	class CameraController
 	{
 	public:
-		CameraController(float screenWidth, float screenHeight)
-			: m_ScreenWidth(screenWidth), m_ScreenHeight(screenHeight)
-		{
-			m_Camera.ScreenSize = glm::vec2(screenWidth, screenHeight);
-			m_Camera.Position = glm::vec3(0.0f, 0.0f, 10.0f);
-			m_Camera.LookAt = glm::vec3(0.0f, 0.0f, 0.0f);
-			m_Camera.Up = glm::vec3(0.0f, 1.0f, 0.0f);
-			m_Camera.FOV = 45.0f;
-			m_Camera.AspectRatio = screenWidth / screenHeight;
+		CameraController(float verticalFOV, float nearClip, float farClip)
+			: m_Camera(verticalFOV, nearClip, farClip)
+		{}
 
-			m_Camera.Update();
-		}
+		void OnUpdate(float deltaTime);
 
-		// move without changing the focal length also change look at
-		void MoveForward(float delta)
-		{
-			m_Camera.Position += m_Camera.Direction * m_CameraSpeed * delta;
-			m_Camera.LookAt += m_Camera.Direction * m_CameraSpeed * delta;
-			m_Camera.Update();
-		}
+		Camera& GetCamera() { return m_Camera; }
+		const Camera& GetCamera() const { return m_Camera; }
+		float GetCameraMoveSpeed() const { return m_CameraMoveSpeed; }
+		float GetCameraMouseSensitivity() const { return m_CameraMouseSensitivity; }
 
-		void MoveBackward(float delta)
-		{
-			m_Camera.Position -= m_Camera.Direction * m_CameraSpeed * delta;
-			m_Camera.LookAt -= m_Camera.Direction * m_CameraSpeed * delta;
-			m_Camera.Update();
-		}
-
-		void MoveLeft(float delta)
-		{
-			glm::vec3 right = glm::normalize(glm::cross(m_Camera.Direction, m_Camera.Up));
-			m_Camera.Position -= right * m_CameraSpeed * delta;
-			m_Camera.LookAt -= right * m_CameraSpeed * delta;
-			m_Camera.Update();
-		}
-
-		void MoveRight(float delta)
-		{
-			glm::vec3 right = glm::normalize(glm::cross(m_Camera.Direction, m_Camera.Up));
-			m_Camera.Position += right * m_CameraSpeed * delta;
-			m_Camera.LookAt += right * m_CameraSpeed * delta;
-			m_Camera.Update();
-		}
-
-		void Rotate(float x, float y)
-		{
-
-			float xoffset = x * m_MouseSensitivity;
-			float yoffset = y * m_MouseSensitivity;
-
-			m_Yaw += xoffset;
-			m_Pitch += yoffset;
-
-			if (m_Pitch > 89.0f)
-				m_Pitch = 89.0f;
-			if (m_Pitch < -89.0f)
-				m_Pitch = -89.0f;
-
-			glm::vec3 direction;
-			direction.x = cos(glm::radians(m_Yaw)) * cos(glm::radians(m_Pitch));
-			direction.y = sin(glm::radians(m_Pitch));
-			direction.z = sin(glm::radians(m_Yaw)) * cos(glm::radians(m_Pitch));
-
-			m_Camera.LookAt = glm::normalize(direction);
-
-			m_Camera.Update();
-		}
-
-		void LookUp(float delta)
-		{
-			Rotate(0.0f, delta);
-		}
-
-		void LookDown(float delta)
-		{
-			Rotate(0.0f, -delta);
-		}
-
-		void LookLeft(float delta)
-		{
-			Rotate(-delta, 0.0f);
-		}
-
-		void LookRight(float delta)
-		{
-			Rotate(delta, 0.0f);
-		}
-
-		void Zoom(float yOffset)
-		{
-			m_Camera.FOV -= yOffset;
-			if (m_Camera.FOV < 1.0f)
-				m_Camera.FOV = 1.0f;
-			if (m_Camera.FOV > 45.0f)
-				m_Camera.FOV = 45.0f;
-
-			m_Camera.Update();
-		}
-
-		const Camera &GetCamera() const { return m_Camera; }
-
-		Camera m_Camera;
+		void SetCameraMoveSpeed(float cameraMoveSpeed) { m_CameraMoveSpeed = cameraMoveSpeed; }
+		void SetCameraMouseSensitivity(float cameraMouseSensitivity) { m_CameraMouseSensitivity = cameraMouseSensitivity; }
 
 	private:
-		float m_ScreenWidth, m_ScreenHeight;
+		void HandleInput(float deltaTime);
 
-		float m_CameraSpeed = 2.5f;
-		float m_MouseSensitivity = 0.0001f;
-		float m_Yaw = -90.0f;
-		float m_Pitch = 0.0f;
+	private:
+		Camera m_Camera;
+		float m_CameraMoveSpeed = 5.0f;
+		float m_CameraMouseSensitivity = 0.1f;
+		glm::vec2 m_LastMousePosition{ 0.0f, 0.0f };
 	};
 }

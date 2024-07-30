@@ -9,12 +9,12 @@ namespace Boksi
     public:
         virtual ~ShaderUniformUploader() = default;
 
-        virtual void UploadUniformMat4(const std::string& name, const glm::mat4& matrix) = 0;
-        virtual void UploadUniformFloat4(const std::string& name, const glm::vec4& values) = 0;
-        virtual void UploadUniformFloat3(const std::string& name, const glm::vec3& values) = 0;
-        virtual void UploadUniformFloat(const std::string& name, float value) = 0;
-        virtual void UploadUniformFloat2(const std::string& name, const glm::vec2& values) = 0;
-        virtual void UploadUniformInt(const std::string& name, int value) = 0;
+        virtual void UploadUniformMat4(const std::string& name, const glm::mat4& matrix) const = 0;
+        virtual void UploadUniformFloat4(const std::string& name, const glm::vec4& values) const = 0;
+        virtual void UploadUniformFloat3(const std::string& name, const glm::vec3& values) const = 0;
+        virtual void UploadUniformFloat(const std::string& name, float value) const = 0;
+        virtual void UploadUniformFloat2(const std::string& name, const glm::vec2& values) const = 0;
+        virtual void UploadUniformInt(const std::string& name, int value) const = 0;
     };
 
     class Shader
@@ -28,7 +28,7 @@ namespace Boksi
         static Shader *Create(const std::string &vertexSrc, const std::string &fragmentSrc);
 
     public:
-        Scope<ShaderUniformUploader> UniformUploader;
+        Ref<ShaderUniformUploader> UniformUploader;
     };
 
     class ComputeShader
@@ -42,6 +42,6 @@ namespace Boksi
         static ComputeShader* Create(const std::string& computeSrc);
 
     public:
-        Scope<ShaderUniformUploader> UniformUploader;
+        Ref<ShaderUniformUploader> UniformUploader;
     };
 } // namespace name

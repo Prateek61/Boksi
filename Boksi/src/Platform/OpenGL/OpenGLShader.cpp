@@ -3,6 +3,15 @@
 
 #include <glad/glad.h>
 
+#include "Boksi/Core/Application.h"
+#include "Boksi/Core/Application.h"
+#include "Boksi/Core/Application.h"
+#include "Boksi/Core/Application.h"
+#include "Boksi/Core/Application.h"
+#include "Boksi/Core/Application.h"
+#include "Boksi/Core/Application.h"
+#include "Boksi/Core/Application.h"
+
 namespace Boksi{
 
     OpenGLShader::OpenGLShader(const std::string &vertexSrc, const std::string &fragmentSrc)
@@ -132,37 +141,37 @@ namespace Boksi{
     {
     }
 
-    void OpenGLShaderUniformUploader::UploadUniformMat4(const std::string& name, const glm::mat4& matrix)
+    void OpenGLShaderUniformUploader::UploadUniformMat4(const std::string& name, const glm::mat4& matrix) const
     {
     	GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniformMatrix4fv(location, 1, GL_FALSE, &matrix[0][0]);
     }
 
-    void OpenGLShaderUniformUploader::UploadUniformFloat4(const std::string& name, const glm::vec4& values)
+    void OpenGLShaderUniformUploader::UploadUniformFloat4(const std::string& name, const glm::vec4& values) const
     {
     	GLint location = glGetUniformLocation(m_RendererID, name.c_str());
         glUniform4f(location, values.x, values.y, values.z, values.w);
     }
 
-    void OpenGLShaderUniformUploader::UploadUniformFloat3(const std::string& name, const glm::vec3& values)
+    void OpenGLShaderUniformUploader::UploadUniformFloat3(const std::string& name, const glm::vec3& values) const
     {
     	GLint location = glGetUniformLocation(m_RendererID, name.c_str());
         glUniform3f(location, values.x, values.y, values.z);
     }
 
-    void OpenGLShaderUniformUploader::UploadUniformFloat(const std::string& name, float value)
+    void OpenGLShaderUniformUploader::UploadUniformFloat(const std::string& name, float value) const
     {
         GLint location = glGetUniformLocation(m_RendererID, name.c_str());
         glUniform1f(location, value);
     }
 
-    void OpenGLShaderUniformUploader::UploadUniformFloat2(const std::string& name, const glm::vec2& values)
+    void OpenGLShaderUniformUploader::UploadUniformFloat2(const std::string& name, const glm::vec2& values) const
     {
     	GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform2f(location, values.x, values.y);
     }
 
-    void OpenGLShaderUniformUploader::UploadUniformInt(const std::string& name, int value)
+    void OpenGLShaderUniformUploader::UploadUniformInt(const std::string& name, int value) const
     {
         GLint location = glGetUniformLocation(m_RendererID, name.c_str());
         glUniform1i(location, value);

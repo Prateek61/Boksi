@@ -1,16 +1,21 @@
 #include <Boksi.h>
 #include "imgui/imgui/imgui.h"
 
-const std::string res_path = "Boksi/res/";
+const std::string res_path = "../Boksi/res/";
 
 class ExampleLayer : public Boksi::Layer
 {
 public:
 	ExampleLayer()
 		: Layer("Example"),
-		  m_CameraController(1280.0f, 720.0f),
+		  m_CameraController(45.0f, 0.1f, 100.0f),
 		  m_World(new Boksi::World({64, 64, 64}))
 	{
+		m_CameraController.GetCamera().OnResize(1280, 720);
+		m_CameraController.SetCameraMoveSpeed(1.0f);
+		m_CameraController.SetCameraMouseSensitivity(0.01f);
+		m_CameraController.OnUpdate(0.0f);
+
 		AttachShadersAndBuffers();
 
 		// Randomize the world
@@ -84,7 +89,7 @@ public:
 		// Bind SSBO
 		m_StorageBuffer->Bind(1);
 		// Camera Uniforms
-		m_CameraController.GetCamera().AddToShader(m_ComputeShader);
+		Boksi::Camera::UploadCameraUniformToShader(m_ComputeShader->UniformUploader, m_CameraController.GetCamera());
 		// Bind the texture
 		m_Texture->BindWrite(0);
 		// Dispatch Compute Shader
@@ -97,72 +102,27 @@ public:
 		m_Texture->Bind(0);
 		m_Shader->Bind();
 		m_Shader->UniformUploader->UploadUniformInt("screenTexture", 0);
-		Boksi::Renderer::Submit(m_Shader, m_VertexArray);
+		Boksi::Renderer::Submit(m_Shader, m_VertexArray); 
 
+		m_CameraController.OnUpdate(1);
 		Boksi::Renderer::EndScene();
 	}
 
 	virtual void OnImGuiRender() override
 	{
 		ImGui::Begin("Data");
-		
-		ImGui::Text("Camera Position: (%f, %f, %f)", m_CameraController.m_Camera.Position.x, m_CameraController.m_Camera.Position.y, m_CameraController.m_Camera.Position.z);
-		ImGui::Text("Camera LookAt: (%f, %f, %f)", m_CameraController.m_Camera.LookAt.x, m_CameraController.m_Camera.LookAt.y, m_CameraController.m_Camera.LookAt.z);
-		ImGui::Text("Camera Up: (%f, %f, %f)", m_CameraController.m_Camera.Up.x, m_CameraController.m_Camera.Up.y, m_CameraController.m_Camera.Up.z);
-		ImGui::Text("Camera FOV: %f", m_CameraController.m_Camera.FOV);
-		ImGui::Text("Camera Aspect Ratio: %f", m_CameraController.m_Camera.AspectRatio);
-		
-		
-		
+
+		auto& camera = m_CameraController.GetCamera();
+		ImGui::Text("Camera Position: (%f, %f, %f)", camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
+		ImGui::Text("Camera Direction: (%f, %f, %f)", camera.GetForwardDirection().x, camera.GetForwardDirection().y, camera.GetForwardDirection().z);
+		ImGui::Text("Camera Up: (%f, %f, %f)", camera.GetUpDirection().x, camera.GetUpDirection().y, camera.GetUpDirection().z);
+		ImGui::Text("Camera FOV: %f", camera.GetVerticalFOV());
+
 		ImGui::End();
 	}
 
 	void OnEvent(Boksi::Event &event) override
 	{
-		const float camera_speed = 0.01f;
-
-		if (event.GetEventType() == Boksi::EventType::KeyPressed)
-		{
-			Boksi::KeyPressedEvent &e = (Boksi::KeyPressedEvent &)event;
-			if (e.GetKeyCode() == Boksi::Key::W)
-			{
-				m_CameraController.MoveForward(camera_speed);
-			}
-			if (e.GetKeyCode() == Boksi::Key::S)
-			{
-				m_CameraController.MoveBackward(camera_speed);
-			}
-			if (e.GetKeyCode() == Boksi::Key::A)
-			{
-				m_CameraController.MoveLeft(camera_speed);
-			}
-			if (e.GetKeyCode() == Boksi::Key::D)
-			{
-				m_CameraController.MoveRight(camera_speed);
-			}
-
-			// Update the camera
-			if (e.GetKeyCode() == Boksi::Key::Up)
-			{
-				m_CameraController.m_Camera.LookAt += glm::vec3(camera_speed, 0.0f, 0.0f);
-			}
-			if (e.GetKeyCode() == Boksi::Key::Down)
-			{
-				m_CameraController.m_Camera.LookAt -= glm::vec3(camera_speed, 0.0f, 0.0f);
-			}
-			if (e.GetKeyCode() == Boksi::Key::Left)
-			{
-				m_CameraController.m_Camera.LookAt += glm::vec3(0.0f, camera_speed, 0.0f);
-			}
-			if (e.GetKeyCode() == Boksi::Key::Right)
-			{
-				m_CameraController.m_Camera.LookAt -= glm::vec3(0.0f, camera_speed, 0.0f);
-			}
-
-
-
-			m_CameraController.m_Camera.Update();
-		}
 	}
 
 private:
