@@ -1,7 +1,7 @@
 #include <Boksi.h>
 #include "imgui/imgui/imgui.h"
 
-const std::string res_path = "../Boksi/res/";
+const std::string res_path = "Boksi/res/";
 
 class ExampleLayer : public Boksi::Layer
 {
