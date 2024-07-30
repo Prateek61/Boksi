@@ -1,8 +1,9 @@
 #version 430 core
+#extension GL_NV_gpu_shader5 : enable
 layout(local_size_x=16,local_size_y=16)in;
 
 struct Voxel{
-    uint materialID;
+    uint8_t materialID;
 };
 
 layout(std430,binding=1)buffer Voxels{
@@ -92,15 +93,15 @@ void main()
             int index=voxel_coords.x + voxel_coords.y*u_Dimensions.x + voxel_coords.z * u_Dimensions.x * u_Dimensions.y;
             
             // assume a voxel at 0,0,0 is a solid material
-            if(data[index].materialID==1){
+            if(data[index].materialID==uint8_t(1)){
                 color=vec4(1.,0.,0.,1.);// Red color
                 break;
             }
-            if(data[index].materialID==2){
+            if(data[index].materialID==uint8_t(2)){
                 color=vec4(0.,1.,0.,1.);// Green color
                 break;
             }
-            if(data[index].materialID==3){
+            if(data[index].materialID==uint8_t(3)){
                 color=vec4(0.,0.,1.,1.);// Blue color
                 break;
             }
