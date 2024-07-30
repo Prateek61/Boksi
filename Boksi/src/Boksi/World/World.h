@@ -26,6 +26,7 @@ namespace Boksi
         std::vector<Voxel>& GetVoxels() { return m_Voxels; }
         const void* GetVoxelsData() const { return m_Voxels.data(); }
         void* GetVoxelsData() { return m_Voxels.data(); }
+        
 
         // Setters
         // void SetVoxel(const glm::uvec3& position, const uint8_t materialID) { m_Voxels[position.x + position.y * m_Size.x + position.z * m_Size.x * m_Size.y] = materialID; }

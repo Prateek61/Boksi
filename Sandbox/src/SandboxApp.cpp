@@ -19,7 +19,7 @@ public:
 		AttachShadersAndBuffers();
 
 		// Randomize the world
-		m_World->Randomize(0.5f, {0, 1 ,2 ,3});
+		m_World->Randomize(0.1f, {0, 1, 2, 3});
 
 		// Set the clear color
 		Boksi::RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
@@ -106,7 +106,7 @@ public:
 		m_Texture->Bind(0);
 		m_Shader->Bind();
 		m_Shader->UniformUploader->UploadUniformInt("screenTexture", 0);
-		Boksi::Renderer::Submit(m_Shader, m_VertexArray); 
+		Boksi::Renderer::Submit(m_Shader, m_VertexArray);
 
 		m_CameraController.OnUpdate(1);
 		Boksi::Renderer::EndScene();
@@ -116,11 +116,49 @@ public:
 	{
 		ImGui::Begin("Data");
 
-		auto& camera = m_CameraController.GetCamera();
+		auto &camera = m_CameraController.GetCamera();
 		ImGui::Text("Camera Position: (%f, %f, %f)", camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
 		ImGui::Text("Camera Direction: (%f, %f, %f)", camera.GetForwardDirection().x, camera.GetForwardDirection().y, camera.GetForwardDirection().z);
 		ImGui::Text("Camera Up: (%f, %f, %f)", camera.GetUpDirection().x, camera.GetUpDirection().y, camera.GetUpDirection().z);
 		ImGui::Text("Camera FOV: %f", camera.GetVerticalFOV());
+
+		ImGui::End();
+
+		ImGui::Begin("World");
+		ImGui::Text("World Size: (%d, %d, %d)", m_World->GetSize().x, m_World->GetSize().y, m_World->GetSize().z);
+
+		// increase imgui window size
+		ImGui::SetWindowSize(ImVec2(300, 300));
+
+		const glm::uvec3 size = m_World->GetSize();
+		static int x = size.x;
+		static int y = size.y;
+		static int z = size.z;
+
+		ImGui::InputInt("X", &x);
+		ImGui::InputInt("Y", &y);
+		ImGui::InputInt("Z", &z);
+
+		if (ImGui::Button("Resize"))
+		{
+			m_World.reset(new Boksi::World({x, y, z}));
+			m_World->Randomize(0.1f, {0, 1, 2, 3});
+
+			AttachShadersAndBuffers();
+
+			m_ComputeShader->Bind();
+			m_ComputeShader->UniformUploader->UploadUniformInt3("u_Dimensions", {m_World->GetSize().x, m_World->GetSize().y, m_World->GetSize().z});
+		}
+
+		if (ImGui::Button("Randomize"))
+		{
+			m_World->Randomize(0.0f, {1});
+		}
+
+		if (ImGui::Button("Recenter Camera"))
+		{
+			m_CameraController.GetCamera().SetPosition({0, 0, -10});			
+		}
 
 		ImGui::End();
 	}
