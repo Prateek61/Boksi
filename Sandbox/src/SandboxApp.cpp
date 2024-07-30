@@ -1,23 +1,23 @@
 #include <Boksi.h>
 #include "imgui/imgui/imgui.h"
 
-const std::string res_path = "../Boksi/res/";
+const std::string res_path = "Boksi/res/";
 
 class ExampleLayer : public Boksi::Layer
 {
 public:
 	ExampleLayer()
 		: Layer("Example"),
-		m_CameraController(1280.0f, 720.0f),
-		m_World(new Boksi::World({ 32, 32, 32 }))
+		  m_CameraController(1280.0f, 720.0f),
+		  m_World(new Boksi::World({64, 64, 64}))
 	{
 		AttachShadersAndBuffers();
 
 		// Randomize the world
-		m_World->Randomize(0.5f, { 0, 1 });
+		m_World->Randomize(0.5f, {0, 1 ,2 ,3});
 
 		// Set the clear color
-		Boksi::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
+		Boksi::RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
 	}
 
 	void AttachShadersAndBuffers()
@@ -37,21 +37,17 @@ public:
 		// Full screen quad
 		float quad_vertices[] = {
 			// positions        // texture Coords
-			-1.0f,  1.0f,		0.0f, 1.0f,
-			-1.0f, -1.0f,		0.0f, 0.0f,
-			 1.0f, -1.0f,		1.0f, 0.0f,
-			 1.0f,  1.0f,		1.0f, 1.0f
-		};
-		unsigned int  indices[] = {
+			-1.0f, 1.0f, 0.0f, 1.0f,
+			-1.0f, -1.0f, 0.0f, 0.0f,
+			1.0f, -1.0f, 1.0f, 0.0f,
+			1.0f, 1.0f, 1.0f, 1.0f};
+		unsigned int indices[] = {
 			0, 1, 2,
-			2, 3, 0
-		};
-
+			2, 3, 0};
 
 		Boksi::BufferLayout layout = {
 			{Boksi::ShaderDataType::Float2, "a_Position"},
-			{Boksi::ShaderDataType::Float2, "a_TexCoord"}
-		};
+			{Boksi::ShaderDataType::Float2, "a_TexCoord"}};
 		std::shared_ptr<Boksi::VertexBuffer> vertex_buffer;
 		vertex_buffer.reset(Boksi::VertexBuffer::Create(quad_vertices, sizeof(quad_vertices)));
 		vertex_buffer->SetLayout(layout);
@@ -80,7 +76,7 @@ public:
 
 		// Render
 		Boksi::Renderer::BeginScene();
-		
+
 		// Compute Shader
 		m_ComputeShader->Bind();
 		// Set the SSBO
@@ -116,39 +112,50 @@ public:
 
 	void OnEvent(Boksi::Event &event) override
 	{
+		const float camera_speed = 0.01f;
 
 		if (event.GetEventType() == Boksi::EventType::KeyPressed)
 		{
 			Boksi::KeyPressedEvent &e = (Boksi::KeyPressedEvent &)event;
 			if (e.GetKeyCode() == Boksi::Key::W)
 			{
-				m_CameraController.MoveForward(0.1f);
+				m_CameraController.MoveForward(camera_speed);
 			}
 			if (e.GetKeyCode() == Boksi::Key::S)
 			{
-				m_CameraController.MoveBackward(0.1f);
+				m_CameraController.MoveBackward(camera_speed);
 			}
 			if (e.GetKeyCode() == Boksi::Key::A)
 			{
-				m_CameraController.MoveLeft(0.1f);
+				m_CameraController.MoveLeft(camera_speed);
 			}
 			if (e.GetKeyCode() == Boksi::Key::D)
 			{
-				m_CameraController.MoveRight(0.1f);
+				m_CameraController.MoveRight(camera_speed);
 			}
 
+			// Update the camera
 			if (e.GetKeyCode() == Boksi::Key::Up)
 			{
-				m_CameraController.m_Camera.LookAt += glm::vec3(0.0f, 0.0f, 0.1f);
+				m_CameraController.m_Camera.LookAt += glm::vec3(camera_speed, 0.0f, 0.0f);
 			}
 			if (e.GetKeyCode() == Boksi::Key::Down)
 			{
-				m_CameraController.m_Camera.LookAt -= glm::vec3(0.0f, 0.0f, 0.1f);
+				m_CameraController.m_Camera.LookAt -= glm::vec3(camera_speed, 0.0f, 0.0f);
 			}
-			
+			if (e.GetKeyCode() == Boksi::Key::Left)
+			{
+				m_CameraController.m_Camera.LookAt += glm::vec3(0.0f, camera_speed, 0.0f);
+			}
+			if (e.GetKeyCode() == Boksi::Key::Right)
+			{
+				m_CameraController.m_Camera.LookAt -= glm::vec3(0.0f, camera_speed, 0.0f);
+			}
+
+
+
 			m_CameraController.m_Camera.Update();
 		}
-		
 	}
 
 private:
@@ -173,5 +180,5 @@ public:
 
 Boksi::Application *Boksi::CreateApplication()
 {
-	return new Sandbox(); 
+	return new Sandbox();
 }

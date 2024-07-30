@@ -16,7 +16,7 @@ namespace Boksi
 		{
 			m_Camera.ScreenSize = glm::vec2(screenWidth, screenHeight);
 			m_Camera.Position = glm::vec3(0.0f, 0.0f, 0.0f);
-			m_Camera.LookAt = glm::vec3(0.0f, 0.0f, 2.0f);
+			m_Camera.LookAt = glm::vec3(0.0f, 0.0f, 10.0f);
 			m_Camera.Up = glm::vec3(0.0f, 1.0f, 0.0f);
 			m_Camera.FOV = 45.0f;
 			m_Camera.AspectRatio = screenWidth / screenHeight;
