@@ -136,12 +136,19 @@ public:
 			{
 				m_CameraController.MoveRight(0.1f);
 			}
+
+			if (e.GetKeyCode() == Boksi::Key::Up)
+			{
+				m_CameraController.m_Camera.LookAt += glm::vec3(0.0f, 0.0f, 0.1f);
+			}
+			if (e.GetKeyCode() == Boksi::Key::Down)
+			{
+				m_CameraController.m_Camera.LookAt -= glm::vec3(0.0f, 0.0f, 0.1f);
+			}
+			
+			m_CameraController.m_Camera.Update();
 		}
-		if (event.GetEventType() == Boksi::EventType::MouseMoved)
-		{
-			Boksi::MouseMovedEvent &e = (Boksi::MouseMovedEvent &)event;
-			m_CameraController.Rotate(e.GetX(), e.GetY());
-		}
+		
 	}
 
 private:
