@@ -3,13 +3,15 @@
 
 const std::string res_path = "Boksi/res/";
 
+const int WORLD_SIZE = 200;
+
 class ExampleLayer : public Boksi::Layer
 {
 public:
 	ExampleLayer()
 		: Layer("Example"),
 		  m_CameraController(45.0f, 0.1f, 100.0f),
-		  m_World(new Boksi::World({64, 64, 64}))
+		  m_World(new Boksi::World({WORLD_SIZE, WORLD_SIZE, WORLD_SIZE}))
 	{
 		m_CameraController.GetCamera().OnResize(1280, 720);
 		m_CameraController.SetCameraMoveSpeed(1.0f);
@@ -18,11 +20,13 @@ public:
 
 		AttachShadersAndBuffers();
 
-		// Randomize the world
-		m_World->Randomize(0.1f, {0, 1, 2, 3});
-
 		// Set the clear color
 		Boksi::RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
+
+		m_World->DrawCircle(30, 10, 10, 5, 1);
+		m_World->DrawCircle(50, 10, 10, 5, 1);
+		m_CameraController.GetCamera().SetPosition({30, 0, -30});
+			
 	}
 
 	void AttachShadersAndBuffers()
@@ -110,6 +114,7 @@ public:
 
 		m_CameraController.OnUpdate(1);
 		Boksi::Renderer::EndScene();
+
 	}
 
 	virtual void OnImGuiRender() override
@@ -125,8 +130,8 @@ public:
 		ImGui::End();
 
 		ImGui::Begin("World");
-		ImGui::Text("World Size: (%d, %d, %d)", m_World->GetSize().x, m_World->GetSize().y, m_World->GetSize().z);
 
+		ImGui::Text("World Size: (%d, %d, %d)", m_World->GetSize().x, m_World->GetSize().y, m_World->GetSize().z);
 		// increase imgui window size
 		ImGui::SetWindowSize(ImVec2(300, 300));
 
@@ -150,14 +155,43 @@ public:
 			m_ComputeShader->UniformUploader->UploadUniformInt3("u_Dimensions", {m_World->GetSize().x, m_World->GetSize().y, m_World->GetSize().z});
 		}
 
+
+		if (ImGui::Button("Clear Screen"))
+		{
+			m_World->ClearScreen(0);
+		}
+
 		if (ImGui::Button("Randomize"))
 		{
-			m_World->Randomize(0.0f, {1});
+			m_World->Randomize(0.7f, {0, 1, 2, 3});
 		}
 
 		if (ImGui::Button("Recenter Camera"))
 		{
-			m_CameraController.GetCamera().SetPosition({0, 0, -10});			
+			m_CameraController.GetCamera().SetPosition({0, 0, -10});
+		}
+
+		if (ImGui::Button("Add World Floor"))
+		{
+			m_World->AddWorldFloor(5, 2);
+		}
+
+		if (ImGui::Button("Draw Circle"))
+		{
+
+			glm::vec3 cameraLocation = m_CameraController.GetCamera().GetPosition() + m_CameraController.GetCamera().GetForwardDirection() * 10.0f ; 
+			
+			glm::vec3 voxelPos = cameraLocation / .5f; 
+
+			if (voxelPos.x < 0 || voxelPos.x >= m_World->GetSize().x || voxelPos.y < 0 || voxelPos.y >= m_World->GetSize().y || voxelPos.z < 0 || voxelPos.z >= m_World->GetSize().z)
+			{
+				Boksi::Log::GetCoreLogger()->error("Voxel out of bounds");
+			}
+			else
+			{
+				m_World->DrawCircle(voxelPos.x, voxelPos.y, voxelPos.z, 5, 1);
+			}
+
 		}
 
 		ImGui::End();
