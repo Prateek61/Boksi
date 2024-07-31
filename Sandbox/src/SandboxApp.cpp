@@ -3,7 +3,7 @@
 
 const std::string res_path = "Boksi/res/";
 
-const int WORLD_SIZE = 200;
+const int WORLD_SIZE = 400;
 
 class ExampleLayer : public Boksi::Layer
 {
@@ -26,7 +26,6 @@ public:
 		m_World->DrawCircle(30, 10, 10, 5, 1);
 		m_World->DrawCircle(50, 10, 10, 5, 1);
 		m_CameraController.GetCamera().SetPosition({30, 0, -30});
-			
 	}
 
 	void AttachShadersAndBuffers()
@@ -114,7 +113,6 @@ public:
 
 		m_CameraController.OnUpdate(1);
 		Boksi::Renderer::EndScene();
-
 	}
 
 	virtual void OnImGuiRender() override
@@ -155,7 +153,6 @@ public:
 			m_ComputeShader->UniformUploader->UploadUniformInt3("u_Dimensions", {m_World->GetSize().x, m_World->GetSize().y, m_World->GetSize().z});
 		}
 
-
 		if (ImGui::Button("Clear Screen"))
 		{
 			m_World->ClearScreen(0);
@@ -179,19 +176,19 @@ public:
 		if (ImGui::Button("Draw Circle"))
 		{
 
-			glm::vec3 cameraLocation = m_CameraController.GetCamera().GetPosition() + m_CameraController.GetCamera().GetForwardDirection() * 10.0f ; 
-			
-			glm::vec3 voxelPos = cameraLocation / .5f; 
+			glm::vec3 cameraLocation = m_CameraController.GetCamera().GetPosition() + m_CameraController.GetCamera().GetForwardDirection() * 10.0f;
+
+			glm::vec3 voxelPos = cameraLocation / .5f;
 
 			if (voxelPos.x < 0 || voxelPos.x >= m_World->GetSize().x || voxelPos.y < 0 || voxelPos.y >= m_World->GetSize().y || voxelPos.z < 0 || voxelPos.z >= m_World->GetSize().z)
 			{
-				Boksi::Log::GetCoreLogger()->error("Voxel out of bounds");
+				BK_ERROR("Out of bounds UwU");
 			}
 			else
 			{
+				BK_TRACE("Drawing circle at: ({}, {}, {})", voxelPos.x, voxelPos.y, voxelPos.z);
 				m_World->DrawCircle(voxelPos.x, voxelPos.y, voxelPos.z, 5, 1);
 			}
-
 		}
 
 		ImGui::End();

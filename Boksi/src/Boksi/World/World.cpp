@@ -61,7 +61,7 @@ namespace Boksi
     void World::AddWorldFloor(const int baseHeight, const uint8_t materialID)
     {
         FastNoiseLite noise;
-        std::vector<uint8_t> materialIDs = {0, 1, 2, 3};
+        
         noise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
         noise.SetFrequency(0.01f); // Adjust the frequency for desired terrain detail
 
@@ -75,7 +75,7 @@ namespace Boksi
 
                 for (uint32_t y = 0; y < maxHeight; y++)
                 {
-                    SetVoxel(glm::uvec3(x, y, z), materialIDs[rand() % materialIDs.size()]);
+                    SetVoxel(glm::uvec3(x, y, z), materialID);
                 }
             }
         }
