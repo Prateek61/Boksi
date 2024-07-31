@@ -64,7 +64,7 @@ vec3 RandomRayDirection(vec3 rayDirection )
 vec4 RayMarch(vec3 start, vec3 dir)
 {
     const int maxSteps = 1000;
-    const int maxDepth = 5; // Define a fixed maximum depth
+    const int maxDepth = 1; // Define a fixed maximum depth
     vec4 resultColor = vec4(0.529, 0.808, 0.922, 1.0); // Default sky blue color
     float attenuation = 1.0; // Initial attenuation factor
 
