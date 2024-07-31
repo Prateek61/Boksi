@@ -1,7 +1,8 @@
 #include <Boksi.h>
 #include "imgui/imgui/imgui.h"
+#include <chrono>
 
-const std::string res_path = "Boksi/res/";
+const std::string res_path = "../Boksi/res/";
 
 const int WORLD_SIZE = 400;
 
@@ -20,6 +21,14 @@ public:
 
 		AttachShadersAndBuffers();
 
+		// Add materials
+		Boksi::MaterialLibrary::AddMaterial(Boksi::Material({0.8f, 0.8f, 0.8f}), "White");
+		Boksi::MaterialLibrary::AddMaterial(Boksi::Material({0.8f, 0.2f, 0.2f}), "Red");
+		Boksi::MaterialLibrary::AddMaterial(Boksi::Material({0.8f, 0.2f, 0.2f}), "Red");
+
+		// Print the size of the material class
+		BK_INFO("Size of Material: {}", sizeof(Boksi::Material));
+
 		// Set the clear color
 		Boksi::RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
 
@@ -31,7 +40,7 @@ public:
 	void AttachShadersAndBuffers()
 	{
 		// Compute Shader
-		const std::string compute_src = Boksi::Renderer::ReadFile(res_path + "Shaders/ray_trace.comp.glsl");
+		const std::string compute_src = Boksi::Renderer::ReadFile(res_path + "Shaders/ray_trace_original.comp.glsl");
 		m_ComputeShader.reset(Boksi::ComputeShader::Create(compute_src));
 
 		// Normal frag and vertex shader
@@ -80,10 +89,22 @@ public:
 		// Storage Buffer
 		uint32_t size = m_World->GetVoxelCount() * sizeof(Boksi::Voxel);
 		m_StorageBuffer.reset(Boksi::StorageBuffer::Create(size));
+
+		// Material Storage Buffer
+		auto material_colors = Boksi::MaterialLibrary::GetColors();
+		uint32_t material_count = material_colors.size();
+		m_MaterialStorageBuffer.reset(Boksi::StorageBuffer::Create(material_count * sizeof(glm::vec3)));
+		m_MaterialStorageBuffer->Bind(2);
+		m_MaterialStorageBuffer->SetData(material_colors.data(), material_count * sizeof(glm::vec3));
 	}
 
 	void OnUpdate() override
 	{
+		// Time calculation
+		auto now = std::chrono::high_resolution_clock::now();
+		m_LastFrameTime = std::chrono::duration<float, std::milli>(now - m_Time).count();
+		m_Time = now;
+
 		Boksi::RenderCommand::Clear();
 
 		// Render
@@ -91,10 +112,14 @@ public:
 
 		// Compute Shader
 		m_ComputeShader->Bind();
-		// Set the SSBO
-		m_StorageBuffer->SetData(m_World->GetVoxelsData(), m_World->GetVoxelCount() * sizeof(Boksi::Voxel));
 		// Bind SSBO
 		m_StorageBuffer->Bind(1);
+		// Set the SSBO
+		m_StorageBuffer->SetData(m_World->GetVoxelsData(), m_World->GetVoxelCount() * sizeof(Boksi::Voxel));
+		// Bind the material SSBO
+		m_MaterialStorageBuffer->Bind(2);
+		auto material_colors = Boksi::MaterialLibrary::GetColors();
+		m_MaterialStorageBuffer->SetData(material_colors.data(), material_colors.size() * sizeof(glm::vec3));
 		// Camera Uniforms
 		Boksi::Camera::UploadCameraUniformToShader(m_ComputeShader->UniformUploader, m_CameraController.GetCamera());
 		// Bind the texture
@@ -124,6 +149,7 @@ public:
 		ImGui::Text("Camera Direction: (%f, %f, %f)", camera.GetForwardDirection().x, camera.GetForwardDirection().y, camera.GetForwardDirection().z);
 		ImGui::Text("Camera Up: (%f, %f, %f)", camera.GetUpDirection().x, camera.GetUpDirection().y, camera.GetUpDirection().z);
 		ImGui::Text("Camera FOV: %f", camera.GetVerticalFOV());
+		ImGui::Text("Last frame time: %f", m_LastFrameTime);
 
 		ImGui::End();
 
@@ -206,6 +232,9 @@ private:
 	std::shared_ptr<Boksi::World> m_World;
 	std::shared_ptr<Boksi::Texture2D> m_Texture;
 	std::shared_ptr<Boksi::StorageBuffer> m_StorageBuffer;
+	std::shared_ptr<Boksi::StorageBuffer> m_MaterialStorageBuffer;
+	std::chrono::time_point<std::chrono::high_resolution_clock> m_Time = std::chrono::high_resolution_clock::now();
+	float m_LastFrameTime = 0.0f;
 };
 
 class Sandbox : public Boksi::Application
