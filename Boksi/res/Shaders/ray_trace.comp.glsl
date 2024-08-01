@@ -23,7 +23,7 @@ uniform ivec3 u_Dimensions;
 const float iVoxelSize=.5;
 const float tMax=100.;
 const float tDelta=.1;
-const int maxDepth=5;
+const int maxDepth=1;
 
 layout(rgba8,binding=0)uniform image2D img_output;
 
@@ -38,6 +38,12 @@ vec3 GetRayDirection(ivec2 pixel_coords)
     vec3 dir=normalize(world.xyz);
     return dir;
 }
+
+bool IsInsideGrid(ivec3 voxel_coords)
+{
+    return all(greaterThanEqual(voxel_coords, ivec3(0))) && all(lessThan(voxel_coords, u_Dimensions));
+}
+
 
 float random(vec2 p)
 {
@@ -107,29 +113,37 @@ vec4 RayMarch(vec3 start, vec3 dir)
         float tMaxZ = 0.0;
 
         for (int i = 0; i < maxSteps; i++) {
-            if (tMaxX < tMaxY) {
-                if (tMaxX < tMaxZ) {
-                    current.start.x += stepX;
-                    tMaxX += tDeltaX;
-                } else {
-                    current.start.z += stepZ;
-                    tMaxZ += tDeltaZ;
-                }
-            } else {
-                if (tMaxY < tMaxZ) {
-                    current.start.y += stepY;
-                    tMaxY += tDeltaY;
-                } else {
-                    current.start.z += stepZ;
-                    tMaxZ += tDeltaZ;
-                }
-            }
+            // if (tMaxX < tMaxY) {
+            //     if (tMaxX < tMaxZ) {
+            //         current.start.x += stepX;
+            //         tMaxX += tDeltaX;
+            //     } else {
+            //         current.start.z += stepZ;
+            //         tMaxZ += tDeltaZ;
+            //     }
+            // } else {
+            //     if (tMaxY < tMaxZ) {
+            //         current.start.y += stepY;
+            //         tMaxY += tDeltaY;
+            //     } else {
+            //         current.start.z += stepZ;
+            //         tMaxZ += tDeltaZ;
+            //     }
+            // }
+
+            // Optimize
+            float tMaxXLessThanTMaxY = float(tMaxX < tMaxY);
+            float tMaxXLessThanTMaxZ = float(tMaxX < tMaxZ);
+            float tMaxYLessThanTMaxZ = float(tMaxY < tMaxZ);
+
+            current.start += vec3(tMaxXLessThanTMaxY * tMaxXLessThanTMaxZ * stepX, (1.0 - tMaxXLessThanTMaxY) * tMaxYLessThanTMaxZ * stepY, ((1.0 - tMaxXLessThanTMaxY) * (1.0 - tMaxYLessThanTMaxZ) + tMaxXLessThanTMaxY * (1 - tMaxXLessThanTMaxZ)) * stepZ);
+            tMaxX += tMaxXLessThanTMaxY * tMaxXLessThanTMaxZ * tDeltaX;
+            tMaxY += (1.0 - tMaxXLessThanTMaxY) * tMaxYLessThanTMaxZ * tDeltaY;
+            tMaxZ += ((tMaxXLessThanTMaxY) * (1.0 - tMaxXLessThanTMaxZ) + (1 - tMaxXLessThanTMaxY) * (1 - tMaxYLessThanTMaxZ)) * tDeltaZ;
 
             ivec3 voxel_coords = ivec3(floor(current.start / iVoxelSize));
 
-            if (voxel_coords.x >= 0 && voxel_coords.x < u_Dimensions.x &&
-                voxel_coords.y >= 0 && voxel_coords.y < u_Dimensions.y &&
-                voxel_coords.z >= 0 && voxel_coords.z < u_Dimensions.z) {
+            if (IsInsideGrid(voxel_coords)) {
 
                 int index = voxel_coords.x + voxel_coords.y * u_Dimensions.x + voxel_coords.z * u_Dimensions.x * u_Dimensions.y;
 

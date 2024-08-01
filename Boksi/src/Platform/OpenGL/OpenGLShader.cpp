@@ -4,13 +4,6 @@
 #include <glad/glad.h>
 
 #include "Boksi/Core/Application.h"
-#include "Boksi/Core/Application.h"
-#include "Boksi/Core/Application.h"
-#include "Boksi/Core/Application.h"
-#include "Boksi/Core/Application.h"
-#include "Boksi/Core/Application.h"
-#include "Boksi/Core/Application.h"
-#include "Boksi/Core/Application.h"
 
 namespace Boksi{
 
