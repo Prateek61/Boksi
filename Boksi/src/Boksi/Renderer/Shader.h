@@ -45,4 +45,13 @@ namespace Boksi
     public:
         Ref<ShaderUniformUploader> UniformUploader;
     };
+
+    class ShaderLoader
+    {
+    public:
+        static std::string Load(const std::string& filepath);
+    private:
+        static std::string ReadFile(const std::string& filepath);
+        static bool WriteFile(const std::string& filepath, const std::string& data);
+    };
 } // namespace name

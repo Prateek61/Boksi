@@ -2,6 +2,8 @@
 #extension GL_NV_gpu_shader5 : enable
 layout(local_size_x=16,local_size_y=16)in;
 
+#include "utils/camera.glsl"
+
 struct Voxel{
     uint8_t materialID;
 };
@@ -17,13 +19,6 @@ layout(std430,binding=2)buffer Materials{
     Material materials[];
 };
 
-struct Camera{
-    mat4 InverseProjection;
-    mat4 InverseView;
-    vec3 Position;
-    vec3 ForwardDirection;
-    vec2 ScreenSize;
-};
 uniform Camera u_Camera;
 uniform ivec3 u_Dimensions;
 

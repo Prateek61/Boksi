@@ -40,7 +40,7 @@ public:
 	void AttachShadersAndBuffers()
 	{
 		// Compute Shader
-		const std::string compute_src = Boksi::Renderer::ReadFile(res_path + "Shaders/ray_trace_original.comp.glsl");
+		const std::string compute_src = Boksi::ShaderLoader::Load(res_path + "Shaders/ray_trace_original.comp.glsl");
 		m_ComputeShader.reset(Boksi::ComputeShader::Create(compute_src));
 
 		// Normal frag and vertex shader
