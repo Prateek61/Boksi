@@ -1,126 +1,122 @@
 #version 430 core
-#extension GL_NV_gpu_shader5 : enable
-layout(local_size_x=16,local_size_y=16)in;
+#extension GL_NV_gpu_shader5:enable
+layout(local_size_x=32, local_size_y=32) in;
 
 #include "utils/camera.glsl"
 
-struct Voxel{
+struct Voxel {
     uint8_t materialID;
 };
 
-layout(std430,binding=1)buffer Voxels{
+layout(std430, binding=1) buffer Voxels {
     Voxel data[];
 };
 
-struct Material{
+struct Material {
     vec3 color;
 };
-layout(std430,binding=2)buffer Materials{
+
+layout(std430, binding=2) buffer Materials {
     Material materials[];
+};
+
+struct Camera {
+    mat4 InverseProjection;
+    mat4 InverseView;
+    vec3 Position;
+    vec3 ForwardDirection;
+    vec2 ScreenSize;
 };
 
 uniform Camera u_Camera;
 uniform ivec3 u_Dimensions;
 
-const float iVoxelSize=.5;
-const float tMax=100.;
-const float tDelta=.1;
+const float iVoxelSize = 0.1;
+const float maxDepth = 1000.0;
 
-layout(rgba8,binding=0)uniform image2D img_output;
+layout(rgba8, binding=0) uniform image2D img_output;
 
-ivec2 pixel_coords=ivec2(gl_GlobalInvocationID.xy);
+ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
 
-vec3 GetRayDirection(ivec2 pixel_coords)
-{
-    vec4 ndc=vec4(2.*vec2(pixel_coords)/u_Camera.ScreenSize-1.,1.,1.);
-    vec4 clip=u_Camera.InverseProjection*ndc;
-    clip=vec4(clip.xyz/clip.w,0.);
-    vec4 world=u_Camera.InverseView*clip;
-    vec3 dir=normalize(world.xyz);
+vec3 GetRayDirection(ivec2 pixel_coords) {
+    vec4 ndc = vec4(2.0 * vec2(pixel_coords) / u_Camera.ScreenSize - 1.0, -1.0, 1.0);
+    vec4 clip = u_Camera.InverseProjection * ndc;
+    clip = vec4(clip.xyz / clip.w, 0.0);
+    vec4 world = u_Camera.InverseView * clip;
+    vec3 dir = normalize(world.xyz);
     return dir;
 }
 
-bool IsInsideGrid(ivec3 voxel_coords)
-{
+bool IsInsideGrid(ivec3 voxel_coords) {
     return all(greaterThanEqual(voxel_coords, ivec3(0))) && all(lessThan(voxel_coords, u_Dimensions));
 }
 
-void main()
-{
-    // Based on the direction of ray direct, store color
-    vec3 rayDirection=GetRayDirection(pixel_coords);
-    vec3 currentPos=u_Camera.Position;
+float random(vec2 p) {
+    const vec2 r = vec2(23.1406926327792690, 2.6651441426902251);
+    return fract(cos(mod(123456789.0, 1e-7 + 256.0 * dot(p, r))));
+}
 
-    vec4 colors[3] = vec4[3](
-        vec4(1.,0.,0.,1.),// Red color
-        vec4(0.,1.,0.,1.),// Green color
-        vec4(0.,0.,1.,1.)// Blue color
-    );
-    
-    vec4 color=vec4(.529,.808,.922,1.);// Sky blue color
-    
-    // Ray Marching Loop DDA
-    
-    float stepX=rayDirection.x>0.?1.:-1.;
-    float stepY=rayDirection.y>0.?1.:-1.;
-    float stepZ=rayDirection.z>0.?1.:-1.;
-    
-    stepX*=iVoxelSize;
-    stepY*=iVoxelSize;
-    stepZ*=iVoxelSize;
-    
-    float tDeltaX=iVoxelSize/abs(rayDirection.x);
-    float tDeltaY=iVoxelSize/abs(rayDirection.y);
-    float tDeltaZ=iVoxelSize/abs(rayDirection.z);
-    
-    float tMaxX=0;
-    float tMaxY=0;
-    float tMaxZ=0;
-    
-    for(int i=0;i<1000;i++){
-        
-        // if(tMaxX<tMaxY){
-        //     if(tMaxX<tMaxZ){
-        //         currentPos.x+=stepX;
-        //         tMaxX+=tDeltaX;
-        //     }else{
-        //         currentPos.z+=stepZ;
-        //         tMaxZ+=tDeltaZ;
-        //     }
-        // }else{
-        //     if(tMaxY<tMaxZ){
-        //         currentPos.y+=stepY;
-        //         tMaxY+=tDeltaY;
-        //     }else{
-        //         currentPos.z+=stepZ;
-        //         tMaxZ+=tDeltaZ;
-        //     }
-        // }
+float rand() {
+    return random(pixel_coords);
+}
 
-        // Optimize
-        float tMaxXLessThanTMaxY = float(tMaxX < tMaxY);
-        float tMaxXLessThanTMaxZ = float(tMaxX < tMaxZ);
-        float tMaxYLessThanTMaxZ = float(tMaxY < tMaxZ);
+vec3 RandomRayDirection(vec3 rayDirection) {
+    return normalize(rayDirection + vec3(2.0 * (rand() - 0.5), 2.0 * (rand() - 0.5), 2.0 * (rand() - 0.5)));
+}
 
-        currentPos += vec3(tMaxXLessThanTMaxY * tMaxXLessThanTMaxZ * stepX, (1.0 - tMaxXLessThanTMaxY) * tMaxYLessThanTMaxZ * stepY, ((1.0 - tMaxXLessThanTMaxY) * (1.0 - tMaxYLessThanTMaxZ) + tMaxXLessThanTMaxY * (1 - tMaxXLessThanTMaxZ)) * stepZ);
-        tMaxX += tMaxXLessThanTMaxY * tMaxXLessThanTMaxZ * tDeltaX;
-        tMaxY += (1.0 - tMaxXLessThanTMaxY) * tMaxYLessThanTMaxZ * tDeltaY;
-        tMaxZ += ((tMaxXLessThanTMaxY) * (1.0 - tMaxXLessThanTMaxZ) + (1 - tMaxXLessThanTMaxY) * (1 - tMaxYLessThanTMaxZ)) * tDeltaZ;
-        
-        ivec3 voxel_coords=ivec3(floor(currentPos/iVoxelSize));
-        
-        // TODO: Can clip the ray to the grid initially, so that we don't have to check if it's inside the grid
-        if(IsInsideGrid(voxel_coords)){            
-            int index = voxel_coords.x + voxel_coords.y*u_Dimensions.x + voxel_coords.z * u_Dimensions.x * u_Dimensions.y;
-            
-            // assume a voxel at 0,0,0 is a solid material
-            if(data[index].materialID!=uint8_t(0)){
-                color = vec4(materials[int(data[index].materialID) - 1].color, 1.);
-                break;
+int GetMaterialID(ivec3 voxel_coords) {
+    if (!IsInsideGrid(voxel_coords)) return 0;
+    int index = voxel_coords.x + voxel_coords.y * u_Dimensions.x + voxel_coords.z * u_Dimensions.x * u_Dimensions.y;
+    return int(data[index].materialID);
+}
+
+ivec3 RayMarch(vec3 start, vec3 dir, int maxDepth) {
+    vec3 step = sign(dir) * iVoxelSize;
+    vec3 tMax = (step + sign(step) * iVoxelSize - fract(start / iVoxelSize) * iVoxelSize) / abs(dir);
+    vec3 tDelta = iVoxelSize / abs(dir);
+
+    for (int i = 0; i < maxDepth; i++) {
+        if (tMax.x < tMax.y) {
+            if (tMax.x < tMax.z) {
+                start += step.x * vec3(1, 0, 0);
+                tMax.x += tDelta.x;
+            } else {
+                start += step.z * vec3(0, 0, 1);
+                tMax.z += tDelta.z;
             }
-        }   
+        } else {
+            if (tMax.y < tMax.z) {
+                start += step.y * vec3(0, 1, 0);
+                tMax.y += tDelta.y;
+            } else {
+                start += step.z * vec3(0, 0, 1);
+                tMax.z += tDelta.z;
+            }
+        }
+
+        ivec3 voxel_coords = ivec3(start / iVoxelSize);
+
+        if (!IsInsideGrid(voxel_coords)) return ivec3(0);
+        if (GetMaterialID(voxel_coords) != 0) return voxel_coords;
     }
-    
-    imageStore(img_output,pixel_coords,color);
-    
+
+    return ivec3(0);
+}
+
+void main() {
+    vec3 rayDirection = GetRayDirection(pixel_coords);
+    vec3 currentPos = u_Camera.Position;
+    vec4 BG_COLOR = vec4(0.529, 0.808, 0.922, 1.0);
+
+    ivec3 voxel_coords = RayMarch(currentPos, rayDirection, int(maxDepth));
+
+    if (voxel_coords == ivec3(0)) {
+        imageStore(img_output, pixel_coords, BG_COLOR);
+        return;
+    }
+
+    int materialID = GetMaterialID(voxel_coords);
+    vec4 color = vec4(materials[materialID].color, 1.0);
+
+    imageStore(img_output, pixel_coords, color);
 }
