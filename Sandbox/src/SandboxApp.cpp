@@ -2,7 +2,7 @@
 #include "imgui/imgui/imgui.h"
 #include <chrono>
 
-const std::string res_path = "../Boksi/res/";
+const std::string res_path = "Boksi/res/";
 
 const int WORLD_SIZE = 400;
 
@@ -40,7 +40,7 @@ public:
 	void AttachShadersAndBuffers()
 	{
 		// Compute Shader
-		const std::string compute_src = Boksi::Renderer::ReadFile(res_path + "Shaders/ray_trace_original.comp.glsl");
+		const std::string compute_src = Boksi::Renderer::ReadFile(res_path + "Shaders/ray_trace.comp.glsl");
 		m_ComputeShader.reset(Boksi::ComputeShader::Create(compute_src));
 
 		// Normal frag and vertex shader
@@ -79,6 +79,7 @@ public:
 		Boksi::TextureSpecification spec;
 		spec.Width = 1280;
 		spec.Height = 720;
+
 		spec.Format = Boksi::ImageFormat::RGBA8;
 		m_Texture = Boksi::Texture2D::Create(spec);
 
@@ -196,7 +197,7 @@ public:
 
 		if (ImGui::Button("Add World Floor"))
 		{
-			m_World->AddWorldFloor(5, 2);
+			m_World->AddWorldFloor(5, 3);
 		}
 
 		if (ImGui::Button("Draw Circle"))
@@ -204,7 +205,7 @@ public:
 
 			glm::vec3 cameraLocation = m_CameraController.GetCamera().GetPosition() + m_CameraController.GetCamera().GetForwardDirection() * 10.0f;
 
-			glm::vec3 voxelPos = cameraLocation / .5f;
+			glm::vec3 voxelPos = glm::vec3(floor(cameraLocation.x), floor(cameraLocation.y), floor(cameraLocation.z));
 
 			if (voxelPos.x < 0 || voxelPos.x >= m_World->GetSize().x || voxelPos.y < 0 || voxelPos.y >= m_World->GetSize().y || voxelPos.z < 0 || voxelPos.z >= m_World->GetSize().z)
 			{
@@ -213,7 +214,7 @@ public:
 			else
 			{
 				BK_TRACE("Drawing circle at: ({}, {}, {})", voxelPos.x, voxelPos.y, voxelPos.z);
-				m_World->DrawCircle(voxelPos.x, voxelPos.y, voxelPos.z, 5, 1);
+				m_World->DrawCircle(voxelPos.x, voxelPos.y, voxelPos.z, 5, 2);
 			}
 		}
 
