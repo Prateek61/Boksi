@@ -29,7 +29,6 @@ namespace Boksi
 			{
 				if (octreeNode.Children[i] != nullptr)
 				{
-					Children[i] = 0;
 					ChildrenVoxels[i] = octreeNode.ChildrenVoxels[i];
 				}
 			}
