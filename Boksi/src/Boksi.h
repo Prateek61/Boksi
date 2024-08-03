@@ -28,7 +28,12 @@
 #include "Boksi/Renderer/OrthographicCamera.h"
 #include "Boksi/Renderer/Camera.h"
 #include "Boksi/Renderer/Texture.h"
+#include "Boksi/Renderer/VoxelRenderer.h"
+// -----------------------------
+
+// ---World--------------------
 #include "Boksi/World/CameraController.h"
+#include "Boksi/World/Mesh/VoxelMeshSVO.h"
 // -----------------------------
 
 // ---Entry Point---

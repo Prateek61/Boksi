@@ -2,9 +2,10 @@
 #include "imgui/imgui/imgui.h"
 #include <chrono>
 
-const std::string res_path = "../Boksi/res/";
+const std::string res_path = "Boksi/res/";
 
-const int WORLD_SIZE = 400;
+const int Power = 6;
+const int WORLD_SIZE = 2 << Power;
 
 class ExampleLayer : public Boksi::Layer
 {
@@ -12,7 +13,9 @@ public:
 	ExampleLayer()
 		: Layer("Example"),
 		  m_CameraController(45.0f, 0.1f, 100.0f),
-		  m_World(new Boksi::World({WORLD_SIZE, WORLD_SIZE, WORLD_SIZE}))
+		  m_World(new Boksi::World({WORLD_SIZE, WORLD_SIZE, WORLD_SIZE})),
+		  m_VoxelMeshSVO(new Boksi::VoxelMeshSVO({WORLD_SIZE, WORLD_SIZE, WORLD_SIZE})),
+		  m_VoxelRendererSVO(new Boksi::VoxelRendererSVO(res_path + "Shaders/ray_trace_svo.glsl"))
 	{
 		m_CameraController.GetCamera().OnResize(1280, 720);
 		m_CameraController.SetCameraMoveSpeed(1.0f);
@@ -107,33 +110,21 @@ public:
 		// Render
 		Boksi::Renderer::BeginScene();
 
-		// Compute Shader
-		m_ComputeShader->Bind();
-		// Bind SSBO
-		m_StorageBuffer->Bind(1);
-		// Set the SSBO
-		m_StorageBuffer->SetData(m_World->GetVoxelsData(), m_World->GetVoxelCount() * sizeof(Boksi::Voxel));
-		// Bind the material SSBO
-		m_MaterialStorageBuffer->Bind(2);
-		auto material_colors = Boksi::MaterialLibrary::GetColors();
-		m_MaterialStorageBuffer->SetData(material_colors.data(), material_colors.size() * sizeof(glm::vec3));
-		// Camera Uniforms
-		Boksi::Camera::UploadCameraUniformToShader(m_ComputeShader->UniformUploader, m_CameraController.GetCamera());
-		// Bind the texture
-		m_Texture->BindWrite(0);
-		// Dispatch Compute Shader
-		Boksi::Renderer::DispatchCompute(m_ComputeShader, 1280 / 16, 720 / 16, 1);
-
 		// Check for errors
-		Boksi::RenderCommand::CheckForErrors();
 
+		m_VoxelRendererSVO->Render(m_CameraController.GetCamera(), m_Texture, m_VoxelMeshSVO->GetSize(), m_VoxelMeshSVO->GetMaximumDepth(), .5f, *m_VoxelMeshSVO);
+		
+		Boksi::RenderCommand::CheckForErrors();
+		
 		// Render the texture to the screen
 		m_Texture->Bind(0);
 		m_Shader->Bind();
 		m_Shader->UniformUploader->UploadUniformInt("screenTexture", 0);
 		Boksi::Renderer::Submit(m_Shader, m_VertexArray);
 
+
 		m_CameraController.OnUpdate(1);
+
 		Boksi::Renderer::EndScene();
 	}
 
@@ -231,6 +222,8 @@ private:
 	std::shared_ptr<Boksi::StorageBuffer> m_StorageBuffer;
 	std::shared_ptr<Boksi::StorageBuffer> m_MaterialStorageBuffer;
 	std::chrono::time_point<std::chrono::high_resolution_clock> m_Time = std::chrono::high_resolution_clock::now();
+	std::shared_ptr<Boksi::VoxelMeshSVO> m_VoxelMeshSVO;
+	std::shared_ptr<Boksi::VoxelRendererSVO> m_VoxelRendererSVO;
 	float m_LastFrameTime = 0.0f;
 };
 

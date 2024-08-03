@@ -48,6 +48,8 @@ namespace Boksi
 
 		Voxel GetVoxel(const glm::uvec3& position) const override;
 		void SetVoxel(const glm::uvec3& position, const Voxel& voxel) override;
+		OctreeNode *GetRoot() { return m_Root; }
+		unsigned int GetMaximumDepth() const { return m_MaxDepth; }
 
 	private:
 		unsigned int GetMaximumDepth(const glm::uvec3& size) const;
@@ -55,6 +57,7 @@ namespace Boksi
 		Voxel GetVoxel(const OctreeNode* node, const glm::uvec3& min, const glm::uvec3& max, const glm::uvec3& position, unsigned int depth) const;
 		bool SetVoxel(OctreeNode* node, const glm::uvec3& min, const glm::uvec3& max, const glm::uvec3& position, unsigned int depth, const Voxel& voxel);
 		bool CheckIfNodePurgeable(const OctreeNode* node) const;
+
 
 		void DeleteNode(OctreeNode* node);
 
