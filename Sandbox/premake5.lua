@@ -18,7 +18,8 @@ project "Sandbox"
         "%{wks.location}/Boksi/src",
         "%{IncludeDir.glm}",
         "%{IncludeDir.spdlog}",
-        "%{wks.location}/Boksi/vendor"
+        "%{wks.location}/Boksi/vendor",
+        "%{IncludeDir.gvox}",
     }
 
     links
@@ -37,6 +38,7 @@ project "Sandbox"
                 "GLFW",
                 "GLAD",
                 "ImGui",
+                "GVOX",
                 "%{Library.User32}",
                 "%{Library.GDI32}"
             }
