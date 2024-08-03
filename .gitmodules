@@ -18,3 +18,8 @@
 	url = https://github.com/ocornut/imgui.git
 	branch = docking
 	shallow = true
+[submodule "Boksi/vendor/gvox/gvox"]
+	path = Boksi/vendor/gvox/gvox
+	url = https://github.com/GabeRundlett/gvox.git
+	branch = 2.0
+	shallow = true
