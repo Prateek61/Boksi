@@ -14,7 +14,6 @@ project "Boksi"
     {
         "src/**.h",
         "src/**.cpp",
-        "res/**.glsl"
     }
 
     defines

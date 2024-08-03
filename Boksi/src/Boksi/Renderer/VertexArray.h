@@ -1,7 +1,7 @@
 #pragma once
 #include <bkpch.h>
 
-#include "Boksi/Renderer/Buffer.h"
+#include "Boksi/Renderer/Buffer/Buffer.h"
 
 namespace Boksi
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Boksi/Renderer/Buffer.h"
+#include "Boksi/Renderer/Buffer/Buffer.h"
 
 namespace Boksi
 {
@@ -47,22 +47,6 @@ namespace Boksi
     // --------------------------------------------------------------------------------------------
     // Storage Buffer
     // --------------------------------------------------------------------------------------------
-    class OpenGLStorageBuffer : public StorageBuffer
-    {
-    public:
-        OpenGLStorageBuffer(uint32_t size);
-        virtual ~OpenGLStorageBuffer();
-
-        void Bind(uint32_t slot) const override;
-        void Unbind() const override;
-
-        uint32_t GetSize() const override { return m_Size; }
-
-        void SetData(void* data, uint32_t size) override;
-
-    private:
-        uint32_t m_RendererID;
-        uint32_t m_Size;
-    };
+    
 
 } // namespace Boksi

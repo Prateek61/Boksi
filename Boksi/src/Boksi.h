@@ -15,10 +15,14 @@
 #include "Boksi/World/World.h"
 #include "Boksi/World/Material.h"
 
+// ---Mesh---------------------
+#include "Boksi/World/Mesh/VoxelMeshArray.h"
+#include "Boksi/World/Mesh/VoxelMeshSVO.h"
+
 // ---Renderer-----------------
 #include "Boksi/Renderer/Renderer.h"
 #include "Boksi/Renderer/RenderCommand.h"
-#include "Boksi/Renderer/Buffer.h"
+#include "Boksi/Renderer/Buffer/Buffer.h"
 #include "Boksi/Renderer/Shader.h"
 #include "Boksi/Renderer/VertexArray.h"
 #include "Boksi/Renderer/OrthographicCamera.h"

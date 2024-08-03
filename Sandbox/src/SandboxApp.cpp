@@ -2,7 +2,7 @@
 #include "imgui/imgui/imgui.h"
 #include <chrono>
 
-const std::string res_path = "Boksi/res/";
+const std::string res_path = "../Boksi/res/";
 
 const int WORLD_SIZE = 400;
 
@@ -25,9 +25,6 @@ public:
 		Boksi::MaterialLibrary::AddMaterial(Boksi::Material({0.8f, 0.8f, 0.8f}), "White");
 		Boksi::MaterialLibrary::AddMaterial(Boksi::Material({0.8f, 0.2f, 0.2f}), "Red");
 		Boksi::MaterialLibrary::AddMaterial(Boksi::Material({0.8f, 0.2f, 0.2f}), "Red");
-
-		// Print the size of the material class
-		BK_INFO("Size of Material: {}", sizeof(Boksi::Material));
 
 		// Set the clear color
 		Boksi::RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
@@ -88,13 +85,12 @@ public:
 		m_ComputeShader->UniformUploader->UploadUniformInt3("u_Dimensions", {m_World->GetSize().x, m_World->GetSize().y, m_World->GetSize().z});
 
 		// Storage Buffer
-		uint32_t size = m_World->GetVoxelCount() * sizeof(Boksi::Voxel);
-		m_StorageBuffer.reset(Boksi::StorageBuffer::Create(size));
+		m_StorageBuffer.reset(Boksi::StorageBuffer::Create());
 
 		// Material Storage Buffer
 		auto material_colors = Boksi::MaterialLibrary::GetColors();
 		uint32_t material_count = material_colors.size();
-		m_MaterialStorageBuffer.reset(Boksi::StorageBuffer::Create(material_count * sizeof(glm::vec3)));
+		m_MaterialStorageBuffer.reset(Boksi::StorageBuffer::Create());
 		m_MaterialStorageBuffer->Bind(2);
 		m_MaterialStorageBuffer->SetData(material_colors.data(), material_count * sizeof(glm::vec3));
 	}
@@ -250,5 +246,7 @@ public:
 
 Boksi::Application *Boksi::CreateApplication()
 {
+	BK_INFO("Size of GPU octree node: {}", sizeof(Boksi::GPUOctreeNode));
+
 	return new Sandbox();
 }

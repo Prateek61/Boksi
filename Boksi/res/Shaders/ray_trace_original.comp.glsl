@@ -1,6 +1,6 @@
 #version 430 core
 #extension GL_NV_gpu_shader5:enable
-layout(local_size_x=32, local_size_y=32) in;
+layout(local_size_x=16, local_size_y=16) in;
 
 #include "utils/camera.glsl"
 

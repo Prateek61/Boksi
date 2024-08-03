@@ -6,7 +6,7 @@
 #include "Boksi/Events/ApplicationEvent.h"
 #include "Boksi/Imgui/ImGuiLayer.h"
 #include "Boksi/Renderer/Shader.h"
-#include "Boksi/Renderer/Buffer.h"
+#include "Boksi/Renderer/Buffer/Buffer.h"
 #include "Boksi/Renderer/VertexArray.h"
 
 namespace Boksi
