@@ -48,6 +48,17 @@ bool RayAABBIntersect(vec3 rayOrig, vec3 rayDir, vec3 boxMin, vec3 boxMax, out f
     return tMin <= tMax && tMax >= 0.0;
 }
 
+bool RayAABBIntersectHighPrecision(dvec3 rayOrig, dvec3 rayDir, dvec3 boxMin, dvec3 boxMax, out double tMin, out double tMax) {
+    dvec3 invDir = 1.0 / rayDir;
+    dvec3 t0 = (boxMin - rayOrig) * invDir;
+    dvec3 t1 = (boxMax - rayOrig) * invDir;
+    dvec3 tmin = min(t0, t1);
+    dvec3 tmax = max(t0, t1);
+    tMin = max(max(tmin.x, tmin.y), tmin.z);
+    tMax = min(min(tmax.x, tmax.y), tmax.z);
+    return tMin <= tMax && tMax >= 0.0;
+}
+
 struct ChildIntersection {
     int childIndex;
     float tMin;
@@ -144,6 +155,16 @@ uint8_t TraceRay(vec3 rayOrig, vec3 rayDir, out vec3 position)
     return EMPTY_VOXEL;
 }
 
+vec3 ComputeIntersectionPoint(vec3 rayOrig, vec3 rayDir, ivec3 voxelPosition)
+{
+    vec3 voxelMin = vec3(voxelPosition) * u_VoxelSize;
+    vec3 voxelMax = vec3(voxelPosition + ivec3(1)) * u_VoxelSize;
+
+    float tMin, tMax;
+    RayAABBIntersect(rayOrig, rayDir, voxelMin, voxelMax, tMin, tMax);
+    return rayOrig + rayDir * tMin;
+}
+
 void main() {
     ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
 
@@ -160,12 +181,23 @@ void main() {
     vec3 position;
 
     uint8_t materialID = TraceRay(rayOrig, rayDir, position);
-
-    // Write to output image (material ID encoded as color)
     vec4 color;
-
-    
     color = colors[uint8_t(materialID)];
+
+    if (materialID != EMPTY_VOXEL)
+    {
+        vec3 intersectionPoint = ComputeIntersectionPoint(rayOrig, rayDir, ivec3(position / u_VoxelSize));
+        vec3 sunDir = normalize(vec3(0.5, 1.0, 0.5));
+        intersectionPoint = intersectionPoint + sunDir * epson;
+
+        // Shoot a ray to the sun
+        uint8_t sunMaterialID = TraceRay(vec3(intersectionPoint), vec3(sunDir), position);
+
+        if (sunMaterialID != EMPTY_VOXEL)
+        {
+            color = mix(color, vec4(0.0, 0.0, 0.0, 1.0), 0.5);
+        }
+    }
 
     imageStore(img_output, pixel_coords, color);
 }

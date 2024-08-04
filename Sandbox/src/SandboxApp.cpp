@@ -16,7 +16,7 @@ public:
 		  m_World(new Boksi::World({WORLD_SIZE, WORLD_SIZE, WORLD_SIZE}, EMPTY_VOXEL)),
 		  m_VoxelRendererSVO(new Boksi::VoxelRendererSVO(res_path + "Shaders/ray_trace_svo.glsl"))
 	{
-		m_World->AddWorldFloor(2, 1);
+		m_World->AddWorldFloor(5, 1);
 		// m_World->Randomize(0.5f, {1});
 		m_VoxelMeshSVO.reset(new Boksi::VoxelMeshSVO(m_World->GetVoxels(), m_World->GetSize()));
 
