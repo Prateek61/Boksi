@@ -36,7 +36,15 @@
 #include "Boksi/World/Mesh/VoxelMeshSVO.h"
 #include "Boksi/World/ModelLoader.h"
 #include "Boksi/World/Mesh/VoxelMeshArray.h"
+#include "Boksi/World/Mesh/VoxelMeshModifier.h"
 // -----------------------------
+
+// ---Entity-------------------
+#include "Boksi/Entity/Entity.h"
+#include "Boksi/Entity/EntitiesArray.h"
+#include "Boksi/Entity/Cube.h"
+// -----------------------------
+
 
 // ---Entry Point---
 #include "Boksi/Core/Entrypoint.h"

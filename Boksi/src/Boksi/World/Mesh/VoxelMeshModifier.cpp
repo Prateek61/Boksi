@@ -23,4 +23,12 @@ namespace Boksi
             }
         }
     }
+
+    void VoxelModifier::Draw(const Ref<VoxelMesh> mesh, EntitiesArray &entitiesArray)
+    {
+        for (auto &entity : entitiesArray.GetEntities())
+        {
+            entity->Draw(mesh);
+        }
+    }
 }
