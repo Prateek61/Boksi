@@ -34,6 +34,8 @@
 // ---World--------------------
 #include "Boksi/World/CameraController.h"
 #include "Boksi/World/Mesh/VoxelMeshSVO.h"
+#include "Boksi/World/ModelLoader.h"
+#include "Boksi/World/Mesh/VoxelMeshArray.h"
 // -----------------------------
 
 // ---Entry Point---

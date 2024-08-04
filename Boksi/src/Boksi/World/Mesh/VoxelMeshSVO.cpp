@@ -192,12 +192,9 @@ namespace Boksi
 			return;
 		}
 
-		// Create the GPUOctreeNode for the current node and add it to the flatGPUOctree
+		int index = flatGPUOctree.size();
+		// Create the GPUOctreeNode
 		GPUOctreeNode gpu_node(*node);
-		gpu_node.ChildrenMask = node->ChildrenMask;
-
-		// Record the index of the current node in the flatGPUOctree
-		size_t currentIndex = flatGPUOctree.size();
 		flatGPUOctree.push_back(gpu_node);
 
 		// Process children
@@ -206,14 +203,14 @@ namespace Boksi
 			if (node->ChildrenMask & (1 << i))
 			{
 				// Record the index of the child node
-				flatGPUOctree[currentIndex].Children[i] = static_cast<int>(flatGPUOctree.size());
+				flatGPUOctree[index].Children[i] = static_cast<int>(flatGPUOctree.size());
 				// Recurse into the child node
 				FlattenOctree(node->Children[i], flatGPUOctree);
 			}
 			else
 			{
 				// No child, set the index to -1
-				flatGPUOctree[currentIndex].Children[i] = -1;
+				flatGPUOctree[index].Children[i] = -1;
 			}
 		}
 	}

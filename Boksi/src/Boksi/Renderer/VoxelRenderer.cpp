@@ -1,6 +1,7 @@
 #include "bkpch.h"
 #include "VoxelRenderer.h"
 #include "Boksi/Renderer/Renderer.h"
+#include "Boksi/World/Mesh/VoxelMeshSVO.h"
 
 namespace Boksi
 {
@@ -14,7 +15,7 @@ namespace Boksi
         m_VoxelStorageBuffer.reset(StorageBuffer::Create());
     }
 
-    void VoxelRendererSVO::Render(const Camera &camera, const Ref<Texture2D> texture, glm::ivec3 dimensions, int maxDepth, float voxelSize, Ref<VoxelMeshSVO> mesh)
+    void VoxelRendererSVO::Render(const Camera &camera, const Ref<Texture2D> texture, glm::ivec3 dimensions, int maxDepth, float voxelSize, Ref<VoxelMeshSVO> mesh, glm::uvec2 resolution, glm::uvec3 group)
     {
         // Bind the compute shader
         m_ComputeShader->Bind();
@@ -28,17 +29,57 @@ namespace Boksi
 
         m_VoxelStorageBuffer->Bind(1);
 
-        std::vector<GPUOctreeNode> gpuOctreeNodes;
+        if (mesh->MeshChanged)
+        {
+	        mesh->MeshChanged = false;
+			// Convert VoxelMesh to GPUOctree
+			std::vector<GPUOctreeNode> gpuOctreeNodes;
+			// FlattenOctree(mesh->GetRoot(), gpuOctreeNodes);
 
-        // Convert Octree to GPUOctree
-        FlattenOctree(mesh->GetRoot(), gpuOctreeNodes);
-
-        m_VoxelStorageBuffer->SetData(gpuOctreeNodes.data(), gpuOctreeNodes.size() * sizeof(GPUOctreeNode));
+			m_VoxelStorageBuffer->SetData(gpuOctreeNodes.data(), gpuOctreeNodes.size() * sizeof(GPUOctreeNode));
+        }
 
         texture->BindWrite(0);
 
         // Dispatch compute shader
-        Boksi::Renderer::DispatchCompute(m_ComputeShader, 1280 / 16, 720 / 16, 1);
+        Boksi::Renderer::DispatchCompute(m_ComputeShader, resolution.x / group.x, resolution.y / group.y, group.z);
+    }
+
+    VoxelRendererArray::VoxelRendererArray(const std::string& computeShaderSource)
+    {
+        // Compute Shader
+        const std::string compute_src = ShaderLoader::Load(computeShaderSource);
+        m_ComputeShader.reset(ComputeShader::Create(compute_src));
+
+        // Storage Buffer
+        m_VoxelStorageBuffer.reset(StorageBuffer::Create());
+    }
+
+    void VoxelRendererArray::Render(const Camera& camera, const Ref<Texture2D> texture, Ref<VoxelMeshArray> mesh, float voxelSize, glm::uvec2 resolution, glm::uvec3 group)
+    {
+        // Bind the compute shader
+        m_ComputeShader->Bind();
+
+        // Upload uniforms
+        Camera::UploadCameraUniformToShader(m_ComputeShader->UniformUploader, camera);
+        m_ComputeShader->UniformUploader->UploadUniformFloat("u_VoxelSize", voxelSize);
+        m_ComputeShader->UniformUploader->UploadUniformInt3("u_Dimensions", mesh->GetSize());
+
+        // Storage Buffer
+        m_VoxelStorageBuffer->Bind(1);
+
+        if (mesh->MeshChanged)
+		{
+			mesh->MeshChanged = false;
+			m_VoxelStorageBuffer->SetData(mesh->GetVoxelArray().data(), mesh->GetVoxelCount() * sizeof(Voxel));
+		}
+
+        texture->BindWrite(0);
+
+        
+
+        // Dispatch compute shader
+        Boksi::Renderer::DispatchCompute(m_ComputeShader, resolution.x / group.x, resolution.y / group.y, group.z);
     }
 
 }

@@ -16,5 +16,7 @@ namespace Boksi
 		virtual uint32_t GetVoxelCount() const = 0;
 		virtual Voxel GetVoxel(const glm::uvec3& position) const = 0;
 		virtual void SetVoxel(const glm::uvec3& position, const Voxel& voxel) = 0;
+
+		bool MeshChanged = true;
 	};
 }

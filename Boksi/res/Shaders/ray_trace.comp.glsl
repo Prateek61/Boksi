@@ -2,8 +2,6 @@
 #extension GL_NV_gpu_shader5:enable
 layout(local_size_x=16,local_size_y=16)in;
 
-#include "utils/camera.glsl"
-
 struct Voxel{
     uint8_t materialID;
 };
@@ -12,10 +10,23 @@ layout(std430,binding=1)buffer Voxels{
     Voxel data[];
 };
 
+struct Camera{
+    mat4 InverseProjection;
+    mat4 InverseView;
+    vec3 Position;
+    vec3 ForwardDirection;
+    vec2 ScreenSize;
+};
 uniform Camera u_Camera;
 uniform ivec3 u_Dimensions;
+uniform float u_Exposure;
+uniform float u_Intensity;
+uniform float u_AO;
+uniform float u_ShadowBias;
+uniform vec3 u_LightPosition;
 
-const float iVoxelSize=.5;
+
+const float iVoxelSize=.1;
 const float tMax=100.;
 const float tDelta=.1;
 const int maxDepth=1;
@@ -117,62 +128,57 @@ vec3 RayMarch(vec3 start,vec3 dir,int steps){
     return result;
 }
 
-void main(){
-    vec3 rayDirection = GetRayDirection(pixel_coords);
-    vec3 currentPos = u_Camera.Position;
-    vec4 color = vec4(0);
+void main() {
+    vec3 rayDirection = GetRayDirection(pixel_coords); // Calculate the ray direction from the pixel coordinates
+    vec3 currentPos = u_Camera.Position; // Start position of the ray is the camera position
+    vec4 color = vec4(0); // Initialize the color to black
     
     int steps = 0;
-    vec3 voxel = RayMarch(currentPos, rayDirection, steps);
+    vec3 voxel = RayMarch(currentPos, rayDirection, steps); // Perform ray marching to find the first voxel hit
     
-    if(voxel == vec3(0)){
-        imageStore(img_output, pixel_coords, vec4(.529, .808, .922, 1.)); // Background color
+    if (voxel == vec3(0)) { // If no voxel was hit
+        imageStore(img_output, pixel_coords, vec4(0.529, 0.808, 0.922, 1.0)); // Set the background color
         return;
     }
     
-    vec3 normal = VoxelNormal(ivec3(voxel));
-    color = vec4(tempMaterial[GetMaterialID(ivec3(voxel))].color, 1.);
+    vec3 normal = VoxelNormal(ivec3(voxel)); // Calculate the normal at the voxel
+    vec3 albedo = tempMaterial[GetMaterialID(ivec3(voxel))].color; // Get the color of the material at the voxel
     
-    // Simple lighting
-    vec3 lightDir = normalize(u_Camera.Position);
-    float diffuse = max(dot(normal, lightDir), 0.);
+    
+    
+    
+    vec3 lightPos = u_LightPosition; // Position of the light source
+
+    vec3 lightDir = normalize(lightPos - voxel); // Direction from the voxel to the light source
+    
+    float diffuse = max(0.0, dot(normal, lightDir)); // Calculate the diffuse lighting component
+    
+    // Calculate the specular lighting component
+    // float specular = pow(max(dot(normal, normalize(lightDir + rayDirection)), 0.0), u_Exposure) * u_Intensity;
+    float specular = 1;
     
     bool shadows = true;
-    if(shadows){
-        vec3 lightPos = vec3(0, 385, 0);
-        vec3 lightDir = normalize(lightPos - voxel);
-        
-        vec3 shadowRayStart = voxel + lightDir * iVoxelSize;
-        vec3 shadowRayDir = lightDir;
+    if (shadows) {
+        vec3 shadowRayStart = voxel + lightDir +  normal * u_ShadowBias; // Start the shadow ray slightly off the voxel surface to avoid self-shadowing
+        vec3 shadowRayDir = lightDir; // Direction of the shadow ray
         
         int shadowSteps = 0;
-        vec3 shadowVoxel = RayMarch(shadowRayStart, shadowRayDir, shadowSteps);
+        vec3 shadowVoxel = RayMarch(shadowRayStart, shadowRayDir, shadowSteps); // Perform ray marching to check for shadows
         
-        if(shadowVoxel != vec3(0)){
-            color = vec4(0);
-        }
-    }
-    
-    // Reflection calculation
-    bool reflection = true;
-    int reflectionCount = 5;
-    
-    if(reflection){
-        vec3 reflDir = reflect(rayDirection, normal);
-        vec3 bounce = voxel;
-        vec3 reflNormal = normal;
-        
-        for(int x = 0; x < reflectionCount; x++){
-            int steps = 0;
-            reflDir = reflect(reflDir, reflNormal);
-            bounce = RayMarch(bounce + reflDir * .1, reflDir, steps);
-            reflNormal = VoxelNormal(ivec3(bounce));
+        if (shadowVoxel != vec3(0)) { // If a voxel is hit by the shadow ray
+            diffuse = 0.0;
+            specular = u_Intensity;
             
-            vec3 reflColor = tempMaterial[GetMaterialID(ivec3(bounce))].color;
-            color.rgb += reflColor * .1; 
         }
     }
     
-    imageStore(img_output, pixel_coords, color); // Foreground color
+    // Calculate the ambient occlusion (optional, not implemented in the provided code)
+    
+    // Calculate the final shaded color
+    vec3 shaded = albedo * specular;
+    color = vec4(shaded, 1.0); // Set the final color
+    
+    imageStore(img_output, pixel_coords, color); // Store the color in the output image
 }
+
 
