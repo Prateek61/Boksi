@@ -13,5 +13,8 @@ namespace Boksi
     
         virtual void OnUpdate() override;
         virtual void Draw(Ref<VoxelMesh> mesh) override;
+
+        glm::vec3 prevPos;
+
     };
 }

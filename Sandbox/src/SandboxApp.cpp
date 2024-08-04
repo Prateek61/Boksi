@@ -14,23 +14,24 @@ constexpr float VOXEL_SIZE = .5f;
 const Boksi::WindowProps WINDOW_PROPS = {
 	"Voxel Ray Tracer",
 	1280,
-	720
-};
-
+	720};
 
 class ExampleLayer : public Boksi::Layer
 {
 public:
 	ExampleLayer()
 		: Layer("Example"),
-		  m_CameraController(45.0f, 0.1f, 100.0f)
+		  m_CameraController(45.0f, 0.1f, 100.0f),
+		  m_EntitiesArray(std::make_shared<Boksi::EntitiesArray>())
 	{
 		AttachShadersAndBuffers();
 
-		// Draw a circle of voxels
-		Boksi::VoxelModifier::DrawCircle(20, m_VoxelMesh->GetSize(), {40, 40, 40}, m_VoxelMesh, 1);
 
-		// Set all voxels
+		// Add entities
+		// std::shared_ptr<Boksi::Entity> entity = std::make_shared<Boksi::Cube>(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), glm::vec3(0, 0, 0));
+		m_EntitiesArray->AddEntity(std::make_shared<Boksi::Cube>(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), 1
+		));
+		
 
 		// Set Camera
 		m_CameraController.GetCamera().OnResize(1280, 720);
@@ -45,7 +46,7 @@ public:
 		m_CameraController.GetCamera().SetPosition({-1, -1, -1});
 		m_CameraController.GetCamera().SetForwardDirection({1, 1, 1});
 
-		//Load Models
+		// Load Models
 		Boksi::ModelLoader::LoadModel(res_path + "Models/donut.txt", m_VoxelMesh, {0, 0, 0}, 1);
 	}
 
@@ -61,10 +62,12 @@ public:
 		// Render
 		Boksi::Renderer::BeginScene();
 
-		// Array Renderer
-		
+		m_EntitiesArray->OnUpdate();
+		Boksi::VoxelModifier::Draw(m_VoxelMesh, *m_EntitiesArray);
 
-		m_VoxelRendererArray->Render(m_CameraController.GetCamera(), m_Texture, m_VoxelMesh, VOXEL_SIZE, {1280, 720}, {16, 16, 16});
+		// Array Renderer
+
+		m_VoxelRendererArray->Render(m_CameraController.GetCamera(), m_Texture, m_VoxelMesh, VOXEL_SIZE, {1280, 720}, {16, 16, 1});
 
 		// Check for errors
 		Boksi::RenderCommand::CheckForErrors();
@@ -92,44 +95,19 @@ public:
 
 		ImGui::Begin("World");
 
-		// ImGui::Text("World Size: (%d, %d, %d)", m_World->GetSize().x, m_World->GetSize().y, m_World->GetSize().z);
-		// increase imgui window size
 		ImGui::SetWindowSize(ImVec2(300, 300));
-
-		// const glm::uvec3 size = m_World->GetSize();
-		// static int x = size.x;
-		// static int y = size.y;
-		// static int z = size.z;
-
-		// ImGui::InputInt("X", &x);
-		// ImGui::InputInt("Y", &y);
-		// ImGui::InputInt("Z", &z);
-
-		if (ImGui::Button("Resize"))
-		{
-			// BK_CORE_TRACE("Resizing world to ({0}, {1}, {2})", x, y, z);
-		}
-
-		if (ImGui::Button("Clear Screen"))
-		{
-			// m_World->ClearScreen(0);
-		}
-
-		if (ImGui::Button("Randomize"))
-		{
-			// m_World->Randomize(0.7f, {0, 1, 2, 3});
-		}
 
 		if (ImGui::Button("Recenter Camera"))
 		{
 			m_CameraController.GetCamera().SetPosition({10, 5, -10});
-			glm::vec3 forward = glm::normalize(glm::vec3(glm::vec3(0,0,0))  - m_CameraController.GetCamera().GetPosition());
-			m_CameraController.GetCamera().SetForwardDirection(forward); ;
+			glm::vec3 forward = glm::normalize(glm::vec3(glm::vec3(0, 0, 0)) - m_CameraController.GetCamera().GetPosition());
+			m_CameraController.GetCamera().SetForwardDirection(forward);
+			;
 		}
 
 		if (ImGui::Button("Add World Floor"))
 		{
-			// m_World->AddWorldFloor(5, 3);
+			Boksi::VoxelModifier::DrawFloor(m_VoxelMesh, 2);
 		}
 
 		ImGui::End();
@@ -170,7 +148,6 @@ public:
 			m_ComputeShader->UniformUploader->UploadUniformFloat3("u_LightPosition", m_CameraController.GetCamera().GetPosition());
 		}
 
-
 		ImGui::End();
 	}
 
@@ -187,6 +164,8 @@ private:
 
 	std::shared_ptr<Boksi::VoxelRendererArray> m_VoxelRendererArray;
 	std::shared_ptr<Boksi::VoxelMeshArray> m_VoxelMesh;
+
+	std::shared_ptr<Boksi::EntitiesArray> m_EntitiesArray;
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> m_Time = std::chrono::high_resolution_clock::now();
 	glm::vec3 m_LightPosition = {0, 0, 0};
@@ -216,7 +195,6 @@ void ExampleLayer::AttachShadersAndBuffers()
 	// Compute Shader
 	m_VoxelRendererArray.reset(new Boksi::VoxelRendererArray(res_path + "Shaders/ray_trace.comp.glsl"));
 	m_VoxelMesh.reset(new Boksi::VoxelMeshArray(WORLD_DIMENSIONS));
-	
 
 	// Normal frag and vertex shader
 	const std::string vertex_src = Boksi::Renderer::ReadFile(res_path + "Shaders/texture.vertex.glsl");
@@ -232,14 +210,14 @@ void ExampleLayer::AttachShadersAndBuffers()
 		-1.0f, 1.0f, 0.0f, 1.0f,
 		-1.0f, -1.0f, 0.0f, 0.0f,
 		1.0f, -1.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f };
+		1.0f, 1.0f, 1.0f, 1.0f};
 	unsigned int indices[] = {
 		0, 1, 2,
-		2, 3, 0 };
+		2, 3, 0};
 
 	Boksi::BufferLayout layout = {
 		{Boksi::ShaderDataType::Float2, "a_Position"},
-		{Boksi::ShaderDataType::Float2, "a_TexCoord"} };
+		{Boksi::ShaderDataType::Float2, "a_TexCoord"}};
 	std::shared_ptr<Boksi::VertexBuffer> vertex_buffer;
 	vertex_buffer.reset(Boksi::VertexBuffer::Create(quad_vertices, sizeof(quad_vertices)));
 	vertex_buffer->SetLayout(layout);
