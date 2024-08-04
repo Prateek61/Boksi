@@ -16,6 +16,7 @@ namespace Boksi
 	Application::Application()
 		: m_Window(Window::Create())
 	{
+		m_Window->SetVSync(true);
 		BK_CORE_ASSERT(!s_Instance, "Application already exists!");
 
 		s_Instance = this;

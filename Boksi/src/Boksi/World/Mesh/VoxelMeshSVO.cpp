@@ -41,12 +41,6 @@ namespace Boksi
 
 	inline Voxel VoxelMeshSVO::GetVoxel(const glm::uvec3& position) const
 	{
-		// Check the root node
-		if (m_Root->ChildrenMask == 0)
-		{
-			return m_Root->ChildrenVoxels[0];
-		}
-
 		return GetVoxel(m_Root, glm::uvec3(0), m_MaxSize, position, m_MaxDepth);
 	}
 
@@ -54,7 +48,7 @@ namespace Boksi
 	{
 		if (position.x >= m_Size.x || position.y >= m_Size.y || position.z >= m_Size.z)
 		{
-			BK_CORE_ASSERT(false, "VoxelMeshSVO::SetVoxel: Position is out of bounds");
+			BK_CORE_ASSERT(false, "VoxelMeshSVO::SetVoxel: Position is out of bounds")
 		}
 
 		bool purge = SetVoxel(m_Root, glm::uvec3(0), m_MaxSize, position, m_MaxDepth, voxel);
@@ -71,7 +65,7 @@ namespace Boksi
 	{
 		if (depth == 0)
 		{
-			BK_CORE_ASSERT(false, "VoxelMeshSVO::GetVoxel: Depth is 0");
+			BK_CORE_ASSERT(false, "VoxelMeshSVO::GetVoxel: Depth is 0")
 		}
 
 		// Compute which child the position is in
