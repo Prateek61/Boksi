@@ -1,3 +1,4 @@
+#include "bkpch.h"
 #include "EntitiesArray.h"
 #include "Cube.h"
 

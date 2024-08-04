@@ -66,7 +66,7 @@ namespace Boksi
         m_ComputeShader->UniformUploader->UploadUniformInt3("u_Dimensions", mesh->GetSize());
 
         // Storage Buffer
-        m_VoxelStorageBuffer->Bind(1);
+        m_VoxelStorageBuffer->Bind(0);
 
         if (true)
 		{

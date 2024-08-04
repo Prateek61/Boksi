@@ -2,12 +2,18 @@
 #extension GL_NV_gpu_shader5:enable
 layout(local_size_x=16,local_size_y=16)in;
 
+#include "utils/Material.glsl"
+
 struct Voxel{
     uint8_t materialID;
 };
 
-layout(std430,binding=1)buffer Voxels{
+layout(std430, binding=0) buffer Voxels{
     Voxel data[];
+};
+
+layout(std430, binding=1)buffer Materials{
+    Material materials[];
 };
 
 struct Camera{
@@ -34,24 +40,6 @@ const int maxDepth=1;
 layout(rgba8,binding=0)uniform image2D img_output;
 
 ivec2 pixel_coords=ivec2(gl_GlobalInvocationID.xy);
-
-// Material struct to hold color information
-struct Material{
-    vec3 color;
-};
-
-layout(std430,binding=2)buffer Materials{
-    Material materials[];
-};
-
-Material tempMaterial[5]={
-    Material(vec3(1,0,0)),// Red
-    Material(vec3(1.,1.,1.)),
-    Material(vec3(0,0,1)),// Blue
-    Material(vec3(0,1,0)),// Green
-    Material(vec3(1,1,0)),// Yellow
-    
-};
 
 vec3 GetRayDirection(ivec2 pixel_coords){
     vec4 ndc=vec4(2.*vec2(pixel_coords)/u_Camera.ScreenSize-1.,1.,1.);
@@ -142,9 +130,7 @@ void main() {
     }
     
     vec3 normal = VoxelNormal(ivec3(voxel)); // Calculate the normal at the voxel
-    vec3 albedo = tempMaterial[GetMaterialID(ivec3(voxel))].color; // Get the color of the material at the voxel
-    
-    
+    vec3 albedo = materials[GetMaterialID(ivec3(voxel))].color; // Get the color of the material at the voxel
     
     
     vec3 lightPos = u_LightPosition; // Position of the light source
