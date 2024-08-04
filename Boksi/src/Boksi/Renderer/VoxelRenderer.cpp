@@ -34,8 +34,6 @@ namespace Boksi
         FlattenOctree(mesh->GetRoot(), gpuOctreeNodes);
 
         m_VoxelStorageBuffer->SetData(gpuOctreeNodes.data(), gpuOctreeNodes.size() * sizeof(GPUOctreeNode));
-        // Display the size
-        BK_INFO("GPUOctree size: {0}", gpuOctreeNodes.size());
 
         texture->BindWrite(0);
 
