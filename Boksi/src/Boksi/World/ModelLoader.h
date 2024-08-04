@@ -1,5 +1,5 @@
 #include "bkpch.h"
-#include "World.h"
+#include "Mesh/VoxelMesh.h"
 
 namespace Boksi
 {
@@ -10,7 +10,7 @@ namespace Boksi
         ModelLoader() = default;
         ~ModelLoader() = default;
 
-        static void LoadModel(const std::string path , Ref<World> world , glm::uvec3 pos = {0, 0, 0} , int scale = 1);
+        static void LoadModel(const std::string path , Ref<VoxelMesh> mesh , glm::uvec3 pos = {0, 0, 0} , int scale = 1);
             
         static std::vector<std::string> SplitString(const std::string &s, char delimiter)
         {

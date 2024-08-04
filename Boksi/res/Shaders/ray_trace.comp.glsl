@@ -26,7 +26,7 @@ uniform float u_ShadowBias;
 uniform vec3 u_LightPosition;
 
 
-const float iVoxelSize=.1;
+const float iVoxelSize=.5;
 const float tMax=100.;
 const float tDelta=.1;
 const int maxDepth=1;
@@ -180,5 +180,4 @@ void main() {
     
     imageStore(img_output, pixel_coords, color); // Store the color in the output image
 }
-
 

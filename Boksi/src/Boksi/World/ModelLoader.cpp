@@ -1,12 +1,12 @@
 #include "bkpch.h"
 #include "ModelLoader.h"
-#include "World.h"
+#include "Mesh/VoxelMesh.h"
 
 
 namespace Boksi
 {
     
-    void ModelLoader::LoadModel(const std::string path , Ref<World> world , glm::uvec3 pos , int scale)
+    void ModelLoader::LoadModel(const std::string path , Ref<VoxelMesh> mesh , glm::uvec3 pos , int scale)
     {
         //load file from path in read mode
 
@@ -46,13 +46,13 @@ namespace Boksi
                 int g = std::stoi(data[4]);
                 int b = std::stoi(data[5]);
                 
-                BK_CORE_ASSERT(x >= 0 && x < world->GetSize().x, "Invalid x coordinate");
-                BK_CORE_ASSERT(y >= 0 && y < world->GetSize().y, "Invalid y coordinate");
-                BK_CORE_ASSERT(z >= 0 && z < world->GetSize().z, "Invalid z coordinate");
+                BK_CORE_ASSERT(x >= 0 && x < mesh->GetSize().x, "Invalid x coordinate");
+                BK_CORE_ASSERT(y >= 0 && y < mesh->GetSize().y, "Invalid y coordinate");
+                BK_CORE_ASSERT(z >= 0 && z < mesh->GetSize().z, "Invalid z coordinate");
 
                 glm::uvec3 pos = {x, y, z};
                 Voxel voxel = 2;
-                world->SetVoxel(pos, voxel);
+                mesh->SetVoxel(pos, voxel);
 
             }
 

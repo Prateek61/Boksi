@@ -9,7 +9,7 @@ const std::string res_path = "Boksi/res/";
 constexpr int WORLD_SIZE = 256;
 constexpr glm::uvec3 WORLD_DIMENSIONS = {WORLD_SIZE, WORLD_SIZE, WORLD_SIZE};
 
-constexpr float VOXEL_SIZE = .1f;
+constexpr float VOXEL_SIZE = .5f;
 
 const Boksi::WindowProps WINDOW_PROPS = {
 	"Voxel Ray Tracer",
@@ -31,16 +31,6 @@ public:
 		Boksi::VoxelModifier::DrawCircle(20, m_VoxelMesh->GetSize(), {40, 40, 40}, m_VoxelMesh, 1);
 
 		// Set all voxels
-		for (int x = 0; x < WORLD_SIZE; x++)
-		{
-			for (int y = 0; y < WORLD_SIZE; y++)
-			{
-				for (int z = 0; z < WORLD_SIZE; z++)
-				{
-					m_VoxelMesh->SetVoxel({x, y, z}, 1);
-				}
-			}
-		}
 
 		// Set Camera
 		m_CameraController.GetCamera().OnResize(1280, 720);
@@ -54,6 +44,9 @@ public:
 		// Set the camera position and direction
 		m_CameraController.GetCamera().SetPosition({-1, -1, -1});
 		m_CameraController.GetCamera().SetForwardDirection({1, 1, 1});
+
+		//Load Models
+		Boksi::ModelLoader::LoadModel(res_path + "Models/donut.txt", m_VoxelMesh, {0, 0, 0}, 1);
 	}
 
 	void OnUpdate() override
