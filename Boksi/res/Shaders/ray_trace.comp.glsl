@@ -26,7 +26,7 @@ struct Camera{
 uniform Camera u_Camera;
 uniform ivec3 u_Dimensions;
 uniform float u_Exposure;
-uniform float u_Intensity;
+uniform float u_ShadowStrength;
 uniform float u_AO;
 uniform float u_ShadowBias;
 uniform vec3 u_LightPosition;
@@ -136,14 +136,11 @@ void main() {
     vec3 lightPos = u_LightPosition; // Position of the light source
 
     vec3 lightDir = normalize(lightPos - voxel); // Direction from the voxel to the light source
+        
+
+    float shadow = 1;
     
-    float diffuse = max(0.0, dot(normal, lightDir)); // Calculate the diffuse lighting component
-    
-    // Calculate the specular lighting component
-    // float specular = pow(max(dot(normal, normalize(lightDir + rayDirection)), 0.0), u_Exposure) * u_Intensity;
-    float specular = 1;
-    
-    bool shadows = true;
+    bool shadows = false;
     if (shadows) {
         vec3 shadowRayStart = voxel + lightDir +  normal * u_ShadowBias; // Start the shadow ray slightly off the voxel surface to avoid self-shadowing
         vec3 shadowRayDir = lightDir; // Direction of the shadow ray
@@ -152,8 +149,7 @@ void main() {
         vec3 shadowVoxel = RayMarch(shadowRayStart, shadowRayDir, shadowSteps); // Perform ray marching to check for shadows
         
         if (shadowVoxel != vec3(0)) { // If a voxel is hit by the shadow ray
-            diffuse = 0.0;
-            specular = 0.0;
+            shadow = u_ShadowStrength;
             
         }
     }
@@ -161,7 +157,7 @@ void main() {
     // Calculate the ambient occlusion (optional, not implemented in the provided code)
     
     // Calculate the final shaded color
-    vec3 shaded = albedo * (diffuse + specular);
+    vec3 shaded = albedo * shadow;
     color = vec4(shaded, 1.0); // Set the final color
     
     imageStore(img_output, pixel_coords, color); // Store the color in the output image

@@ -26,12 +26,9 @@ public:
 	{
 		AttachShadersAndBuffers();
 
-
 		// Add entities
 		// std::shared_ptr<Boksi::Entity> entity = std::make_shared<Boksi::Cube>(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), glm::vec3(0, 0, 0));
-		m_EntitiesArray->AddEntity(std::make_shared<Boksi::Cube>(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), 1
-		));
-		
+		m_EntitiesArray->AddEntity(std::make_shared<Boksi::Cube>(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), 4));
 
 		// Set Camera
 		m_CameraController.GetCamera().OnResize(1280, 720);
@@ -48,6 +45,7 @@ public:
 
 		// Load Models
 		Boksi::ModelLoader::LoadModel(res_path + "Models/donut.txt", m_VoxelMesh, {0, 0, 0}, 1);
+		Boksi::ModelLoader::LoadModel(res_path + "Models/llama04.txt", m_VoxelMesh, {0, 30, 0}, 1);
 	}
 
 	void OnUpdate() override
@@ -115,7 +113,7 @@ public:
 
 		if (ImGui::Button("Add World Floor"))
 		{
-			Boksi::VoxelModifier::DrawFloor(m_VoxelMesh, 2);
+			Boksi::VoxelModifier::DrawFloor(m_VoxelMesh, Boksi::MaterialLibrary::GetMaterialID("Green") );
 		}
 
 		ImGui::End();
@@ -124,28 +122,16 @@ public:
 		std::shared_ptr<Boksi::ComputeShader> m_ComputeShader = m_VoxelRendererArray->GetComputeShader();
 		ImGui::Begin("Lights");
 
-		// Set Values for u_Intensity
-		static float intensity = 1.0f;
-		ImGui::SliderFloat("Intensity", &intensity, 0.0f, 1.0f);
-		m_ComputeShader->Bind();
-		m_ComputeShader->UniformUploader->UploadUniformFloat("u_Intensity", intensity);
-
-		// Set Values for u_Exposure
-		static float exposure = 1.0f;
-		ImGui::SliderFloat("Exposure", &exposure, 0.0f, 1.0f);
-		m_ComputeShader->Bind();
-		m_ComputeShader->UniformUploader->UploadUniformFloat("u_Exposure", exposure);
-
-		// Set Values for u_AO
-		static float ambient = 0.1f;
-		ImGui::SliderFloat("Ambient", &ambient, 0.0f, 1.0f); // Proper range for AO
-		m_ComputeShader->Bind();
-		m_ComputeShader->UniformUploader->UploadUniformFloat("u_AO", ambient);
 
 		static float shadowBias = 0.01f;
 		ImGui::SliderFloat("Shadow Bias", &shadowBias, 0.0f, 1.0f);
 		m_ComputeShader->Bind();
 		m_ComputeShader->UniformUploader->UploadUniformFloat("u_ShadowBias", shadowBias);
+
+		static float shadowStrength = 0.5f;
+		ImGui::SliderFloat("Shadow Strength", &shadowStrength, 0.0f, 1.0f);
+		m_ComputeShader->Bind();
+		m_ComputeShader->UniformUploader->UploadUniformFloat("u_ShadowStrength", shadowStrength);
 
 		// tick mark for Camera control shadow
 		static bool cameraControlShadow = false;
@@ -202,9 +188,33 @@ Boksi::Application *Boksi::CreateApplication()
 void ExampleLayer::AttachShadersAndBuffers()
 {
 	// Define some materials
-	Boksi::MaterialLibrary::AddMaterial({glm::vec3(0.82, 0.45, 0.64), 0.1f}, "Red");
-	// Pink color
-	Boksi::MaterialLibrary::AddMaterial({glm::vec3(0.82, 0.45, 0.64), 0.1f}, "Pink");
+	Boksi::MaterialLibrary::AddMaterial({
+											glm::vec3(1.0f, 0.0f, 0.0f), // Albedo (base color)
+											glm::vec3(0.1f, 0.1f, 0.1f), // Specular color
+											glm::vec3(0.2f, 0.0f, 0.0f)	 // Ambient color (dimmed red)
+										},
+										"Red");
+
+	Boksi::MaterialLibrary::AddMaterial({
+											glm::vec3(0.0f, 1.0f, 0.0f), // Albedo (base color)
+											glm::vec3(0.1f, 0.1f, 0.1f), // Specular color
+											glm::vec3(0.0f, 0.2f, 0.0f)	 // Ambient color (dimmed green)
+										},
+										"Green");
+
+	Boksi::MaterialLibrary::AddMaterial({
+											glm::vec3(0.0f, 0.0f, 1.0f), // Albedo (base color)
+											glm::vec3(0.1f, 0.1f, 0.1f), // Specular color
+											glm::vec3(0.0f, 0.0f, 0.2f)	 // Ambient color (dimmed blue)
+										},
+										"Blue");
+
+	Boksi::MaterialLibrary::AddMaterial({
+											glm::vec3(1.0f, 1.0f, 0.0f), // Albedo (base color)
+											glm::vec3(0.1f, 0.1f, 0.1f), // Specular color
+											glm::vec3(0.2f, 0.2f, 0.0f)	 // Ambient color (dimmed yellow)
+										},
+										"Yellow");
 
 	// Material Storage Buffer
 	m_MaterialStorageBuffer.reset(Boksi::StorageBuffer::Create());
