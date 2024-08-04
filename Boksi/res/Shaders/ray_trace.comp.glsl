@@ -153,7 +153,7 @@ void main() {
         
         if (shadowVoxel != vec3(0)) { // If a voxel is hit by the shadow ray
             diffuse = 0.0;
-            specular = u_Intensity;
+            specular = 0.0;
             
         }
     }
@@ -161,7 +161,7 @@ void main() {
     // Calculate the ambient occlusion (optional, not implemented in the provided code)
     
     // Calculate the final shaded color
-    vec3 shaded = albedo * specular;
+    vec3 shaded = albedo * (diffuse + specular);
     color = vec4(shaded, 1.0); // Set the final color
     
     imageStore(img_output, pixel_coords, color); // Store the color in the output image
