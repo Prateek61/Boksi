@@ -2,10 +2,10 @@
 #include "imgui/imgui/imgui.h"
 #include <chrono>
 
-const std::string res_path = "Boksi/res/";
+const std::string res_path = "../Boksi/res/";
 
 const int Power = 6;
-const int WORLD_SIZE = 2 << Power;
+const int WORLD_SIZE = 256;
 
 class ExampleLayer : public Boksi::Layer
 {
@@ -15,6 +15,10 @@ public:
 		  m_CameraController(45.0f, 0.1f, 100.0f),
 		  m_World(new Boksi::World({WORLD_SIZE, WORLD_SIZE, WORLD_SIZE}))
 	{
+		m_World->AddWorldFloor(5, 1);
+		// m_World->Randomize(0.5f, {1});
+		m_VoxelMeshSVO.reset(new Boksi::VoxelMeshSVO(m_World->GetVoxels(), m_World->GetSize()));
+
 		m_CameraController.GetCamera().OnResize(1280, 720);
 		m_CameraController.SetCameraMoveSpeed(1.0f);
 		m_CameraController.SetCameraMouseSensitivity(0.01f);
@@ -274,7 +278,5 @@ public:
 
 Boksi::Application *Boksi::CreateApplication()
 {
-	BK_INFO("Size of GPU octree node: {}", sizeof(Boksi::GPUOctreeNode));
-
 	return new Sandbox();
 }

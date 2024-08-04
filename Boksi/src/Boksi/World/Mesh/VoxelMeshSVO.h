@@ -19,18 +19,17 @@ namespace Boksi
 	struct GPUOctreeNode
 	{
 		uint8_t ChildrenMask;
-		int Children[8];
+		uint8_t Padding[3]; // Align next member to 4 byte
 		Voxel ChildrenVoxels[8];
+		int Children[8];
 
+		GPUOctreeNode() = default;
 		GPUOctreeNode(const OctreeNode& octreeNode)
-			: ChildrenMask(octreeNode.ChildrenMask), Children{ -1, -1, -1, -1, -1, -1, -1, -1 }, ChildrenVoxels{ EMPTY_VOXEL }
+			: ChildrenMask(octreeNode.ChildrenMask), ChildrenVoxels{ EMPTY_VOXEL }, Children{ -1, -1, -1, -1, -1, -1, -1, -1 }
 		{
 			for (int i = 0; i < 8; i++)
 			{
-				if (octreeNode.Children[i] != nullptr)
-				{
-					ChildrenVoxels[i] = octreeNode.ChildrenVoxels[i];
-				}
+				ChildrenVoxels[i] = octreeNode.ChildrenVoxels[i];
 			}
 		}
 	};

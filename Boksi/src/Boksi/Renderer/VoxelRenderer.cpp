@@ -14,7 +14,7 @@ namespace Boksi
         m_VoxelStorageBuffer.reset(StorageBuffer::Create());
     }
 
-    void VoxelRendererSVO::Render(const Camera &camera, const Ref<Texture2D> texture, glm::ivec3 dimensions, int maxDepth, float voxelSize, VoxelMeshSVO mesh)
+    void VoxelRendererSVO::Render(const Camera &camera, const Ref<Texture2D> texture, glm::ivec3 dimensions, int maxDepth, float voxelSize, Ref<VoxelMeshSVO> mesh)
     {
         // Bind the compute shader
         m_ComputeShader->Bind();
@@ -31,9 +31,11 @@ namespace Boksi
         std::vector<GPUOctreeNode> gpuOctreeNodes;
 
         // Convert Octree to GPUOctree
-        FlattenOctree(mesh.GetRoot(), gpuOctreeNodes);
+        FlattenOctree(mesh->GetRoot(), gpuOctreeNodes);
 
         m_VoxelStorageBuffer->SetData(gpuOctreeNodes.data(), gpuOctreeNodes.size() * sizeof(GPUOctreeNode));
+        // Display the size
+        BK_INFO("GPUOctree size: {0}", gpuOctreeNodes.size());
 
         texture->BindWrite(0);
 

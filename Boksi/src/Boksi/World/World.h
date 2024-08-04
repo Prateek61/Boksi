@@ -18,6 +18,12 @@ namespace Boksi
             m_Voxels.resize(size.x * size.y * size.z);
         }
 
+        World(const glm::uvec3& size, const Voxel fillVoxel)
+	        : m_Size(size)
+        {
+	        m_Voxels.resize(size.x * size.y * size.z, fillVoxel);
+        }
+
         // Getters
         const glm::uvec3& GetSize() const { return m_Size; }
         const uint32_t GetVoxelCount() const { return m_Size.x * m_Size.y * m_Size.z; }
@@ -51,7 +57,7 @@ namespace Boksi
 		        {
 			        for (uint32_t z = 0; z < m_Size.z; z++)
 			        {
-				        if (rand() / (float)RAND_MAX < density)
+				        if (rand() / (float)RAND_MAX <= density)
 				        {
 					        SetVoxel(glm::uvec3(x, y, z), materialIDs[rand() % materialIDs.size()]);
 				        }

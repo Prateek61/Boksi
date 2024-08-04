@@ -14,7 +14,7 @@ namespace Boksi
         VoxelRendererSVO(const std::string& computeShaderSource);
         ~VoxelRendererSVO() = default;
 
-        void Render(const Camera& camera, const Ref<Texture2D> texture, glm::ivec3 dimensions, int maxDepth, float voxelSize , VoxelMeshSVO mesh);
+        void Render(const Camera& camera, const Ref<Texture2D> texture, glm::ivec3 dimensions, int maxDepth, float voxelSize , Ref<VoxelMeshSVO> mesh);
 
     private:
         Ref<StorageBuffer> m_VoxelStorageBuffer;
