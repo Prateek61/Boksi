@@ -4,7 +4,7 @@
 
 #include "Boksi/World/Mesh/VoxelMeshModifier.h"
 
-const std::string res_path = "Boksi/res/";
+const std::string res_path = "../Boksi/res/";
 
 constexpr int WORLD_SIZE = 256;
 constexpr glm::uvec3 WORLD_DIMENSIONS = {WORLD_SIZE, WORLD_SIZE, WORLD_SIZE};
@@ -67,6 +67,14 @@ public:
 
 		// Array Renderer
 
+		// Material
+		m_MaterialStorageBuffer->Bind(1);
+		if (Boksi::MaterialLibrary::s_NewMaterialAdded)
+		{
+			m_MaterialStorageBuffer->SetData(Boksi::MaterialLibrary::GetMaterialData(), Boksi::MaterialLibrary::GetMaterialCount() * sizeof(Boksi::Material));
+			Boksi::MaterialLibrary::s_NewMaterialAdded = false;
+		}
+		// Array Renderer
 		m_VoxelRendererArray->Render(m_CameraController.GetCamera(), m_Texture, m_VoxelMesh, VOXEL_SIZE, {1280, 720}, {16, 16, 1});
 
 		// Check for errors
@@ -166,6 +174,7 @@ private:
 	std::shared_ptr<Boksi::VoxelMeshArray> m_VoxelMesh;
 
 	std::shared_ptr<Boksi::EntitiesArray> m_EntitiesArray;
+	std::shared_ptr<Boksi::StorageBuffer> m_MaterialStorageBuffer;
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> m_Time = std::chrono::high_resolution_clock::now();
 	glm::vec3 m_LightPosition = {0, 0, 0};
@@ -192,6 +201,14 @@ Boksi::Application *Boksi::CreateApplication()
 
 void ExampleLayer::AttachShadersAndBuffers()
 {
+	// Define some materials
+	Boksi::MaterialLibrary::AddMaterial({glm::vec3(0.82, 0.45, 0.64), 0.1f}, "Red");
+	// Pink color
+	Boksi::MaterialLibrary::AddMaterial({glm::vec3(0.82, 0.45, 0.64), 0.1f}, "Pink");
+
+	// Material Storage Buffer
+	m_MaterialStorageBuffer.reset(Boksi::StorageBuffer::Create());
+
 	// Compute Shader
 	m_VoxelRendererArray.reset(new Boksi::VoxelRendererArray(res_path + "Shaders/ray_trace.comp.glsl"));
 	m_VoxelMesh.reset(new Boksi::VoxelMeshArray(WORLD_DIMENSIONS));
