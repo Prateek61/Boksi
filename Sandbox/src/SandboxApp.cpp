@@ -2,10 +2,10 @@
 #include "imgui/imgui/imgui.h"
 #include <chrono>
 
-const std::string res_path = "Boksi/res/";
+const std::string res_path = "../Boksi/res/";
 
 const int Power = 6;
-const int WORLD_SIZE = 2 << Power;
+const int WORLD_SIZE = 256;
 
 class ExampleLayer : public Boksi::Layer
 {
@@ -13,10 +13,13 @@ public:
 	ExampleLayer()
 		: Layer("Example"),
 		  m_CameraController(45.0f, 0.1f, 100.0f),
-		  m_World(new Boksi::World({WORLD_SIZE, WORLD_SIZE, WORLD_SIZE})),
-		  m_VoxelMeshSVO(new Boksi::VoxelMeshSVO({WORLD_SIZE, WORLD_SIZE, WORLD_SIZE})),
+		  m_World(new Boksi::World({WORLD_SIZE, WORLD_SIZE, WORLD_SIZE}, EMPTY_VOXEL)),
 		  m_VoxelRendererSVO(new Boksi::VoxelRendererSVO(res_path + "Shaders/ray_trace_svo.glsl"))
 	{
+		m_World->AddWorldFloor(2, 1);
+		// m_World->Randomize(0.5f, {1});
+		m_VoxelMeshSVO.reset(new Boksi::VoxelMeshSVO(m_World->GetVoxels(), m_World->GetSize()));
+
 		m_CameraController.GetCamera().OnResize(1280, 720);
 		m_CameraController.SetCameraMoveSpeed(1.0f);
 		m_CameraController.SetCameraMouseSensitivity(0.01f);
@@ -111,8 +114,7 @@ public:
 		Boksi::Renderer::BeginScene();
 
 		// Check for errors
-
-		m_VoxelRendererSVO->Render(m_CameraController.GetCamera(), m_Texture, m_VoxelMeshSVO->GetSize(), m_VoxelMeshSVO->GetMaximumDepth(), .5f, *m_VoxelMeshSVO);
+		m_VoxelRendererSVO->Render(m_CameraController.GetCamera(), m_Texture, m_VoxelMeshSVO->GetSize(), m_VoxelMeshSVO->GetMaximumDepth(), 0.5f, m_VoxelMeshSVO);
 		
 		Boksi::RenderCommand::CheckForErrors();
 		
@@ -239,7 +241,5 @@ public:
 
 Boksi::Application *Boksi::CreateApplication()
 {
-	BK_INFO("Size of GPU octree node: {}", sizeof(Boksi::GPUOctreeNode));
-
 	return new Sandbox();
 }

@@ -70,7 +70,7 @@ void initStackEntry(out StackEntry entry, int nodeID, vec3 nodeVoxMin, vec3 node
     entry.center = (nodeVoxMin + nodeVoxMax) * 0.5;
 }
 
-uint8_t TraceRay(vec3 rayOrig, vec3 rayDir)
+uint8_t TraceRay(vec3 rayOrig, vec3 rayDir, out vec3 position)
 {
     rayDir = rayDir;
     vec3 voxelMin = vec3(0.0);
@@ -106,40 +106,12 @@ uint8_t TraceRay(vec3 rayOrig, vec3 rayDir)
             continue;
         }
 
-        // Check which quadrant the ray is in
-        int quadrant = 0;
-
-        vec3 childMin = currentEntry.currentNodeVoxMin;
-        vec3 childMax = currentEntry.currentNodeVoxMax;
-
-
-        if (currentPos.x >= currentEntry.center.x)
-        {
-            quadrant |= 1;
-            childMin.x = currentEntry.center.x;
-        }
-        else
-        {
-            childMax.x = currentEntry.center.x;
-        }
-        if (currentPos.y >= currentEntry.center.y)
-        {
-            quadrant |= 2;
-            childMin.y = currentEntry.center.y;
-        }
-        else
-        {
-            childMax.y = currentEntry.center.y;
-        }
-        if (currentPos.z >= currentEntry.center.z)
-        {
-            quadrant |= 4;
-            childMin.z = currentEntry.center.z;
-        }
-        else
-        {
-            childMax.z = currentEntry.center.z;
-        }
+        // Compute quadrant and child bounds
+        vec3 childCenter = (currentEntry.currentNodeVoxMin + currentEntry.currentNodeVoxMax) * 0.5;
+        ivec3 childCenterMask = ivec3(greaterThanEqual(currentPos, childCenter));
+        int quadrant = childCenterMask.x + 2 * childCenterMask.y + 4 * childCenterMask.z;
+        vec3 childMin = mix(currentEntry.currentNodeVoxMin, childCenter, childCenterMask);
+        vec3 childMax = mix(childCenter, currentEntry.currentNodeVoxMax, childCenterMask);
 
         // Check if the quadrant goes deeper
         if (bool(node.ChildrenMask & uint8_t((1 << quadrant))))
@@ -156,18 +128,19 @@ uint8_t TraceRay(vec3 rayOrig, vec3 rayDir)
             uint8_t voxel = node.ChildrenVoxels[quadrant];
             if (voxel != EMPTY_VOXEL)
             {
+                position = currentPos;
                 return voxel;
             }
 
             // Intersection test the child and advance the ray
-            float tMinChild, tMaxChild;
-            RayAABBIntersect(currentPos, rayDir, childMin, childMax, tMinChild, tMaxChild);
-            currentPos = currentPos + rayDir * (epson + tMaxChild);
+            RayAABBIntersect(currentPos, rayDir, childMin, childMax, tMin, tMax);
+            currentPos = currentPos + rayDir * (epson + tMax);
         }
 
         functionStack[stackSize++] = currentEntry;
     }
 
+    position = currentPos;
     return EMPTY_VOXEL;
 }
 
@@ -184,8 +157,9 @@ void main() {
 
     vec3 rayOrig = u_Camera.Position;
     vec3 rayDir = GetRayDirection(pixel_coords);
+    vec3 position;
 
-    uint8_t materialID = TraceRay(rayOrig, rayDir);
+    uint8_t materialID = TraceRay(rayOrig, rayDir, position);
 
     // Write to output image (material ID encoded as color)
     vec4 color;
