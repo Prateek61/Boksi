@@ -13,9 +13,7 @@ public:
 	ExampleLayer()
 		: Layer("Example"),
 		  m_CameraController(45.0f, 0.1f, 100.0f),
-		  m_World(new Boksi::World({WORLD_SIZE, WORLD_SIZE, WORLD_SIZE})),
-		  m_VoxelMeshSVO(new Boksi::VoxelMeshSVO({WORLD_SIZE, WORLD_SIZE, WORLD_SIZE})),
-		  m_VoxelRendererSVO(new Boksi::VoxelRendererSVO(res_path + "Shaders/ray_trace_svo.glsl"))
+		  m_World(new Boksi::World({WORLD_SIZE, WORLD_SIZE, WORLD_SIZE}))
 	{
 		m_CameraController.GetCamera().OnResize(1280, 720);
 		m_CameraController.SetCameraMoveSpeed(1.0f);
@@ -35,12 +33,19 @@ public:
 		m_World->DrawCircle(30, 10, 10, 5, 1);
 		m_World->DrawCircle(50, 10, 10, 5, 1);
 		m_CameraController.GetCamera().SetPosition({30, 0, -30});
+
+		// Load a model
+		Boksi::ModelLoader::LoadModel("Boksi/res/Models/donut.txt", m_World, {10, 10, 0}, 1);
+		Boksi::ModelLoader::LoadModel("Boksi/res/Models/donut.txt", m_World, {10, 10, 40}, 1);
+		Boksi::ModelLoader::LoadModel("Boksi/res/Models/donut.txt", m_World, {10, 10, 80}, 1);
+
+		Boksi::ModelLoader::LoadModel("Boksi/res/Models/birch_tree.txt", m_World, {50, 10, 0}, 1);
 	}
 
 	void AttachShadersAndBuffers()
 	{
 		// Compute Shader
-		const std::string compute_src = Boksi::ShaderLoader::Load(res_path + "Shaders/ray_trace_original.comp.glsl");
+		const std::string compute_src = Boksi::ShaderLoader::Load(res_path + "Shaders/ray_trace.comp.glsl");
 		m_ComputeShader.reset(Boksi::ComputeShader::Create(compute_src));
 
 		// Normal frag and vertex shader
@@ -110,35 +115,45 @@ public:
 		// Render
 		Boksi::Renderer::BeginScene();
 
-		// Check for errors
+		// Compute Shader
+		m_ComputeShader->Bind();
+		// Bind SSBO
+		m_StorageBuffer->Bind(1);
+		// Set the SSBO
+		m_StorageBuffer->SetData(m_World->GetVoxelsData(), m_World->GetVoxelCount() * sizeof(Boksi::Voxel));
+		// Bind the material SSBO
+		m_MaterialStorageBuffer->Bind(2);
+		auto material_colors = Boksi::MaterialLibrary::GetColors();
+		m_MaterialStorageBuffer->SetData(material_colors.data(), material_colors.size() * sizeof(glm::vec3));
+		// Camera Uniforms
+		Boksi::Camera::UploadCameraUniformToShader(m_ComputeShader->UniformUploader, m_CameraController.GetCamera());
+		// Bind the texture
+		m_Texture->BindWrite(0);
+		// Dispatch Compute Shader
+		Boksi::Renderer::DispatchCompute(m_ComputeShader, 1280 / 16, 720 / 16, 1);
 
-		m_VoxelRendererSVO->Render(m_CameraController.GetCamera(), m_Texture, m_VoxelMeshSVO->GetSize(), m_VoxelMeshSVO->GetMaximumDepth(), .5f, *m_VoxelMeshSVO);
-		
+		// Check for errors
 		Boksi::RenderCommand::CheckForErrors();
-		
+
 		// Render the texture to the screen
 		m_Texture->Bind(0);
 		m_Shader->Bind();
 		m_Shader->UniformUploader->UploadUniformInt("screenTexture", 0);
 		Boksi::Renderer::Submit(m_Shader, m_VertexArray);
 
-
 		m_CameraController.OnUpdate(1);
-
 		Boksi::Renderer::EndScene();
 	}
 
 	virtual void OnImGuiRender() override
 	{
 		ImGui::Begin("Data");
-
 		auto &camera = m_CameraController.GetCamera();
 		ImGui::Text("Camera Position: (%f, %f, %f)", camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
 		ImGui::Text("Camera Direction: (%f, %f, %f)", camera.GetForwardDirection().x, camera.GetForwardDirection().y, camera.GetForwardDirection().z);
 		ImGui::Text("Camera Up: (%f, %f, %f)", camera.GetUpDirection().x, camera.GetUpDirection().y, camera.GetUpDirection().z);
 		ImGui::Text("Camera FOV: %f", camera.GetVerticalFOV());
 		ImGui::Text("Last frame time: %f", m_LastFrameTime);
-
 		ImGui::End();
 
 		ImGui::Begin("World");
@@ -187,23 +202,42 @@ public:
 			m_World->AddWorldFloor(5, 3);
 		}
 
-		if (ImGui::Button("Draw Circle"))
+		ImGui::End();
+
+		ImGui::Begin("Lights");
+
+		// Set Values for u_Intensity
+		static float intensity = 1.0f;
+		ImGui::SliderFloat("Intensity", &intensity, 0.0f, 1.0f);
+		m_ComputeShader->Bind();
+		m_ComputeShader->UniformUploader->UploadUniformFloat("u_Intensity", intensity);
+
+		// Set Values for u_Exposure
+		static float exposure = 1.0f;
+		ImGui::SliderFloat("Exposure", &exposure, 0.0f, 1.0f);
+		m_ComputeShader->Bind();
+		m_ComputeShader->UniformUploader->UploadUniformFloat("u_Exposure", exposure);
+
+		// Set Values for u_AO
+		static float ambient = 0.1f;
+		ImGui::SliderFloat("Ambient", &ambient, 0.0f, 1.0f); // Proper range for AO
+		m_ComputeShader->Bind();
+		m_ComputeShader->UniformUploader->UploadUniformFloat("u_AO", ambient);
+
+		static float shadowBias = 0.01f;
+		ImGui::SliderFloat("Shadow Bias", &shadowBias, 0.0f, 1.0f);
+		m_ComputeShader->Bind();
+		m_ComputeShader->UniformUploader->UploadUniformFloat("u_ShadowBias", shadowBias);
+
+		// tick mark for Camera control shadow
+		static bool cameraControlShadow = false;
+		ImGui::Checkbox("Camera Control Shadow", &cameraControlShadow);
+		if (cameraControlShadow)
 		{
-
-			glm::vec3 cameraLocation = m_CameraController.GetCamera().GetPosition() + m_CameraController.GetCamera().GetForwardDirection() * 10.0f;
-
-			glm::vec3 voxelPos = glm::vec3(floor(cameraLocation.x), floor(cameraLocation.y), floor(cameraLocation.z));
-
-			if (voxelPos.x < 0 || voxelPos.x >= m_World->GetSize().x || voxelPos.y < 0 || voxelPos.y >= m_World->GetSize().y || voxelPos.z < 0 || voxelPos.z >= m_World->GetSize().z)
-			{
-				BK_ERROR("Out of bounds UwU");
-			}
-			else
-			{
-				BK_TRACE("Drawing circle at: ({}, {}, {})", voxelPos.x, voxelPos.y, voxelPos.z);
-				m_World->DrawCircle(voxelPos.x, voxelPos.y, voxelPos.z, 5, 2);
-			}
+			m_ComputeShader->Bind();
+			m_ComputeShader->UniformUploader->UploadUniformFloat3("u_LightPosition", m_CameraController.GetCamera().GetPosition());
 		}
+		
 
 		ImGui::End();
 	}
@@ -224,6 +258,7 @@ private:
 	std::chrono::time_point<std::chrono::high_resolution_clock> m_Time = std::chrono::high_resolution_clock::now();
 	std::shared_ptr<Boksi::VoxelMeshSVO> m_VoxelMeshSVO;
 	std::shared_ptr<Boksi::VoxelRendererSVO> m_VoxelRendererSVO;
+	glm::vec3 m_LightPosition = {0, 0, 0};
 	float m_LastFrameTime = 0.0f;
 };
 
