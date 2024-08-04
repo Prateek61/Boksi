@@ -48,16 +48,16 @@ bool RayAABBIntersect(vec3 rayOrig, vec3 rayDir, vec3 boxMin, vec3 boxMax, out f
     return tMin <= tMax && tMax >= 0.0;
 }
 
-bool RayAABBIntersectHighPrecision(dvec3 rayOrig, dvec3 rayDir, dvec3 boxMin, dvec3 boxMax, out double tMin, out double tMax) {
-    dvec3 invDir = 1.0 / rayDir;
-    dvec3 t0 = (boxMin - rayOrig) * invDir;
-    dvec3 t1 = (boxMax - rayOrig) * invDir;
-    dvec3 tmin = min(t0, t1);
-    dvec3 tmax = max(t0, t1);
-    tMin = max(max(tmin.x, tmin.y), tmin.z);
-    tMax = min(min(tmax.x, tmax.y), tmax.z);
-    return tMin <= tMax && tMax >= 0.0;
-}
+// bool RayAABBIntersectHighPrecision(dvec3 rayOrig, dvec3 rayDir, dvec3 boxMin, dvec3 boxMax, out double tMin, out double tMax) {
+//     dvec3 invDir = 1.0 / rayDir;
+//     dvec3 t0 = (boxMin - rayOrig) * invDir;
+//     dvec3 t1 = (boxMax - rayOrig) * invDir;
+//     dvec3 tmin = min(t0, t1);
+//     dvec3 tmax = max(t0, t1);
+//     tMin = max(max(tmin.x, tmin.y), tmin.z);
+//     tMax = min(min(tmax.x, tmax.y), tmax.z);
+//     return tMin <= tMax && tMax >= 0.0;
+// }
 
 struct ChildIntersection {
     int childIndex;
@@ -83,7 +83,7 @@ void initStackEntry(out StackEntry entry, int nodeID, vec3 nodeVoxMin, vec3 node
 
 uint8_t TraceRay(vec3 rayOrig, vec3 rayDir, out vec3 position)
 {
-    rayDir = rayDir;
+    rayDir = normalize(rayDir);
     vec3 voxelMin = vec3(0.0);
     vec3 voxelMax = vec3(u_Dimensions) * u_VoxelSize;
 
@@ -94,7 +94,7 @@ uint8_t TraceRay(vec3 rayOrig, vec3 rayDir, out vec3 position)
     }
     // If the ray is outside the grid
     vec3 currentPos = rayOrig;
-    if (!all(greaterThanEqual(currentPos, voxelMin)) || !all(lessThanEqual(currentPos, voxelMax)))
+    if (!(all(greaterThanEqual(currentPos, voxelMin)) && all(lessThanEqual(currentPos, voxelMax))))
     {
         currentPos = rayOrig + rayDir * tMin + epson * rayDir;
     }
@@ -106,8 +106,19 @@ uint8_t TraceRay(vec3 rayOrig, vec3 rayDir, out vec3 position)
 
     while (stackSize > 0)
     {
+        if (stackSize > u_MaxDepth)
+        {
+            return ERROR_VOXEL;
+        }
+
         // Pop the stackSize
         StackEntry currentEntry = functionStack[--stackSize];
+
+        if (currentEntry.NodeID == -1)
+        {
+            return ERROR_VOXEL2;
+        } 
+
         Node node = nodes[currentEntry.NodeID];
 
         // Do a bounds check
@@ -139,13 +150,12 @@ uint8_t TraceRay(vec3 rayOrig, vec3 rayDir, out vec3 position)
             uint8_t voxel = node.ChildrenVoxels[quadrant];
             if (voxel != EMPTY_VOXEL)
             {
-                position = currentPos;
                 return voxel;
             }
 
             // Intersection test the child and advance the ray
-            RayAABBIntersect(currentPos, rayDir, childMin, childMax, tMin, tMax);
-            currentPos = currentPos + rayDir * (epson + tMax);
+            RayAABBIntersect(rayOrig, rayDir, childMin, childMax, tMin, tMax);
+            currentPos = rayOrig + rayDir * (epson + tMax);
         }
 
         functionStack[stackSize++] = currentEntry;
@@ -184,20 +194,20 @@ void main() {
     vec4 color;
     color = colors[uint8_t(materialID)];
 
-    if (materialID != EMPTY_VOXEL)
-    {
-        vec3 intersectionPoint = ComputeIntersectionPoint(rayOrig, rayDir, ivec3(position / u_VoxelSize));
-        vec3 sunDir = normalize(vec3(0.5, 1.0, 0.5));
-        intersectionPoint = intersectionPoint + sunDir * epson;
+    // if (materialID != EMPTY_VOXEL)
+    // {
+    //     vec3 intersectionPoint = ComputeIntersectionPoint(rayOrig, rayDir, ivec3(position / u_VoxelSize));
+    //     vec3 sunDir = normalize(vec3(0.5, 1.0, 0.5));
+    //     intersectionPoint = intersectionPoint + sunDir * epson;
 
-        // Shoot a ray to the sun
-        uint8_t sunMaterialID = TraceRay(vec3(intersectionPoint), vec3(sunDir), position);
+    //     // Shoot a ray to the sun
+    //     uint8_t sunMaterialID = TraceRay(vec3(intersectionPoint), vec3(sunDir), position);
 
-        if (sunMaterialID != EMPTY_VOXEL)
-        {
-            color = mix(color, vec4(0.0, 0.0, 0.0, 1.0), 0.5);
-        }
-    }
+    //     if (sunMaterialID != EMPTY_VOXEL)
+    //     {
+    //         color = mix(color, vec4(0.0, 0.0, 0.0, 1.0), 0.5);
+    //     }
+    // }
 
     imageStore(img_output, pixel_coords, color);
 }
