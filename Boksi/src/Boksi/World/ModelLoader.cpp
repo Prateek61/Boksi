@@ -1,14 +1,28 @@
 #include "bkpch.h"
 #include "ModelLoader.h"
 #include "Mesh/VoxelMesh.h"
-
+#include "Boksi/World/Material.h"
 
 namespace Boksi
 {
+    struct Vec3Comparator
+    {
+        bool operator()(const glm::vec3& lhs, const glm::vec3& rhs) const
+        {
+            if (lhs.x != rhs.x)
+                return lhs.x < rhs.x;
+            if (lhs.y != rhs.y)
+                return lhs.y < rhs.y;
+            return lhs.z < rhs.z;
+        }
+    };
     
     void ModelLoader::LoadModel(const std::string path , Ref<VoxelMesh> mesh , glm::uvec3 pos , int scale)
     {
         //load file from path in read mode
+
+        // Storage an array of materials
+        std::map<glm::vec3, uint8_t, Vec3Comparator> materials;
 
         std::ifstream file(path, std::ios::in | std::ios::binary);
         if (!file.is_open())
@@ -51,9 +65,25 @@ namespace Boksi
                 BK_CORE_ASSERT(z >= 0 && z < mesh->GetSize().z, "Invalid z coordinate");
 
                 glm::uvec3 pos = {x, y, z};
-                Voxel voxel = 2;
-                mesh->SetVoxel(pos, voxel);
+                glm::vec3 color = {r / 255.0, g / 255.0, b / 255.0};
 
+                uint8_t materialID = 0;
+
+                // Check if the color exists in the materials map
+                if (materials.find(color) == materials.end())
+				{
+					// Add the color to the materials map
+                    Material material;
+                    material.Color = color;
+					materialID = MaterialLibrary::AddMaterial(material, "LoadMaterial: " + std::to_string(MaterialLibrary::GetMaterialCount()));
+					materials[color] = materialID;
+				}
+				else
+				{
+					materialID = materials[color];
+				}
+
+                mesh->SetVoxel(pos, materialID);
             }
 
         }
