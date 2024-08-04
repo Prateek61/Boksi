@@ -9,9 +9,12 @@ namespace Boksi
     {
     public:
         Cube() = default;
-        Cube(glm::vec3 position, glm::vec3 rotation , size_t size);    
+        Cube(glm::vec3 position, glm::vec3 rotation, size_t size , uint8_t id);    
     
         virtual void OnUpdate() override;
         virtual void Draw(Ref<VoxelMesh> mesh) override;
+
+    private:
+        uint8_t m_Id;
     };
 }

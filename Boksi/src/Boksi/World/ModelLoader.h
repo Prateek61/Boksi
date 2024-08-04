@@ -1,8 +1,14 @@
+#pragma once
 #include "bkpch.h"
 #include "Mesh/VoxelMesh.h"
 
 namespace Boksi
 {
+    struct VoxelData
+    {
+        glm::vec3 position;
+        glm::vec3 color;
+    };
 
     class ModelLoader
     {
@@ -10,8 +16,8 @@ namespace Boksi
         ModelLoader() = default;
         ~ModelLoader() = default;
 
-        static void LoadModel(const std::string path , Ref<VoxelMesh> mesh , glm::uvec3 pos = {0, 0, 0} , int scale = 1);
-            
+        static std::vector<VoxelData> LoadModel(const std::string &path, glm::uvec3 pos, int scale);
+
         static std::vector<std::string> SplitString(const std::string &s, char delimiter)
         {
             std::vector<std::string> tokens;

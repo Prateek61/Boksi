@@ -68,7 +68,7 @@ namespace Boksi
         // Storage Buffer
         m_VoxelStorageBuffer->Bind(1);
 
-        if (true)
+        if (mesh->MeshChanged)
 		{
 			mesh->MeshChanged = false;
 			m_VoxelStorageBuffer->SetData(mesh->GetVoxelArray().data(), mesh->GetVoxelCount() * sizeof(Voxel));

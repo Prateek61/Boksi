@@ -24,9 +24,10 @@ uniform float u_Intensity;
 uniform float u_AO;
 uniform float u_ShadowBias;
 uniform vec3 u_LightPosition;
+uniform float u_VoxelSize;
 
 
-const float iVoxelSize=.5;
+const float iVoxelSize=u_VoxelSize;
 const float tMax=100.;
 const float tDelta=.1;
 const int maxDepth=1;
