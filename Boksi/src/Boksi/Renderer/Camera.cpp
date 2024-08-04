@@ -77,12 +77,15 @@ namespace Boksi
 	}
 
 	void Camera::RecalculateView()
-	{
+	{	
+		m_ForwardDirection = glm::normalize(m_ForwardDirection);
+
 		m_View = glm::lookAt(
 			m_Position,
 			m_Position + m_ForwardDirection,
 			m_UpDirection
 		);
 		m_InverseView = glm::inverse(m_View);
+
 	}
 }

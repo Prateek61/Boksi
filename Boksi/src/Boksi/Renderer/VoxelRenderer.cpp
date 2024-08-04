@@ -14,7 +14,7 @@ namespace Boksi
         m_VoxelStorageBuffer.reset(StorageBuffer::Create());
     }
 
-    void VoxelRendererSVO::Render(const Camera &camera, const Ref<Texture2D> texture, glm::ivec3 dimensions, int maxDepth, float voxelSize, Ref<VoxelMeshSVO> mesh)
+    void VoxelRendererSVO::Render(const Camera &camera, const Ref<Texture2D> texture, glm::ivec3 dimensions, int maxDepth, float voxelSize, Ref<VoxelMeshArray> mesh)
     {
         // Bind the compute shader
         m_ComputeShader->Bind();

@@ -4,7 +4,7 @@
 #include "Boksi/Renderer/Buffer/Buffer.h"
 #include "Boksi/Renderer/Texture.h"
 #include "Boksi/Renderer/Camera.h"
-#include "Boksi/World/Mesh/VoxelMeshSVO.h"
+#include "Boksi/World/Mesh/VoxelMeshArray.h"
 
 namespace Boksi
 {
@@ -14,7 +14,7 @@ namespace Boksi
         VoxelRendererSVO(const std::string& computeShaderSource);
         ~VoxelRendererSVO() = default;
 
-        void Render(const Camera& camera, const Ref<Texture2D> texture, glm::ivec3 dimensions, int maxDepth, float voxelSize , Ref<VoxelMeshSVO> mesh);
+        void Render(const Camera& camera, const Ref<Texture2D> texture, glm::ivec3 dimensions, int maxDepth, float voxelSize , Ref<VoxelMeshArray> mesh);
 
     private:
         Ref<StorageBuffer> m_VoxelStorageBuffer;
