@@ -47,8 +47,11 @@ uint8_t TraceRay(vec3 rayOrig, vec3 rayDir, int root, out vec3 hitPos, out float
 
     // Get rid of small ray direction components to avoid division by zero
     if (abs(rayDir.x) < epson) rayDir.x = sign(rayDir.x) * epson;
+    if (rayDir.x == 0.0) rayDir.x = epson;
     if (abs(rayDir.y) < epson) rayDir.y = sign(rayDir.y) * epson;
+    if (rayDir.y == 0.0) rayDir.y = epson;
     if (abs(rayDir.z) < epson) rayDir.z = sign(rayDir.z) * epson;
+    if (rayDir.z == 0.0) rayDir.z = epson;
 
     // Precompute the coefficients of tx(x), ty(y), and tz(z)
     // The octree is assumed to reside at coordinates [1, 2]
@@ -125,9 +128,8 @@ uint8_t TraceRay(vec3 rayOrig, vec3 rayDir, int root, out vec3 hitPos, out float
             if (t_min <= tv_max)
             {
                 // Terminate if the corresponding bit in the children mask is not set
-                if ((parent.ValidMask & child_getter_mask) == uint_zero)
+                if ((parent.ChildrenMask & child_getter_mask) == uint_zero)
                 {
-                    return FILLED_VOXEL;
                     break;
                 }
 
@@ -229,7 +231,15 @@ uint8_t TraceRay(vec3 rayOrig, vec3 rayDir, int root, out vec3 hitPos, out float
     hitPos.y = min(max(rayOrig.y + t_min * rayDir.y, pos.y + epson), pos.y + scale_exp2 - epson);
     hitPos.z = min(max(rayOrig.z + t_min * rayDir.z, pos.z + epson), pos.z + scale_exp2 - epson);
     parent_idx = parentIdx;
-    return parent.ChildrenVoxels[idx];
+
+    if (parent.ChildrenVoxels[idx] == EMPTY_VOXEL)
+    {
+        return VOXEL_NOT_FOUND;
+    }
+    else    
+    {
+        return parent.ChildrenVoxels[idx];
+    }
 }
 
 void main()
@@ -239,7 +249,19 @@ void main()
     vec3 rayOrig = u_Camera.Position;
     vec3 rayDir = GetRayDirection(pixel_coords);
 
-    vec3 transformedOrig = u_Camera.Position;
+    // Perform intersection test and check if ray hits the octree
+    float tMin, tMax;
+    if (!RayAABBIntersect(rayOrig, rayDir, vec3(0), vec3(u_Dimensions), tMin, tMax))
+    {
+        imageStore(img_output, pixel_coords, vec4(materials[EMPTY_VOXEL].color, 1));
+        return;
+    }
+    if (!(tMin <= 0))
+    {
+        rayOrig += rayDir * (tMin + epson);
+    }
+
+    vec3 transformedOrig = rayOrig;
     // World Space to Voxel Space
     transformedOrig /= u_VoxelSize;
     // Voxel Space to [0, 1] Space
@@ -248,13 +270,13 @@ void main()
     transformedOrig += vec3(1.0);
 
     // Perform intersection test and check if ray hits the octree
-    float tMin, tMax;
-    if (!RayAABBIntersect(transformedOrig, rayDir, vec3(1.), vec3(2.), tMin, tMax))
-    {
-        imageStore(img_output, pixel_coords, vec4(materials[EMPTY_VOXEL].color, 1));
-        return;
-    }
-    // if (!(tMin <= 0.0))
+    // float tMin, tMax;
+    // if (!RayAABBIntersect(transformedOrig, rayDir, vec3(1.), vec3(2.), tMin, tMax))
+    // {
+    //     imageStore(img_output, pixel_coords, vec4(materials[EMPTY_VOXEL].color, 1));
+    //     return;
+    // }
+    // if (!(tMin <= 0))
     // {
     //     transformedOrig += rayDir * (tMin + epson);
     // }
@@ -263,12 +285,10 @@ void main()
     int parent_idx;
     float hit_t;
     uint8_t materialID = TraceRay(transformedOrig, rayDir, 0, hitPos, hit_t, parent_idx);
-
     if (hit_t >= 2.0)
     {
-        materialID = ERROR_VOXEL;
+        materialID = VOXEL_NOT_FOUND;
     }
-
     vec4 color = vec4(materials[materialID].color, 1.0);
 
     imageStore(img_output, pixel_coords, color);
@@ -285,6 +305,11 @@ vec3 GetRayDirection(ivec2 pixel_coords) {
 }
 
 bool RayAABBIntersect(vec3 rayOrig, vec3 rayDir, vec3 boxMin, vec3 boxMax, out float tMin, out float tMax) {
+    // Make sure rayDir is not zero
+    if (abs(rayDir.x) < epson) rayDir.x = sign(rayDir.x) * epson;
+    if (abs(rayDir.y) < epson) rayDir.y = sign(rayDir.y) * epson;
+    if (abs(rayDir.z) < epson) rayDir.z = sign(rayDir.z) * epson;
+
     vec3 invDir = 1.0 / rayDir;
     vec3 t0 = (boxMin - rayOrig) * invDir;
     vec3 t1 = (boxMax - rayOrig) * invDir;

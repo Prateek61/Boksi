@@ -28,13 +28,20 @@ namespace Boksi
 		GPUOctreeNode(const OctreeNode& octreeNode)
 			: ChildrenMask(octreeNode.ChildrenMask), ChildrenVoxels{ EMPTY_VOXEL }, Children{ -1, -1, -1, -1, -1, -1, -1, -1 }
 		{
+			ValidMask = 0;
 			for (int i = 0; i < 8; i++)
 			{
-				ChildrenVoxels[i] = octreeNode.ChildrenVoxels[i];
-
-				if (!(!(octreeNode.ChildrenMask & (1 << i)) && ChildrenVoxels[i] == EMPTY_VOXEL))
+				if (octreeNode.ChildrenMask & (1 << i))
 				{
 					ValidMask |= (1 << i);
+				}
+				else
+				{
+					ChildrenVoxels[i] = octreeNode.ChildrenVoxels[i];
+					if (octreeNode.ChildrenVoxels[i] != EMPTY_VOXEL)
+					{
+						ValidMask |= (1 << i);
+					}
 				}
 			}
 		}
