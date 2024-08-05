@@ -4,7 +4,7 @@
 
 #include "Boksi/World/Mesh/VoxelMeshModifier.h"
 
-const std::string res_path = "../Boksi/res/";
+const std::string res_path = "Boksi/res/";
 
 constexpr int WORLD_SIZE = 256;
 constexpr glm::uvec3 WORLD_DIMENSIONS = {WORLD_SIZE, WORLD_SIZE, WORLD_SIZE};
@@ -46,6 +46,12 @@ public:
 		// Load Models
 		Boksi::ModelLoader::LoadModel(res_path + "Models/donut.txt", m_VoxelMesh, {0, 0, 0}, 1);
 		Boksi::ModelLoader::LoadModel(res_path + "Models/llama04.txt", m_VoxelMesh, {0, 30, 0}, 1);
+		
+		std::shared_ptr<Boksi::ComputeShader> m_ComputeShader = m_VoxelRendererArray->GetComputeShader();
+		m_ComputeShader->Bind();
+		m_ComputeShader->UniformUploader->UploadUniformFloat3("u_LightPosition", glm::vec3(15.0f, 240.0f, 10.0f));
+
+	
 	}
 
 	void OnUpdate() override
@@ -196,7 +202,7 @@ void ExampleLayer::AttachShadersAndBuffers()
 										"Red");
 
 	Boksi::MaterialLibrary::AddMaterial({
-											glm::vec3(0.0f, 1.0f, 0.0f), // Albedo (base color)
+											glm::vec3(0.0f, 0.3f, 0.0f), // Albedo (base color)
 											glm::vec3(0.1f, 0.1f, 0.1f), // Specular color
 											glm::vec3(0.0f, 0.2f, 0.0f)	 // Ambient color (dimmed green)
 										},

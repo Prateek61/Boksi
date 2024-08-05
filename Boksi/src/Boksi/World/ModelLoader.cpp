@@ -7,7 +7,7 @@ namespace Boksi
 {
     struct Vec3Comparator
     {
-        bool operator()(const glm::vec3& lhs, const glm::vec3& rhs) const
+        bool operator()(const glm::vec3 &lhs, const glm::vec3 &rhs) const
         {
             if (lhs.x != rhs.x)
                 return lhs.x < rhs.x;
@@ -19,7 +19,7 @@ namespace Boksi
 
     void ModelLoader::LoadModel(const std::string path, Ref<VoxelMesh> mesh, glm::uvec3 pos, int scale)
     {
-        //load file from path in read mode
+        // load file from path in read mode
 
         // Storage an array of materials
         std::map<glm::vec3, uint8_t, Vec3Comparator> materials;
@@ -31,7 +31,7 @@ namespace Boksi
             return;
         }
 
-        //read the file
+        // read the file
         std::string line;
         while (std::getline(file, line))
         {
@@ -64,8 +64,8 @@ namespace Boksi
                 BK_CORE_ASSERT(y >= 0 && y < mesh->GetSize().y, "Invalid y coordinate");
                 BK_CORE_ASSERT(z >= 0 && z < mesh->GetSize().z, "Invalid z coordinate");
 
-                glm::uvec3 pos = { x, y, z };
-                glm::vec3 color = { r / 255.0, g / 255.0, b / 255.0 };
+                glm::uvec3 pos = {x, y, z};
+                glm::vec3 color = {r / 255.0, g / 255.0, b / 255.0};
 
                 uint8_t materialID = 0;
 
@@ -87,10 +87,7 @@ namespace Boksi
 
                 mesh->SetVoxel(pos, materialID);
             }
-
         }
-
-
     }
 
     float ModelLoader::LinearToGamma(float linear)
@@ -105,5 +102,4 @@ namespace Boksi
         }
     }
 
-    }
 }
