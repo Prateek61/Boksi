@@ -32,7 +32,7 @@ bool RayAABBIntersect(vec3 rayOrig, vec3 rayDir, vec3 boxMin, vec3 boxMax, out f
 
 // Define epson as the base 2 exponential of 23 (mantissa bits)
 const int s_max = 23;
-const float epson = exp2(s_max);
+const float epson = exp2(-s_max);
 const uint8_t uint_zero = uint8_t(0);
 
 struct Stack
@@ -40,7 +40,7 @@ struct Stack
     int parentIdx;
     float t_max;
 };
-uint8_t TraceRay(vec3 rayOrig, vec3 rayDir, int root, out vec3 hitPos, out float hit_t)
+uint8_t TraceRay(vec3 rayOrig, vec3 rayDir, int root, out vec3 hitPos, out float hit_t, out int parent_idx)
 {
     // Initialize the stack
     Stack stack[s_max + 1]; // Stack of parent Voxels
@@ -127,6 +127,7 @@ uint8_t TraceRay(vec3 rayOrig, vec3 rayDir, int root, out vec3 hitPos, out float
                 // Terminate if the corresponding bit in the children mask is not set
                 if ((parent.ValidMask & child_getter_mask) == uint_zero)
                 {
+                    return FILLED_VOXEL;
                     break;
                 }
 
@@ -227,7 +228,7 @@ uint8_t TraceRay(vec3 rayOrig, vec3 rayDir, int root, out vec3 hitPos, out float
     hitPos.x = min(max(rayOrig.x + t_min * rayDir.x, pos.x + epson), pos.x + scale_exp2 - epson);
     hitPos.y = min(max(rayOrig.y + t_min * rayDir.y, pos.y + epson), pos.y + scale_exp2 - epson);
     hitPos.z = min(max(rayOrig.z + t_min * rayDir.z, pos.z + epson), pos.z + scale_exp2 - epson);
-
+    parent_idx = parentIdx;
     return parent.ChildrenVoxels[idx];
 }
 
@@ -253,14 +254,20 @@ void main()
         imageStore(img_output, pixel_coords, vec4(materials[EMPTY_VOXEL].color, 1));
         return;
     }
-    if (!(tMin <= 0.0))
-    {
-        transformedOrig += rayDir * (tMin + epson);
-    }
+    // if (!(tMin <= 0.0))
+    // {
+    //     transformedOrig += rayDir * (tMin + epson);
+    // }
 
     vec3 hitPos;
+    int parent_idx;
     float hit_t;
-    uint8_t materialID = TraceRay(transformedOrig, rayDir, 0, hitPos, hit_t);
+    uint8_t materialID = TraceRay(transformedOrig, rayDir, 0, hitPos, hit_t, parent_idx);
+
+    if (hit_t >= 2.0)
+    {
+        materialID = ERROR_VOXEL;
+    }
 
     vec4 color = vec4(materials[materialID].color, 1.0);
 
