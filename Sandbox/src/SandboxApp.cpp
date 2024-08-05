@@ -6,10 +6,10 @@
 
 const std::string res_path = "../Boksi/res/";
 
-constexpr int WORLD_SIZE = 256;
+constexpr int WORLD_SIZE = 1024;
 constexpr glm::uvec3 WORLD_DIMENSIONS = {WORLD_SIZE, WORLD_SIZE, WORLD_SIZE};
 
-constexpr float VOXEL_SIZE = .5f;
+constexpr float VOXEL_SIZE = 0.01f;
 
 const Boksi::WindowProps WINDOW_PROPS = {
 	"Voxel Ray Tracer",
@@ -28,11 +28,12 @@ public:
 
 		// Add entities
 		// std::shared_ptr<Boksi::Entity> entity = std::make_shared<Boksi::Cube>(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), glm::vec3(0, 0, 0));
-		m_EntitiesArray->AddEntity(std::make_shared<Boksi::Cube>(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), 4));
+		// m_EntitiesArray->AddEntity(std::make_shared<Boksi::Cube>(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), 1
+		// ));
 
 		// Set Camera
 		m_CameraController.GetCamera().OnResize(1280, 720);
-		m_CameraController.SetCameraMoveSpeed(1.0f);
+		m_CameraController.SetCameraMoveSpeed(10.0f);
 		m_CameraController.SetCameraMouseSensitivity(0.01f);
 		m_CameraController.OnUpdate(0.0f);
 
@@ -44,7 +45,7 @@ public:
 		m_CameraController.GetCamera().SetForwardDirection({1, 1, 1});
 
 		// Load Models
-		Boksi::ModelLoader::LoadModel(res_path + "Models/donut.txt", m_VoxelMesh, {0, 0, 0}, 1);
+		Boksi::ModelLoader::LoadModel(res_path + "Models/donut.txt", m_VoxelMesh, {80, 80, 80}, 1);
 		Boksi::ModelLoader::LoadModel(res_path + "Models/llama04.txt", m_VoxelMesh, {0, 30, 0}, 1);
 	}
 
@@ -73,7 +74,8 @@ public:
 			Boksi::MaterialLibrary::s_NewMaterialAdded = false;
 		}
 		// Array Renderer
-		m_VoxelRendererArray->Render(m_CameraController.GetCamera(), m_Texture, m_VoxelMesh, VOXEL_SIZE, {1280, 720}, {16, 16, 1});
+		//m_VoxelRendererArray->Render(m_CameraController.GetCamera(), m_Texture, m_VoxelMesh, VOXEL_SIZE, {1280, 720}, {16, 16, 1});
+		m_VoxelRendererSvo->Render(m_CameraController.GetCamera(), m_Texture, 1.0f, m_VoxelMesh, { 1280, 720 }, { 16, 16, 1 });
 
 		// Check for errors
 		Boksi::RenderCommand::CheckForErrors();
@@ -157,7 +159,10 @@ private:
 	Boksi::CameraController m_CameraController;
 
 	std::shared_ptr<Boksi::VoxelRendererArray> m_VoxelRendererArray;
-	std::shared_ptr<Boksi::VoxelMeshArray> m_VoxelMesh;
+	// std::shared_ptr<Boksi::VoxelMeshArray> m_VoxelMesh;
+
+	std::shared_ptr<Boksi::VoxelMeshSVO> m_VoxelMesh;
+	std::shared_ptr<Boksi::VoxelRendererSVO> m_VoxelRendererSvo;
 
 	std::shared_ptr<Boksi::EntitiesArray> m_EntitiesArray;
 	std::shared_ptr<Boksi::StorageBuffer> m_MaterialStorageBuffer;
@@ -221,7 +226,8 @@ void ExampleLayer::AttachShadersAndBuffers()
 
 	// Compute Shader
 	m_VoxelRendererArray.reset(new Boksi::VoxelRendererArray(res_path + "Shaders/ray_trace.comp.glsl"));
-	m_VoxelMesh.reset(new Boksi::VoxelMeshArray(WORLD_DIMENSIONS));
+	m_VoxelRendererSvo.reset(new Boksi::VoxelRendererSVO(res_path + "Shaders/ray_trace_svo_better.comp.glsl"));
+	m_VoxelMesh.reset(new Boksi::VoxelMeshSVO(WORLD_DIMENSIONS));
 
 	// Normal frag and vertex shader
 	const std::string vertex_src = Boksi::Renderer::ReadFile(res_path + "Shaders/texture.vertex.glsl");
