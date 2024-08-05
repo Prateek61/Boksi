@@ -183,36 +183,4 @@ namespace Boksi
 		// Delete the node
 		delete node;
 	}
-	
-	void FlattenOctree(const OctreeNode* node, std::vector<GPUOctreeNode>& flatGPUOctree)
-	{
-		if (!node)
-		{
-			BK_CORE_ASSERT(false, "Should not be null")
-			return;
-		}
-
-		int index = flatGPUOctree.size();
-		// Create the GPUOctreeNode
-		GPUOctreeNode gpu_node(*node);
-		flatGPUOctree.push_back(gpu_node);
-
-		// Process children
-		for (int i = 0; i < 8; i++)
-		{
-			if (node->ChildrenMask & (1 << i))
-			{
-				// Record the index of the child node
-				flatGPUOctree[index].Children[i] = static_cast<int>(flatGPUOctree.size());
-				// Recurse into the child node
-				FlattenOctree(node->Children[i], flatGPUOctree);
-			}
-			else
-			{
-				// No child, set the index to -1
-				flatGPUOctree[index].Children[i] = -1;
-			}
-		}
-	}
-
 }

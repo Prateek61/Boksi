@@ -19,7 +19,8 @@ namespace Boksi
 	struct GPUOctreeNode
 	{
 		uint8_t ChildrenMask;
-		uint8_t Padding[3]; // Align next member to 4 byte
+		uint8_t ValidMask;
+		uint8_t Padding[2]; // Align next member to 4 byte
 		Voxel ChildrenVoxels[8];
 		int Children[8];
 
@@ -30,6 +31,11 @@ namespace Boksi
 			for (int i = 0; i < 8; i++)
 			{
 				ChildrenVoxels[i] = octreeNode.ChildrenVoxels[i];
+
+				if (!(!(octreeNode.ChildrenMask & (1 << i)) && ChildrenVoxels[i] == EMPTY_VOXEL))
+				{
+					ValidMask |= (1 << i);
+				}
 			}
 		}
 	};
@@ -66,8 +72,6 @@ namespace Boksi
 		glm::uvec3 m_Size;
 		glm::uvec3 m_MaxSize;
 	};
-
-	void FlattenOctree(OctreeNode* node, std::vector<GPUOctreeNode>& flatGPUOctree);
 }
 
 // Inline definitions
@@ -81,5 +85,36 @@ namespace Boksi
 	inline uint32_t VoxelMeshSVO::GetVoxelCount() const
 	{
 		return m_Size.x * m_Size.y * m_Size.z;
+	}
+
+	inline void FlattenOctree(const OctreeNode* node, std::vector<GPUOctreeNode>& flatGPUOctree)
+	{
+		if (!node)
+		{
+			BK_CORE_ASSERT(false, "Should not be null")
+				return;
+		}
+
+		int index = flatGPUOctree.size();
+		// Create the GPUOctreeNode
+		GPUOctreeNode gpu_node(*node);
+		flatGPUOctree.push_back(gpu_node);
+
+		// Process children
+		for (int i = 0; i < 8; i++)
+		{
+			if (node->ChildrenMask & (1 << i))
+			{
+				// Record the index of the child node
+				flatGPUOctree[index].Children[i] = static_cast<int>(flatGPUOctree.size());
+				// Recurse into the child node
+				FlattenOctree(node->Children[i], flatGPUOctree);
+			}
+			else
+			{
+				// No child, set the index to -1
+				flatGPUOctree[index].Children[i] = -1;
+			}
+		}
 	}
 }

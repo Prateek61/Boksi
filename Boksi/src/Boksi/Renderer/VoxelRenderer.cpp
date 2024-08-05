@@ -15,7 +15,7 @@ namespace Boksi
         m_VoxelStorageBuffer.reset(StorageBuffer::Create());
     }
 
-    void VoxelRendererSVO::Render(const Camera &camera, const Ref<Texture2D> texture, glm::ivec3 dimensions, int maxDepth, float voxelSize, Ref<VoxelMeshSVO> mesh, glm::uvec2 resolution, glm::uvec3 group)
+    void VoxelRendererSVO::Render(const Camera &camera, const Ref<Texture2D> texture, float voxelSize, Ref<VoxelMeshSVO> mesh, glm::uvec2 resolution, glm::uvec3 group)
     {
         // Bind the compute shader
         m_ComputeShader->Bind();
@@ -23,20 +23,24 @@ namespace Boksi
         // Upload uniforms
         Camera::UploadCameraUniformToShader(m_ComputeShader->UniformUploader, camera);
 
-        m_ComputeShader->UniformUploader->UploadUniformInt("u_MaxDepth", maxDepth);
+        m_ComputeShader->UniformUploader->UploadUniformInt("u_MaxDepth", mesh->GetMaximumDepth());
         m_ComputeShader->UniformUploader->UploadUniformFloat("u_VoxelSize", voxelSize);
-        m_ComputeShader->UniformUploader->UploadUniformInt3("u_Dimensions", dimensions);
+        m_ComputeShader->UniformUploader->UploadUniformInt3("u_Dimensions", mesh->GetSize());
+        m_ComputeShader->UniformUploader->UploadUniformInt("u_MaxDepth", mesh->GetMaximumDepth());
 
-        m_VoxelStorageBuffer->Bind(1);
+        m_VoxelStorageBuffer->Bind(0);
 
         if (true)
         {
 	        mesh->MeshChanged = false;
 			// Convert VoxelMesh to GPUOctree
 			std::vector<GPUOctreeNode> gpuOctreeNodes;
-			// FlattenOctree(mesh->GetRoot(), gpuOctreeNodes);
+			FlattenOctree(mesh->GetRoot(), gpuOctreeNodes);
 
 			m_VoxelStorageBuffer->SetData(gpuOctreeNodes.data(), gpuOctreeNodes.size() * sizeof(GPUOctreeNode));
+
+            // Display Flatten size
+        	BK_CORE_TRACE("Flatten size: {0}", gpuOctreeNodes.size());
         }
 
         texture->BindWrite(0);
