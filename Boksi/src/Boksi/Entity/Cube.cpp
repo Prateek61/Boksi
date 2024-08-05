@@ -12,8 +12,13 @@ namespace Boksi
 
     void Cube::OnUpdate()
     {
-        SetPosition(GetPosition() + glm::vec3(1.0f, 1.0f, 1.0f));
-        if (GetPosition().x > 40.0f)
+        // Get Random Direction
+        glm::vec3 randomDirection = glm::vec3(1, 1 , 1);
+
+        // BK_TRACE("Random Direction: {0}, {1}, {2}", randomDirection.x, randomDirection.y, randomDirection.z);
+
+        SetPosition(GetPosition() + randomDirection);
+        if (GetPosition().x > 150.0f || GetPosition().y > 150.0f || GetPosition().z > 150.0f)
         {
             SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
         }
@@ -54,7 +59,7 @@ namespace Boksi
                     for (int k = 0; k < cubeSize.z; k++)
                     {
                         glm::uvec3 currentPos = glm::uvec3(newPos) + glm::uvec3(i, j, k);
-                        mesh->SetVoxel(currentPos, 1); // Assuming '1' is the filled voxel value
+                        mesh->SetVoxel(currentPos, 3); // Assuming '1' is the filled voxel value
                     }
                 }
             }

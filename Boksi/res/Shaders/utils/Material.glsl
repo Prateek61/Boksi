@@ -1,5 +1,7 @@
 struct Material
 {
     vec3 color;
-    float ambient;
+    vec3 specular;
+    vec3 ambient;
+
 };

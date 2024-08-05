@@ -11,6 +11,9 @@ namespace Boksi
         ~ModelLoader() = default;
 
         static void LoadModel(const std::string path , Ref<VoxelMesh> mesh , glm::uvec3 pos = {0, 0, 0} , int scale = 1);
+        static float LinearToGamma(float linear);
+
+
             
         static std::vector<std::string> SplitString(const std::string &s, char delimiter)
         {
