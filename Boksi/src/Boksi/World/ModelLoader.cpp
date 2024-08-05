@@ -16,8 +16,8 @@ namespace Boksi
             return lhs.z < rhs.z;
         }
     };
-    
-    void ModelLoader::LoadModel(const std::string path , Ref<VoxelMesh> mesh , glm::uvec3 pos , int scale)
+
+    void ModelLoader::LoadModel(const std::string path, Ref<VoxelMesh> mesh, glm::uvec3 pos, int scale)
     {
         //load file from path in read mode
 
@@ -44,7 +44,7 @@ namespace Boksi
                 int x = std::stoi(dims[0]);
                 int y = std::stoi(dims[1]);
                 int z = std::stoi(dims[2]);
-                
+
                 BK_CORE_ASSERT(x > 0 && y > 0 && z > 0, "Invalid dimensions");
             }
 
@@ -59,38 +59,38 @@ namespace Boksi
                 int r = std::stoi(data[3]);
                 int g = std::stoi(data[4]);
                 int b = std::stoi(data[5]);
-                
+
                 BK_CORE_ASSERT(x >= 0 && x < mesh->GetSize().x, "Invalid x coordinate");
                 BK_CORE_ASSERT(y >= 0 && y < mesh->GetSize().y, "Invalid y coordinate");
                 BK_CORE_ASSERT(z >= 0 && z < mesh->GetSize().z, "Invalid z coordinate");
 
-                glm::uvec3 pos = {x, y, z};
-                glm::vec3 color = {r / 255.0, g / 255.0, b / 255.0};
+                glm::uvec3 pos = { x, y, z };
+                glm::vec3 color = { r / 255.0, g / 255.0, b / 255.0 };
 
                 uint8_t materialID = 0;
 
                 // Check if the color exists in the materials map
                 if (materials.find(color) == materials.end())
-				{
-					// Add the color to the materials map
+                {
+                    // Add the color to the materials map
                     Material material;
                     material.Color = glm::vec3(LinearToGamma(color.r), LinearToGamma(color.g), LinearToGamma(color.b));
                     material.Ambient = glm::vec3(1.0f, 1.0f, 1.0f);
                     material.Specular = glm::vec3(0.5f, 0.5f, 0.5f);
-					materialID = MaterialLibrary::AddMaterial(material, "LoadMaterial: " + std::to_string(MaterialLibrary::GetMaterialCount()));
-					materials[color] = materialID;
-				}
-				else
-				{
-					materialID = materials[color];
-				}
+                    materialID = MaterialLibrary::AddMaterial(material, "LoadMaterial: " + std::to_string(MaterialLibrary::GetMaterialCount()));
+                    materials[color] = materialID;
+                }
+                else
+                {
+                    materialID = materials[color];
+                }
 
                 mesh->SetVoxel(pos, materialID);
             }
 
         }
-        
-        
+
+
     }
 
     float ModelLoader::LinearToGamma(float linear)
@@ -104,4 +104,5 @@ namespace Boksi
             return 1.055f * std::pow(linear, 1.0f / 2.4f) - 0.055f;
         }
 
-} // namespace Boksi
+    }
+}
