@@ -13,7 +13,7 @@ namespace Boksi
     void Cube::OnUpdate()
     {
         // Get Random Direction
-        glm::vec3 randomDirection = glm::vec3((rand() % 3) - 1, (rand() % 3) - 1, (rand() % 3) - 1);
+        glm::vec3 randomDirection = glm::vec3(1, 1 , 1);
 
         // BK_TRACE("Random Direction: {0}, {1}, {2}", randomDirection.x, randomDirection.y, randomDirection.z);
 

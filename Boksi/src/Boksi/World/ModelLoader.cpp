@@ -103,5 +103,6 @@ namespace Boksi
         {
             return 1.055f * std::pow(linear, 1.0f / 2.4f) - 0.055f;
         }
+    }
 
 } // namespace Boksi

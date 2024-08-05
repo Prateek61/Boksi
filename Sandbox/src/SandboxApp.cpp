@@ -123,7 +123,7 @@ public:
 		ImGui::Begin("Lights");
 
 
-		static float shadowBias = 0.01f;
+		static float shadowBias = 0.0f;
 		ImGui::SliderFloat("Shadow Bias", &shadowBias, 0.0f, 1.0f);
 		m_ComputeShader->Bind();
 		m_ComputeShader->UniformUploader->UploadUniformFloat("u_ShadowBias", shadowBias);

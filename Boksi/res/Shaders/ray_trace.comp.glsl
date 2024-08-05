@@ -140,7 +140,7 @@ void main() {
 
     float shadow = 1;
     
-    bool shadows = false;
+    bool shadows = true;
     if (shadows) {
         vec3 shadowRayStart = voxel + lightDir +  normal * u_ShadowBias; // Start the shadow ray slightly off the voxel surface to avoid self-shadowing
         vec3 shadowRayDir = lightDir; // Direction of the shadow ray
