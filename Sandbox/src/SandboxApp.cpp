@@ -6,7 +6,7 @@
 
 const std::string res_path = "../Boksi/res/";
 
-constexpr int WORLD_SIZE = 1024;
+constexpr int WORLD_SIZE = 512;
 constexpr glm::uvec3 WORLD_DIMENSIONS = {WORLD_SIZE, WORLD_SIZE, WORLD_SIZE};
 
 constexpr float VOXEL_SIZE = 0.01f;
@@ -33,7 +33,7 @@ public:
 
 		// Set Camera
 		m_CameraController.GetCamera().OnResize(1280, 720);
-		m_CameraController.SetCameraMoveSpeed(10.0f);
+		m_CameraController.SetCameraMoveSpeed(5.0f);
 		m_CameraController.SetCameraMouseSensitivity(0.01f);
 		m_CameraController.OnUpdate(0.0f);
 
@@ -116,6 +116,7 @@ public:
 		if (ImGui::Button("Add World Floor"))
 		{
 			Boksi::VoxelModifier::DrawFloor(m_VoxelMesh, Boksi::MaterialLibrary::GetMaterialID("Green") );
+			m_VoxelMesh->MeshChanged = true;
 		}
 
 		ImGui::End();
