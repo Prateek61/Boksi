@@ -1,6 +1,6 @@
 #include "bkpch.h"
 #include "EntitiesArray.h"
-#include "Cube.h"
+#include "Boksi/Entity/Object.h"
 
 namespace Boksi
 {
@@ -15,18 +15,17 @@ namespace Boksi
         for (auto &entity : m_Entities)
         {
             // Do something
-            if (typeid(*entity) == typeid(Cube))
+            if (typeid(*entity) == typeid(Object))
             {
-                BK_CORE_TRACE("Cube");
+                BK_CORE_TRACE("Object");
             }
-            else 
+            else
             {
-                BK_CORE_WARN("Unknown Entity"); 
+                BK_CORE_WARN("Unknown Entity");
             }
 
             BK_CORE_TRACE("Position: {0}, {1}, {2}", entity->GetPosition().x, entity->GetPosition().y, entity->GetPosition().z);
             BK_CORE_TRACE("Rotation: {0}, {1}, {2}", entity->GetRotation().x, entity->GetRotation().y, entity->GetRotation().z);
-
         }
     }
 

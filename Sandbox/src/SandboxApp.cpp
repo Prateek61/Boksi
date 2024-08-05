@@ -27,9 +27,11 @@ public:
 		AttachShadersAndBuffers();
 
 		// Add entities
-		// std::shared_ptr<Boksi::Entity> entity = std::make_shared<Boksi::Cube>(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), glm::vec3(0, 0, 0));
-		// m_EntitiesArray->AddEntity(std::make_shared<Boksi::Cube>(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), 1
-		// ));
+
+		std::shared_ptr<Boksi::Object> object = std::make_shared<Boksi::Object>(glm::vec3(100, 30, 100), glm::vec3(0, 0, 0), 1, "Donut");
+		object->CreateModel(Boksi::ModelLoader::LoadModelToEntity(res_path + "Models/donut.txt" , 1));
+
+		m_EntitiesArray->AddEntity(object);
 
 		// Set Camera
 		m_CameraController.GetCamera().OnResize(1280, 720);
@@ -44,15 +46,12 @@ public:
 		m_CameraController.GetCamera().SetPosition({-1, -1, -1});
 		m_CameraController.GetCamera().SetForwardDirection({1, 1, 1});
 
-		// Load Models
-		Boksi::ModelLoader::LoadModel(res_path + "Models/donut.txt", m_VoxelMesh, {80, 80, 80}, 1);
-		Boksi::ModelLoader::LoadModel(res_path + "Models/llama04.txt", m_VoxelMesh, {0, 30, 0}, 1);
 		
+		Boksi::ModelLoader::LoadModel(res_path + "Models/llama04.txt", m_VoxelMesh, {0, 30, 0}, 1);
+
 		std::shared_ptr<Boksi::ComputeShader> m_ComputeShader = m_VoxelRendererArray->GetComputeShader();
 		m_ComputeShader->Bind();
 		m_ComputeShader->UniformUploader->UploadUniformFloat3("u_LightPosition", glm::vec3(15.0f, 240.0f, 10.0f));
-
-	
 	}
 
 	void OnUpdate() override
@@ -80,8 +79,8 @@ public:
 			Boksi::MaterialLibrary::s_NewMaterialAdded = false;
 		}
 		// Array Renderer
-		//m_VoxelRendererArray->Render(m_CameraController.GetCamera(), m_Texture, m_VoxelMesh, VOXEL_SIZE, {1280, 720}, {16, 16, 1});
-		m_VoxelRendererSvo->Render(m_CameraController.GetCamera(), m_Texture, 1.0f, m_VoxelMesh, { 1280, 720 }, { 16, 16, 1 });
+		// m_VoxelRendererArray->Render(m_CameraController.GetCamera(), m_Texture, m_VoxelMesh, VOXEL_SIZE, {1280, 720}, {16, 16, 1});
+		m_VoxelRendererSvo->Render(m_CameraController.GetCamera(), m_Texture, 1.0f, m_VoxelMesh, {1280, 720}, {16, 16, 1});
 
 		// Check for errors
 		Boksi::RenderCommand::CheckForErrors();
@@ -121,7 +120,7 @@ public:
 
 		if (ImGui::Button("Add World Floor"))
 		{
-			Boksi::VoxelModifier::DrawFloor(m_VoxelMesh, Boksi::MaterialLibrary::GetMaterialID("Green") );
+			Boksi::VoxelModifier::DrawFloor(m_VoxelMesh, Boksi::MaterialLibrary::GetMaterialID("Green"));
 			m_VoxelMesh->MeshChanged = true;
 		}
 
@@ -130,7 +129,6 @@ public:
 		// Lights
 		std::shared_ptr<Boksi::ComputeShader> m_ComputeShader = m_VoxelRendererArray->GetComputeShader();
 		ImGui::Begin("Lights");
-
 
 		static float shadowBias = 0.0f;
 		ImGui::SliderFloat("Shadow Bias", &shadowBias, 0.0f, 1.0f);

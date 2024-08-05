@@ -10,11 +10,11 @@ namespace Boksi
         ModelLoader() = default;
         ~ModelLoader() = default;
 
-        static void LoadModel(const std::string path , Ref<VoxelMesh> mesh , glm::uvec3 pos = {0, 0, 0} , int scale = 1);
+        static void LoadModel(const std::string path, Ref<VoxelMesh> mesh, glm::uvec3 pos = {0, 0, 0}, int scale = 1);
         static float LinearToGamma(float linear);
+        static std::vector<std::string> LoadModelToEntity(const std::string path, int scale);
+        static std::vector<std::string> CreateCubeToEntity(const glm::vec3 dimensions);
 
-
-            
         static std::vector<std::string> SplitString(const std::string &s, char delimiter)
         {
             std::vector<std::string> tokens;

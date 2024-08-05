@@ -194,20 +194,20 @@ void main() {
     vec4 color;
     color = colors[uint8_t(materialID)];
 
-    // if (materialID != EMPTY_VOXEL)
-    // {
-    //     vec3 intersectionPoint = ComputeIntersectionPoint(rayOrig, rayDir, ivec3(position / u_VoxelSize));
-    //     vec3 sunDir = normalize(vec3(0.5, 1.0, 0.5));
-    //     intersectionPoint = intersectionPoint + sunDir * epson;
+    if (materialID != EMPTY_VOXEL)
+    {
+        vec3 intersectionPoint = ComputeIntersectionPoint(rayOrig, rayDir, ivec3(position / u_VoxelSize));
+        vec3 sunDir = normalize(vec3(0.5, 1.0, 0.5));
+        intersectionPoint = intersectionPoint + sunDir * epson;
 
-    //     // Shoot a ray to the sun
-    //     uint8_t sunMaterialID = TraceRay(vec3(intersectionPoint), vec3(sunDir), position);
+        // Shoot a ray to the sun
+        uint8_t sunMaterialID = TraceRay(vec3(intersectionPoint), vec3(sunDir), position);
 
-    //     if (sunMaterialID != EMPTY_VOXEL)
-    //     {
-    //         color = mix(color, vec4(0.0, 0.0, 0.0, 1.0), 0.5);
-    //     }
-    // }
+        if (sunMaterialID != EMPTY_VOXEL)
+        {
+            color = vec4(0.0, 0.0, 0.0, 1.0);
+        }
+    }
 
     imageStore(img_output, pixel_coords, color);
 }

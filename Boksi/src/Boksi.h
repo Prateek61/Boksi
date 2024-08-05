@@ -42,7 +42,7 @@
 // ---Entity-------------------
 #include "Boksi/Entity/Entity.h"
 #include "Boksi/Entity/EntitiesArray.h"
-#include "Boksi/Entity/Cube.h"
+#include "Boksi/Entity/Object.h"
 // -----------------------------
 
 
