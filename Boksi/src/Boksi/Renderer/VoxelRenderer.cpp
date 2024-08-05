@@ -30,7 +30,7 @@ namespace Boksi
 
         m_VoxelStorageBuffer->Bind(0);
 
-        if (true)
+        if (mesh->MeshChanged)
         {
 	        mesh->MeshChanged = false;
 			// Convert VoxelMesh to GPUOctree
@@ -40,7 +40,7 @@ namespace Boksi
 			m_VoxelStorageBuffer->SetData(gpuOctreeNodes.data(), gpuOctreeNodes.size() * sizeof(GPUOctreeNode));
 
             // Display Flatten size
-        	BK_CORE_TRACE("Flatten size: {0}", gpuOctreeNodes.size());
+        	// BK_CORE_TRACE("Flatten size: {0}", gpuOctreeNodes.size());
         }
 
         texture->BindWrite(0);

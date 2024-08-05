@@ -14,9 +14,9 @@ layout(std430, binding = 1) buffer Materials { Material materials[]; }; // Mater
 
 // Uniforms
 uniform Camera u_Camera;
-uniform ivec3 u_Dimensions = ivec3(256);
+uniform ivec3 u_Dimensions;
 uniform int u_MaxDepth;
-uniform float u_VoxelSize = 1.0f;
+uniform float u_VoxelSize;
 
 // Function definitions
 // Get ray direction
@@ -40,18 +40,15 @@ struct Stack
     int parentIdx;
     float t_max;
 };
-uint8_t TraceRay(vec3 rayOrig, vec3 rayDir, int root, out vec3 hitPos, out float hit_t, out int parent_idx)
+uint8_t TraceRay(vec3 rayOrig, vec3 rayDir, int root, out vec3 hitPos, out float hit_t, out int parent_idx, out int hit_idx, out int hit_scale)
 {
     // Initialize the stack
     Stack stack[s_max + 1]; // Stack of parent Voxels
 
     // Get rid of small ray direction components to avoid division by zero
     if (abs(rayDir.x) < epson) rayDir.x = sign(rayDir.x) * epson;
-    if (rayDir.x == 0.0) rayDir.x = epson;
     if (abs(rayDir.y) < epson) rayDir.y = sign(rayDir.y) * epson;
-    if (rayDir.y == 0.0) rayDir.y = epson;
     if (abs(rayDir.z) < epson) rayDir.z = sign(rayDir.z) * epson;
-    if (rayDir.z == 0.0) rayDir.z = epson;
 
     // Precompute the coefficients of tx(x), ty(y), and tz(z)
     // The octree is assumed to reside at coordinates [1, 2]
@@ -75,7 +72,7 @@ uint8_t TraceRay(vec3 rayOrig, vec3 rayDir, int root, out vec3 hitPos, out float
     float t_max = min(min(tx_coef - tx_bias, ty_coef - ty_bias), tz_coef - tz_bias);
     float h = t_max;
     t_min = max(t_min, 0.0);
-    t_max = min(t_max, h);
+    // t_max = min(t_max, 1.0);
 
     // Initialize the current voxel to the first child of the root
     Node parent = nodes[root];
@@ -106,7 +103,7 @@ uint8_t TraceRay(vec3 rayOrig, vec3 rayDir, int root, out vec3 hitPos, out float
 
         // Process voxel if the corresponding bit in valid mask set
         // and the active t-span is non-empty
-        uint8_t child_getter_mask = uint8_t(1 << idx);
+        uint8_t child_getter_mask = uint8_t(1 << (idx ^ octant_mask ^ 7));
         if ((parent.ValidMask & child_getter_mask) != uint_zero && t_min < tc_max)
         {
             // Terminate if the voxel is small enough
@@ -143,7 +140,7 @@ uint8_t TraceRay(vec3 rayOrig, vec3 rayDir, int root, out vec3 hitPos, out float
                 h = tc_max;
 
                 // Update the parent
-                parentIdx = parent.Children[idx];
+                parentIdx = parent.Children[idx ^ octant_mask ^ 7];
                 parent = nodes[parentIdx];
 
                 // Select child voxel that the ray enters next
@@ -215,11 +212,8 @@ uint8_t TraceRay(vec3 rayOrig, vec3 rayDir, int root, out vec3 hitPos, out float
         }
     }
 
-    // Indicate miss if we are outside the octree
-    if (scale >= s_max)
-    {
-        t_min = 2.0f;
-    }
+    float outside = float(scale >= s_max);
+    t_min = 2.0 * outside + t_min * (1 - outside);
 
     // Undo mirroring of the coordinate system
     if ((octant_mask & 1) == 0) { pos.x = 3.0f - scale_exp2 - pos.x; }
@@ -232,14 +226,51 @@ uint8_t TraceRay(vec3 rayOrig, vec3 rayDir, int root, out vec3 hitPos, out float
     hitPos.z = min(max(rayOrig.z + t_min * rayDir.z, pos.z + epson), pos.z + scale_exp2 - epson);
     parent_idx = parentIdx;
 
-    if (parent.ChildrenVoxels[idx] == EMPTY_VOXEL)
-    {
-        return VOXEL_NOT_FOUND;
-    }
-    else    
-    {
-        return parent.ChildrenVoxels[idx];
-    }
+    idx = idx ^ octant_mask ^ 7;
+    hit_idx = idx;
+    hit_scale = scale;
+
+    return EMPTY_VOXEL * uint8_t(outside) + parent.ChildrenVoxels[idx] * uint8_t(1. - outside);
+}
+
+vec3 TransformVoxelSpaceToOctreeSpace(vec3 voxelPos)
+{
+    // Voxel space to [0, 1] space
+    voxelPos /= float(u_Dimensions.x);
+    // [0, 1] space to [1, 2] space
+    voxelPos += vec3(1.0);
+    return voxelPos;
+}
+
+vec3 TransformWorldSpaceToOctreeSpace(vec3 worldPos)
+{
+    // World Space to Voxel Space
+    worldPos /= u_VoxelSize;
+    // Voxel Space to [0, 1] Space
+    worldPos /= float(u_Dimensions.x);
+    // [0, 1] Space to [1, 2] Space
+    worldPos += vec3(1.0);
+    return worldPos;
+}
+
+vec3 TransformOctreeSpaceToWorldSpace(vec3 octreePos)
+{
+    // [1, 2] Space to [0, 1] Space
+    octreePos -= vec3(1.0);
+    // [0, 1] Space to Voxel Space
+    octreePos *= float(u_Dimensions.x);
+    // Voxel Space to World Space
+    octreePos *= u_VoxelSize;
+    return octreePos;
+}
+
+vec3 TransformOCtreeSpaceToVoxelSpace(vec3 octreePos)
+{
+    // [1, 2] Space to [0, 1] Space
+    octreePos -= vec3(1.0);
+    // [0, 1] Space to Voxel Space
+    octreePos *= float(u_Dimensions.x);
+    return octreePos;
 }
 
 void main()
@@ -251,44 +282,24 @@ void main()
 
     // Perform intersection test and check if ray hits the octree
     float tMin, tMax;
-    if (!RayAABBIntersect(rayOrig, rayDir, vec3(0), vec3(u_Dimensions), tMin, tMax))
+    if (!RayAABBIntersect(rayOrig, rayDir, vec3(0), vec3(u_Dimensions) * u_VoxelSize, tMin, tMax))
     {
         imageStore(img_output, pixel_coords, vec4(materials[EMPTY_VOXEL].color, 1));
         return;
     }
     if (!(tMin <= 0))
     {
-        rayOrig += rayDir * (tMin + epson);
+        rayOrig += rayDir * (tMin + 0.01 * u_VoxelSize);
     }
 
-    vec3 transformedOrig = rayOrig;
-    // World Space to Voxel Space
-    transformedOrig /= u_VoxelSize;
-    // Voxel Space to [0, 1] Space
-    transformedOrig /= float(u_Dimensions.x);
-    // [0, 1] Space to [1, 2] Space
-    transformedOrig += vec3(1.0);
-
-    // Perform intersection test and check if ray hits the octree
-    // float tMin, tMax;
-    // if (!RayAABBIntersect(transformedOrig, rayDir, vec3(1.), vec3(2.), tMin, tMax))
-    // {
-    //     imageStore(img_output, pixel_coords, vec4(materials[EMPTY_VOXEL].color, 1));
-    //     return;
-    // }
-    // if (!(tMin <= 0))
-    // {
-    //     transformedOrig += rayDir * (tMin + epson);
-    // }
-
+    vec3 transformedOrig = TransformWorldSpaceToOctreeSpace(rayOrig);
+    // Trace the ray
     vec3 hitPos;
     int parent_idx;
+    int hit_idx;
+    int hit_scale;
     float hit_t;
-    uint8_t materialID = TraceRay(transformedOrig, rayDir, 0, hitPos, hit_t, parent_idx);
-    if (hit_t >= 2.0)
-    {
-        materialID = VOXEL_NOT_FOUND;
-    }
+    uint8_t materialID = TraceRay(transformedOrig, rayDir, 0, hitPos, hit_t, parent_idx, hit_idx, hit_scale);
     vec4 color = vec4(materials[materialID].color, 1.0);
 
     imageStore(img_output, pixel_coords, color);

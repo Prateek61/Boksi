@@ -6,10 +6,10 @@
 
 const std::string res_path = "../Boksi/res/";
 
-constexpr int WORLD_SIZE = 64;
+constexpr int WORLD_SIZE = 1024;
 constexpr glm::uvec3 WORLD_DIMENSIONS = {WORLD_SIZE, WORLD_SIZE, WORLD_SIZE};
 
-constexpr float VOXEL_SIZE = 1.0f;
+constexpr float VOXEL_SIZE = 0.01f;
 
 const Boksi::WindowProps WINDOW_PROPS = {
 	"Voxel Ray Tracer",
@@ -35,7 +35,7 @@ public:
 
 		// Set Camera
 		m_CameraController.GetCamera().OnResize(1280, 720);
-		m_CameraController.SetCameraMoveSpeed(1.0f);
+		m_CameraController.SetCameraMoveSpeed(10.0f);
 		m_CameraController.SetCameraMouseSensitivity(0.01f);
 		m_CameraController.OnUpdate(0.0f);
 
