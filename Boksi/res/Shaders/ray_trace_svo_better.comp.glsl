@@ -281,6 +281,21 @@ void main()
     else
     {
         color = vec4(materials[materialID].color, 1.0);
+
+        // Compute shadows
+        vec3 lightDir = GetSunDirection();
+
+        vec3 shadowOrig = hitPos + lightDir * 0.001 * (u_VoxelSize / u_Dimensions);
+        vec3 shadowHitPos;
+        int shadowParentIdx;
+        int shadowHitIdx;
+        int shadowHitScale;
+        float shadowHitT;
+        MATERIAL_ID_TYPE shadowMaterialID = TraceRay(shadowOrig, lightDir, 0, shadowHitPos, shadowHitT, shadowParentIdx, shadowHitIdx, shadowHitScale);
+        if (shadowMaterialID != EMPTY_VOXEL)
+        {
+            color *= 0.5;
+        }
     }
 
     imageStore(img_output, pixel_coords, color);
@@ -390,5 +405,6 @@ vec3 GetSunDirection()
 {
     float sun_speed  = 0.35 * u_Time;
     vec3 sun_dir = normalize(vec3(cos(sun_speed), sin(sun_speed), 0.0));
+    sun_dir = normalize(vec3(1.));
     return sun_dir;
 }
