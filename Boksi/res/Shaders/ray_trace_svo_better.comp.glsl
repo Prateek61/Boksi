@@ -17,30 +17,35 @@ uniform Camera u_Camera;
 uniform ivec3 u_Dimensions;
 uniform int u_MaxDepth;
 uniform float u_VoxelSize;
+uniform float u_Time = 0.25;
 
 // Function definitions
 // Get ray direction
 vec3 GetRayDirection(ivec2 pixel_coords);
 bool RayAABBIntersect(vec3 rayOrig, vec3 rayDir, vec3 boxMin, vec3 boxMax, out float tMin, out float tMax);
 
-#define EMPTY_VOXEL uint8_t(0) // Sky blue
-#define FILLED_VOXEL uint8_t(1) // Pink
-#define VOXEL_NOT_FOUND uint8_t(2) // White
-#define ERROR_VOXEL uint8_t(3) // Black
-#define ERROR_VOXEL2 uint8_t(4) // White
-#define ERROR_VOXEL3 uint8_t(5) // Green
+#define EMPTY_VOXEL uint16_t(0) // Sky blue
+#define MATERIAL_ID_TYPE uint16_t
 
 // Define epson as the base 2 exponential of 23 (mantissa bits)
 const int s_max = 23;
 const float epson = exp2(-s_max);
-const uint8_t uint_zero = uint8_t(0);
+const uint8_t uint8_zero = uint8_t(0);
+const uint16_t uint16_zero = uint16_t(0);
+
+const vec3 NightColor = vec3(.15, 0.3, 0.6);
+const vec3 HorizonColor = vec3(0.6, 0.3, 0.4);
+const vec3 DayColor = vec3(0.7, 0.8, 1);
+
+const vec3 SunColor = vec3(1.0, 0.8, 0.6);
+const vec3 SunRimColor = vec3(1.0, 0.66, 0.33);
 
 struct Stack
 {
     int parentIdx;
     float t_max;
 };
-uint8_t TraceRay(vec3 rayOrig, vec3 rayDir, int root, out vec3 hitPos, out float hit_t, out int parent_idx, out int hit_idx, out int hit_scale)
+MATERIAL_ID_TYPE TraceRay(vec3 rayOrig, vec3 rayDir, int root, out vec3 hitPos, out float hit_t, out int parent_idx, out int hit_idx, out int hit_scale)
 {
     // Initialize the stack
     Stack stack[s_max + 1]; // Stack of parent Voxels
@@ -104,7 +109,7 @@ uint8_t TraceRay(vec3 rayOrig, vec3 rayDir, int root, out vec3 hitPos, out float
         // Process voxel if the corresponding bit in valid mask set
         // and the active t-span is non-empty
         uint8_t child_getter_mask = uint8_t(1 << (idx ^ octant_mask ^ 7));
-        if ((parent.ValidMask & child_getter_mask) != uint_zero && t_min < tc_max)
+        if ((parent.ValidMask & child_getter_mask) != uint8_zero && t_min < tc_max)
         {
             // Terminate if the voxel is small enough
             // TODO: Implement LOD
@@ -125,7 +130,7 @@ uint8_t TraceRay(vec3 rayOrig, vec3 rayDir, int root, out vec3 hitPos, out float
             if (t_min <= tv_max)
             {
                 // Terminate if the corresponding bit in the children mask is not set
-                if ((parent.ChildrenMask & child_getter_mask) == uint_zero)
+                if ((parent.ChildrenMask & child_getter_mask) == uint8_zero)
                 {
                     break;
                 }
@@ -230,7 +235,81 @@ uint8_t TraceRay(vec3 rayOrig, vec3 rayDir, int root, out vec3 hitPos, out float
     hit_idx = idx;
     hit_scale = scale;
 
-    return EMPTY_VOXEL * uint8_t(outside) + parent.ChildrenVoxels[idx] * uint8_t(1. - outside);
+    return EMPTY_VOXEL * MATERIAL_ID_TYPE(outside) + parent.ChildrenVoxels[idx] * MATERIAL_ID_TYPE(1. - outside);
+}
+
+vec3 TransformVoxelSpaceToOctreeSpace(vec3 voxelPos);
+vec3 TransformWorldSpaceToOctreeSpace(vec3 worldPos);
+vec3 TransformOctreeSpaceToWorldSpace(vec3 octreePos);
+vec3 TransformOCtreeSpaceToVoxelSpace(vec3 octreePos);
+
+vec3 GetSunDirection();
+vec4 GetSkyColor(vec3 dir);
+
+void main()
+{
+    ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
+
+    vec3 rayOrig = u_Camera.Position;
+    vec3 rayDir = GetRayDirection(pixel_coords);
+
+    // Perform intersection test and check if ray hits the octree
+    float tMin, tMax;
+    if (!RayAABBIntersect(rayOrig, rayDir, vec3(0), vec3(u_Dimensions) * u_VoxelSize, tMin, tMax))
+    {
+        imageStore(img_output, pixel_coords, GetSkyColor(rayDir));
+        return;
+    }
+    if (!(tMin <= 0))
+    {
+        rayOrig += rayDir * (tMin + 0.01 * u_VoxelSize);
+    }
+
+    vec3 transformedOrig = TransformWorldSpaceToOctreeSpace(rayOrig);
+    // Trace the ray
+    vec3 hitPos;
+    int parent_idx;
+    int hit_idx;
+    int hit_scale;
+    float hit_t;
+    MATERIAL_ID_TYPE materialID = TraceRay(transformedOrig, rayDir, 0, hitPos, hit_t, parent_idx, hit_idx, hit_scale);
+    vec4 color;
+    if (materialID == EMPTY_VOXEL)
+    {
+        color = GetSkyColor(rayDir);
+    }
+    else
+    {
+        color = vec4(materials[materialID].color, 1.0);
+    }
+
+    imageStore(img_output, pixel_coords, color);
+}
+
+// Get ray direction
+vec3 GetRayDirection(ivec2 pixel_coords) {
+    vec4 ndc = vec4(2.0 * vec2(pixel_coords) / u_Camera.ScreenSize - 1.0, -1.0, 1.0);
+    vec4 clip = u_Camera.InverseProjection * ndc;
+    clip = vec4(clip.xyz / clip.w, 0.0);
+    vec4 world = u_Camera.InverseView * clip;
+    vec3 dir = normalize(world.xyz);
+    return dir;
+}
+
+bool RayAABBIntersect(vec3 rayOrig, vec3 rayDir, vec3 boxMin, vec3 boxMax, out float tMin, out float tMax) {
+    // Make sure rayDir is not zero
+    if (abs(rayDir.x) < epson) rayDir.x = sign(rayDir.x) * epson;
+    if (abs(rayDir.y) < epson) rayDir.y = sign(rayDir.y) * epson;
+    if (abs(rayDir.z) < epson) rayDir.z = sign(rayDir.z) * epson;
+
+    vec3 invDir = 1.0 / rayDir;
+    vec3 t0 = (boxMin - rayOrig) * invDir;
+    vec3 t1 = (boxMax - rayOrig) * invDir;
+    vec3 tmin = min(t0, t1);
+    vec3 tmax = max(t0, t1);
+    tMin = max(max(tmin.x, tmin.y), tmin.z);
+    tMax = min(min(tmax.x, tmax.y), tmax.z);
+    return tMin <= tMax && tMax >= 0.0;
 }
 
 vec3 TransformVoxelSpaceToOctreeSpace(vec3 voxelPos)
@@ -273,60 +352,43 @@ vec3 TransformOCtreeSpaceToVoxelSpace(vec3 octreePos)
     return octreePos;
 }
 
-void main()
+vec4 GetSkyColor(vec3 dir)
 {
-    ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
+    vec3 sun_dir = GetSunDirection();
+    float sun = clamp( dot(sun_dir, dir), 0.0, 1.0 );
+    float sun_height = sun_dir.y;
 
-    vec3 rayOrig = u_Camera.Position;
-    vec3 rayDir = GetRayDirection(pixel_coords);
+    float neight_height = -0.8;
+    float day_height = 0.3;
 
-    // Perform intersection test and check if ray hits the octree
-    float tMin, tMax;
-    if (!RayAABBIntersect(rayOrig, rayDir, vec3(0), vec3(u_Dimensions) * u_VoxelSize, tMin, tMax))
-    {
-        imageStore(img_output, pixel_coords, vec4(materials[EMPTY_VOXEL].color, 1));
-        return;
-    }
-    if (!(tMin <= 0))
-    {
-        rayOrig += rayDir * (tMin + 0.01 * u_VoxelSize);
-    }
+    float horizon_length = day_height - neight_height;
+    float inverse_hl = 1.0 / horizon_length;
+    float half_horizon_length = horizon_length * 0.5;
+    float inverse_hhl = 1.0 / half_horizon_length;
+    float mid_point = neight_height + half_horizon_length;
 
-    vec3 transformedOrig = TransformWorldSpaceToOctreeSpace(rayOrig);
-    // Trace the ray
-    vec3 hitPos;
-    int parent_idx;
-    int hit_idx;
-    int hit_scale;
-    float hit_t;
-    uint8_t materialID = TraceRay(transformedOrig, rayDir, 0, hitPos, hit_t, parent_idx, hit_idx, hit_scale);
-    vec4 color = vec4(materials[materialID].color, 1.0);
+    float night_contrib = clamp((sun_height - mid_point) * (-inverse_hhl), 0.0, 1.0);
+    float horizon_contrib = -clamp(abs((sun_height - mid_point) * (-inverse_hhl)), 0.0, 1.0) + 1.0;
+    float day_contrib = clamp((sun_height - mid_point) * inverse_hhl, 0.0, 1.0);
 
-    imageStore(img_output, pixel_coords, color);
+    // sky color
+    vec3 sky_color = NightColor * night_contrib + HorizonColor * horizon_contrib + DayColor * day_contrib;
+
+    vec3 color = sky_color;
+
+    // atmosphere brighter near horizon
+    color -= clamp(dir.y, 0.0, 0.5);
+
+    // draw sun
+    color += 0.4 * SunRimColor * pow(sun, 4.0);
+    color += 1.0 * SunColor * pow(sun, 2000.0);
+
+    return vec4(color, 1.0);
 }
 
-// Get ray direction
-vec3 GetRayDirection(ivec2 pixel_coords) {
-    vec4 ndc = vec4(2.0 * vec2(pixel_coords) / u_Camera.ScreenSize - 1.0, -1.0, 1.0);
-    vec4 clip = u_Camera.InverseProjection * ndc;
-    clip = vec4(clip.xyz / clip.w, 0.0);
-    vec4 world = u_Camera.InverseView * clip;
-    vec3 dir = normalize(world.xyz);
-    return dir;
-}
-
-bool RayAABBIntersect(vec3 rayOrig, vec3 rayDir, vec3 boxMin, vec3 boxMax, out float tMin, out float tMax) {
-    // Make sure rayDir is not zero
-    if (abs(rayDir.x) < epson) rayDir.x = sign(rayDir.x) * epson;
-    if (abs(rayDir.y) < epson) rayDir.y = sign(rayDir.y) * epson;
-    if (abs(rayDir.z) < epson) rayDir.z = sign(rayDir.z) * epson;
-
-    vec3 invDir = 1.0 / rayDir;
-    vec3 t0 = (boxMin - rayOrig) * invDir;
-    vec3 t1 = (boxMax - rayOrig) * invDir;
-    vec3 tmin = min(t0, t1);
-    vec3 tmax = max(t0, t1);
-    tMin = max(max(tmin.x, tmin.y), tmin.z);
-    tMax = min(min(tmax.x, tmax.y), tmax.z);
-    return tMin <= tMax && tMax >= 0.0;
+vec3 GetSunDirection()
+{
+    float sun_speed  = 0.35 * u_Time;
+    vec3 sun_dir = normalize(vec3(cos(sun_speed), sin(sun_speed), 0.0));
+    return sun_dir;
 }

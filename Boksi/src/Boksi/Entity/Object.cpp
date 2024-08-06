@@ -61,7 +61,7 @@ namespace Boksi
     {
         std::vector<std::string> m_Model = GetModel();
 
-        std::map<glm::vec3, uint8_t, Vec3Comparator> materials;
+        std::map<glm::vec3, MATERIAL_ID_TYPE, Vec3Comparator> materials;
 
         for (std::string line : m_Model)
         {
@@ -74,7 +74,7 @@ namespace Boksi
             int m = std::stoi(data[3]);
 
             glm::vec3 pos = glm::vec3(x, y, z);
-            uint8_t materialID = uint8_t(m);
+            MATERIAL_ID_TYPE materialID = MATERIAL_ID_TYPE(m);
 
             mesh->SetVoxel(pos, materialID);
         }

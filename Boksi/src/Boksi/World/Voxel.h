@@ -8,5 +8,5 @@ namespace Boksi
 #define EMPTY_VOXEL 0
 
     // Class representing a single voxel in the voxel world
-    using Voxel = uint8_t;
+    using Voxel = uint16_t;
 }

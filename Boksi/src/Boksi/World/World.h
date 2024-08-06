@@ -35,21 +35,21 @@ namespace Boksi
         
 
         // Setters
-        // void SetVoxel(const glm::uvec3& position, const uint8_t materialID) { m_Voxels[position.x + position.y * m_Size.x + position.z * m_Size.x * m_Size.y] = materialID; }
+        // void SetVoxel(const glm::uvec3& position, const MATERIAL_ID_TYPE materialID) { m_Voxels[position.x + position.y * m_Size.x + position.z * m_Size.x * m_Size.y] = materialID; }
         void SetVoxel(const glm::uvec3& position, const Voxel& voxel) { m_Voxels[position.x + position.y * m_Size.x + position.z * m_Size.x * m_Size.y] = voxel; }
         void UnfillVoxel(const glm::uvec3& position) { m_Voxels[position.x + position.y * m_Size.x + position.z * m_Size.x * m_Size.y] = 0; }
 
-        void DrawCircle(const int x , const int y , const int z , const int radius , const uint8_t materialID);
+        void DrawCircle(const int x , const int y , const int z , const int radius , const MATERIAL_ID_TYPE materialID);
 
-        void AddBoundary(const uint8_t materialID);
+        void AddBoundary(const MATERIAL_ID_TYPE materialID);
 
-        void ClearScreen(const uint8_t materialID);
+        void ClearScreen(const MATERIAL_ID_TYPE materialID);
 
-        void AddWorldFloor(const int height , const uint8_t materialID);
+        void AddWorldFloor(const int height , const MATERIAL_ID_TYPE materialID);
           
 
         // Utility functions
-        void Randomize(const float density, const std::vector<uint8_t>& materialIDs)
+        void Randomize(const float density, const std::vector<MATERIAL_ID_TYPE>& materialIDs)
         {
 	        for (uint32_t x = 0; x < m_Size.x; x++)
 	        {

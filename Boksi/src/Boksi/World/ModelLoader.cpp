@@ -22,7 +22,7 @@ namespace Boksi
         // load file from path in read mode
 
         // Storage an array of materials
-        std::map<glm::vec3, uint8_t, Vec3Comparator> materials;
+        std::map<glm::vec3, MATERIAL_ID_TYPE, Vec3Comparator> materials;
 
         std::ifstream file(path, std::ios::in | std::ios::binary);
         if (!file.is_open())
@@ -67,7 +67,7 @@ namespace Boksi
                 glm::uvec3 pos = {x, y, z};
                 glm::vec3 color = {r / 255.0, g / 255.0, b / 255.0};
 
-                uint8_t materialID = 0;
+                MATERIAL_ID_TYPE materialID = 0;
 
                 // Check if the color exists in the materials map
                 if (materials.find(color) == materials.end())
@@ -114,7 +114,7 @@ namespace Boksi
         std::vector<std::string> model;
 
         // Storage an array of materials
-        std::map<glm::vec3, uint8_t, Vec3Comparator> materials;
+        std::map<glm::vec3, MATERIAL_ID_TYPE, Vec3Comparator> materials;
 
         std::ifstream file(path, std::ios::in | std::ios::binary);
         if (!file.is_open())
@@ -158,7 +158,7 @@ namespace Boksi
                 glm::uvec3 pos = {x, y, z};
                 glm::vec3 color = {r / 255.0, g / 255.0, b / 255.0};
 
-                uint8_t materialID = 0;
+                MATERIAL_ID_TYPE materialID = 0;
 
                 // Check if the color exists in the materials map
                 if (materials.find(color) == materials.end())

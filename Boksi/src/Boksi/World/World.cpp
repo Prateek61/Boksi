@@ -5,7 +5,7 @@
 
 namespace Boksi
 {
-    void World::DrawCircle(const int x, const int y, const int z, const int radius, const uint8_t materialID)
+    void World::DrawCircle(const int x, const int y, const int z, const int radius, const MATERIAL_ID_TYPE materialID)
     {
         for (int i = -radius; i <= radius; i++)
         {
@@ -25,7 +25,7 @@ namespace Boksi
         }
     }
 
-    void World::AddBoundary(const uint8_t materialID)
+    void World::AddBoundary(const MATERIAL_ID_TYPE materialID)
     {
         // only add boundary lines at edges
         for (uint32_t x = 0; x < m_Size.x; x++)
@@ -43,7 +43,7 @@ namespace Boksi
         }
     }
 
-    void World::ClearScreen(const uint8_t materialID)
+    void World::ClearScreen(const MATERIAL_ID_TYPE materialID)
     {
         for (uint32_t x = 0; x < m_Size.x; x++)
         {
@@ -58,7 +58,7 @@ namespace Boksi
     }
 
 
-    void World::AddWorldFloor(const int baseHeight, const uint8_t materialID)
+    void World::AddWorldFloor(const int baseHeight, const MATERIAL_ID_TYPE materialID)
     {
         FastNoiseLite noise;
         
