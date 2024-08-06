@@ -9,8 +9,8 @@ layout(local_size_x = 16, local_size_y = 16) in;
 #include "utils/Material.glsl"
 
 layout(rgba8, binding = 0) uniform image2D img_output; // Output texture
-layout(std430, binding = 0) buffer Octree { Node nodes[]; }; // Octree buffer
-layout(std430, binding = 1) buffer Materials { Material materials[]; }; // Materials buffer
+layout(std430, binding = 1) buffer Octree { Node nodes[]; }; // Octree buffer
+layout(std430, binding = 2) buffer Materials { Material materials[]; }; // Materials buffer
 
 // Uniforms
 uniform Camera u_Camera;

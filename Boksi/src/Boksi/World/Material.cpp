@@ -14,8 +14,14 @@ namespace Boksi
     {
         s_Materials.push_back(material);
         s_MaterialIDs[name] = static_cast<uint8_t>(s_Materials.size()) - 1;
-        return s_Materials.size() - 1;
         s_NewMaterialAdded = true;
+
+        if (s_Materials.size() > 255)
+		{
+            BK_CORE_WARN("Material count exceeds 255!: {}", s_Materials.size());
+		}
+
+        return s_Materials.size() - 1;
     }
     const Material &MaterialLibrary::GetMaterial(uint8_t materialID)
     {

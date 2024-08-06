@@ -16,8 +16,11 @@ namespace Boksi
             : Color(color), Specular(specular), Ambient(ambient) {}
             
         glm::vec3 Color;
+        float padding1;
         glm::vec3 Specular;
+        float padding2;
         glm::vec3 Ambient;
+        float padding3;
     };
 
     class MaterialLibrary

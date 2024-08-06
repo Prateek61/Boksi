@@ -4,12 +4,12 @@
 
 #include "Boksi/World/Mesh/VoxelMeshModifier.h"
 
-const std::string res_path = "Boksi/res/";
+const std::string res_path = "../Boksi/res/";
 
 constexpr int WORLD_SIZE = 512;
 constexpr glm::uvec3 WORLD_DIMENSIONS = {WORLD_SIZE, WORLD_SIZE, WORLD_SIZE};
 
-constexpr float VOXEL_SIZE = 0.01f;
+constexpr float VOXEL_SIZE = 5.0f;
 
 const Boksi::WindowProps WINDOW_PROPS = {
 	"Voxel Ray Tracer",
@@ -28,14 +28,14 @@ public:
 
 		// Add entities
 
-		std::shared_ptr<Boksi::Object> object = std::make_shared<Boksi::Object>(glm::vec3(100, 30, 100), glm::vec3(0, 0, 0), 1, "Donut");
-		object->CreateModel(Boksi::ModelLoader::LoadModelToEntity(res_path + "Models/donut.txt" , 1));
+		// std::shared_ptr<Boksi::Object> object = std::make_shared<Boksi::Object>(glm::vec3(100, 30, 100), glm::vec3(0, 0, 0), 1, "Donut");
+		// object->CreateModel(Boksi::ModelLoader::LoadModelToEntity(res_path + "Models/donut.txt" , 1));
 
-		m_EntitiesArray->AddEntity(object);
+		// m_EntitiesArray->AddEntity(object);
 
 		// Set Camera
 		m_CameraController.GetCamera().OnResize(1280, 720);
-		m_CameraController.SetCameraMoveSpeed(5.0f);
+		m_CameraController.SetCameraMoveSpeed(1.0f);
 		m_CameraController.SetCameraMouseSensitivity(0.01f);
 		m_CameraController.OnUpdate(0.0f);
 
@@ -47,7 +47,7 @@ public:
 		m_CameraController.GetCamera().SetForwardDirection({1, 1, 1});
 
 		
-		Boksi::ModelLoader::LoadModel(res_path + "Models/llama04.txt", m_VoxelMesh, {0, 30, 0}, 1);
+		Boksi::ModelLoader::LoadModel(res_path + "Models/medieval_fantasy_book_70x30x50.txt", m_VoxelMesh, {0, 30, 0}, 1);
 
 		std::shared_ptr<Boksi::ComputeShader> m_ComputeShader = m_VoxelRendererArray->GetComputeShader();
 		m_ComputeShader->Bind();
@@ -66,13 +66,13 @@ public:
 		// Render
 		Boksi::Renderer::BeginScene();
 
-		m_EntitiesArray->OnUpdate();
-		Boksi::VoxelModifier::Draw(m_VoxelMesh, *m_EntitiesArray);
+		// m_EntitiesArray->OnUpdate();
+		// Boksi::VoxelModifier::Draw(m_VoxelMesh, *m_EntitiesArray);
 
 		// Array Renderer
 
 		// Material
-		m_MaterialStorageBuffer->Bind(1);
+		m_MaterialStorageBuffer->Bind(2);
 		if (Boksi::MaterialLibrary::s_NewMaterialAdded)
 		{
 			m_MaterialStorageBuffer->SetData(Boksi::MaterialLibrary::GetMaterialData(), Boksi::MaterialLibrary::GetMaterialCount() * sizeof(Boksi::Material));
@@ -80,7 +80,7 @@ public:
 		}
 		// Array Renderer
 		// m_VoxelRendererArray->Render(m_CameraController.GetCamera(), m_Texture, m_VoxelMesh, VOXEL_SIZE, {1280, 720}, {16, 16, 1});
-		m_VoxelRendererSvo->Render(m_CameraController.GetCamera(), m_Texture, 1.0f, m_VoxelMesh, {1280, 720}, {16, 16, 1});
+		m_VoxelRendererSvo->Render(m_CameraController.GetCamera(), m_Texture, VOXEL_SIZE, m_VoxelMesh, {1280, 720}, {16, 16, 1});
 
 		// Check for errors
 		Boksi::RenderCommand::CheckForErrors();
@@ -192,11 +192,15 @@ public:
 
 Boksi::Application *Boksi::CreateApplication()
 {
+	// Display size of material
+	BK_INFO("Material size: {0}", sizeof(Boksi::Material));
+
 	return new Sandbox();
 }
 
 void ExampleLayer::AttachShadersAndBuffers()
 {
+	/*
 	// Define some materials
 	Boksi::MaterialLibrary::AddMaterial({
 											glm::vec3(1.0f, 0.0f, 0.0f), // Albedo (base color)
@@ -225,6 +229,7 @@ void ExampleLayer::AttachShadersAndBuffers()
 											glm::vec3(0.2f, 0.2f, 0.0f)	 // Ambient color (dimmed yellow)
 										},
 										"Yellow");
+										*/
 
 	// Material Storage Buffer
 	m_MaterialStorageBuffer.reset(Boksi::StorageBuffer::Create());

@@ -74,7 +74,8 @@ namespace Boksi
                 {
                     // Add the color to the materials map
                     Material material;
-                    material.Color = glm::vec3(LinearToGamma(color.r), LinearToGamma(color.g), LinearToGamma(color.b));
+                    // material.Color = glm::vec3(LinearToGamma(color.r), LinearToGamma(color.g), LinearToGamma(color.b));
+                    material.Color = color;
                     material.Ambient = glm::vec3(1.0f, 1.0f, 1.0f);
                     material.Specular = glm::vec3(0.5f, 0.5f, 0.5f);
                     materialID = MaterialLibrary::AddMaterial(material, "LoadMaterial: " + std::to_string(MaterialLibrary::GetMaterialCount()));

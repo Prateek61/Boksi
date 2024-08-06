@@ -28,7 +28,7 @@ namespace Boksi
         m_ComputeShader->UniformUploader->UploadUniformInt3("u_Dimensions", mesh->GetSize());
         m_ComputeShader->UniformUploader->UploadUniformInt("u_MaxDepth", mesh->GetMaximumDepth());
 
-        m_VoxelStorageBuffer->Bind(0);
+        m_VoxelStorageBuffer->Bind(1);
 
         if (mesh->MeshChanged)
         {

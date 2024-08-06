@@ -1,9 +1,7 @@
 #pragma once
 #include "bkpch.h"
 
-#ifndef BK_DIST
 #define BK_ENABLE_ASSERTS
-#endif
 
 // GLM experimental stuff
 #define GLM_ENABLE_EXPERIMENTAL
