@@ -14,6 +14,7 @@ namespace Boksi
         static float LinearToGamma(float linear);
         static std::vector<std::string> LoadModelToEntity(const std::string path, int scale);
         static std::vector<std::string> CreateCubeToEntity(const glm::vec3 dimensions);
+        static void SaveMeshToFile(const std::string path, Ref<VoxelMesh> mesh);
 
         static std::vector<std::string> SplitString(const std::string &s, char delimiter)
         {

@@ -48,7 +48,7 @@ public:
 		m_CameraController.GetCamera().SetPosition({32.0f, 62.0f, 70.0f});
 		m_CameraController.GetCamera().SetForwardDirection({0, 0, -1});
 
-		Boksi::ModelLoader::LoadModel(res_path + "Models/medieval_fantasy_book_70x30x50.txt", m_VoxelMesh, {0, 30, 0}, 1);
+		Boksi::ModelLoader::LoadModel(res_path + "Models/hello.txt", m_VoxelMesh, {0, 30, 0}, 1);
 
 		std::shared_ptr<Boksi::ComputeShader> m_ComputeShader = m_VoxelRendererArray->GetComputeShader();
 		m_ComputeShader->Bind();
@@ -166,9 +166,34 @@ public:
 
 		if (file_dialog.showFileDialog("Open File", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ImVec2(700, 310), ".txt"))
 		{
-			// action to take on "select"
-			BK_CORE_INFO("Selected file: {0}", file_dialog.selected_path.c_str());
-			Boksi::ModelLoader::LoadModel(file_dialog.selected_path.c_str(), m_VoxelMesh, {0, 30, 0}, 1);
+			loadedPath = file_dialog.selected_path;
+		}
+
+		if (file_dialog.showFileDialog("Save File", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ImVec2(700, 310), ".txt"))
+		{
+			std::cout << file_dialog.selected_fn << std::endl;	 // The name of the selected file or directory in case of Select Directory dialog mode
+			std::cout << file_dialog.selected_path << std::endl; // The absolute path to the selected file
+			std::cout << file_dialog.ext << std::endl;			 // Access ext separately (For SAVE mode)
+			
+			Boksi::ModelLoader::SaveMeshToFile(file_dialog.selected_path, m_VoxelMesh);
+		}
+
+		if (loadedPath != "")
+		{
+
+			ImGui::Text("Loaded Path: %s", loadedPath.c_str());
+
+			if (ImGui::Button("X"))
+			{
+				loadedPath = "";
+			}
+
+			if (ImGui::Button("Load"))
+			{
+				glm::vec3 position = m_CameraController.GetCamera().GetPosition() + m_CameraController.GetCamera().GetForwardDirection() * 10.0f * VOXEL_SIZE;
+				Boksi::ModelLoader::LoadModel(loadedPath, m_VoxelMesh, position, 1);
+				m_VoxelMesh->MeshChanged = true;
+			}
 		}
 
 		ImGui::End();
@@ -194,6 +219,8 @@ private:
 	std::shared_ptr<Boksi::EntitiesArray> m_EntitiesArray;
 	std::shared_ptr<Boksi::StorageBuffer> m_MaterialStorageBuffer;
 	Boksi::TimeStep m_CumulativeTime;
+
+	std::string loadedPath;
 
 	void AttachShadersAndBuffers();
 };

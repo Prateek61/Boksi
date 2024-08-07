@@ -24,6 +24,8 @@ namespace Boksi
         // Storage an array of materials
         std::map<glm::vec3, MATERIAL_ID_TYPE, Vec3Comparator> materials;
 
+        std::vector<std::string> model;
+
         std::ifstream file(path, std::ios::in | std::ios::binary);
         if (!file.is_open())
         {
@@ -64,6 +66,12 @@ namespace Boksi
                 BK_CORE_ASSERT(y >= 0 && y < mesh->GetSize().y, "Invalid y coordinate");
                 BK_CORE_ASSERT(z >= 0 && z < mesh->GetSize().z, "Invalid z coordinate");
 
+                if (x < 0 || x >= mesh->GetSize().x || y < 0 || y >= mesh->GetSize().y || z < 0 || z >= mesh->GetSize().z)
+                {
+                    BK_CORE_ERROR("Invalid coordinate: {0} {1} {2}", x, y, z);
+                    break;
+                }
+
                 glm::uvec3 pos = {x, y, z};
                 glm::vec3 color = {r / 255.0, g / 255.0, b / 255.0};
 
@@ -86,9 +94,23 @@ namespace Boksi
                     materialID = materials[color];
                 }
 
-                mesh->SetVoxel(pos, materialID);
+                model.push_back(std::to_string(x) + " " + std::to_string(y) + " " + std::to_string(z) + " " + std::to_string(materialID));
             }
         }
+
+        for (const std::string &data : model)
+        {
+            std::vector<std::string> tokens = SplitString(data, ' ');
+            BK_CORE_ASSERT(tokens.size() == 4, "Invalid data format");
+
+            int x = std::stoi(tokens[0]);
+            int y = std::stoi(tokens[1]);
+            int z = std::stoi(tokens[2]);
+            MATERIAL_ID_TYPE materialID = std::stoi(tokens[3]);
+
+            mesh->SetVoxel(glm::vec3(x, y, z), materialID);
+        }
+
         mesh->MeshChanged = true;
     }
 
@@ -194,5 +216,36 @@ namespace Boksi
         {
             return 1.055f * std::pow(linear, 1.0f / 2.4f) - 0.055f;
         }
+    }
+
+    void ModelLoader::SaveMeshToFile(const std::string path, Ref<VoxelMesh> mesh)
+    {
+        std::ofstream file(path, std::ios::out | std::ios::binary);
+        if (!file.is_open())
+        {
+            BK_CORE_ERROR("Could not open file: {0}", path);
+            return;
+        }
+
+        glm::uvec3 size = mesh->GetSize();
+
+        file << "D " << size.x << " " << size.y << " " << size.z << std::endl;
+
+        for (int x = 0; x < size.x; x++)
+        {
+            for (int y = 0; y < size.y; y++)
+            {
+                for (int z = 0; z < size.z; z++)
+                {
+                    Voxel voxel = mesh->GetVoxel(glm::vec3(x, y, z));
+                    if (voxel == EMPTY_VOXEL)
+                        continue;
+                    glm::vec3 color = MaterialLibrary::GetMaterial(voxel).Color;
+                    file << x << " " << y << " " << z << " " << (int)(color.r * 255) << " " << (int)(color.g * 255) << " " << (int)(color.b * 255) << std::endl;
+                }
+            }
+        }
+
+        file.close();
     }
 }
