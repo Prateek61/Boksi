@@ -17,7 +17,7 @@ namespace Boksi
         }
     };
 
-    void ModelLoader::LoadModel(const std::string path, Ref<VoxelMesh> mesh, glm::vec3 pos, glm::vec3 direction, int scale, bool del)
+    void ModelLoader::LoadModel(const std::string path, Ref<VoxelMesh> mesh, glm::vec3 pos, int scale, bool del)
     {
         // load file from path in read mode
 
@@ -33,7 +33,8 @@ namespace Boksi
             return;
         }
 
-        glm::vec3 smallest = glm::vec3(0, 0, 0);
+        glm::vec3 low = glm::vec3(std::numeric_limits<int>::max());
+        glm::vec3 high = glm::vec3(std::numeric_limits<int>::min());
 
         // read the file
         std::string line;
@@ -74,8 +75,19 @@ namespace Boksi
                     break;
                 }
 
-                if (x < smallest.x)
-                    smallest.x = x;
+                if (x < low.x)
+                    low.x = x;
+                if (y < low.y)
+                    low.y = y;
+                if (z < low.z)
+                    low.z = z;
+
+                if (x > high.x)
+                    high.x = x;
+                if (y > high.y)
+                    high.y = y;
+                if (z > high.z)
+                    high.z = z;
 
                 glm::uvec3 pos = {x, y, z};
                 glm::vec3 color = {r / 255.0, g / 255.0, b / 255.0};
@@ -113,11 +125,7 @@ namespace Boksi
             int z = std::stoi(tokens[2]);
             MATERIAL_ID_TYPE materialID = std::stoi(tokens[3]);
 
-            x -= smallest.x;
-            y -= smallest.y;
-            z -= smallest.z;
-
-            glm::vec3 drawPos  = glm::vec3(x, y, z) * direction + pos;
+            glm::vec3 drawPos = glm::vec3(x, y, z) - low + pos + (high - low) / 2.0f;
 
             if (del)
             {
@@ -131,6 +139,42 @@ namespace Boksi
 
         BK_INFO("Model loaded at: {0} {1} {2}", pos.x, pos.y, pos.z);
         mesh->MeshChanged = true;
+    }
+
+    void ModelLoader::DrawCube(Ref<VoxelMesh> mesh, glm::vec3 pos, glm::vec3 dimensions, MATERIAL_ID_TYPE materialID)
+    {
+        for (int x = 0; x < dimensions.x; x++)
+        {
+            for (int y = 0; y < dimensions.y; y++)
+            {
+                for (int z = 0; z < dimensions.z; z++)
+                {
+                    mesh->SetVoxel(glm::vec3(x, y, z) + pos, materialID);
+                }
+            }
+        }
+        mesh->MeshChanged = true;
+        BK_INFO("Cube drawn at: {0} {1} {2}", pos.x, pos.y, pos.z);
+    }
+
+    void ModelLoader::DrawSphere(Ref<VoxelMesh> mesh, glm::vec3 pos, float radius, MATERIAL_ID_TYPE materialID)
+    {
+
+        for (int x = -radius; x <= radius; x++)
+        {
+            for (int y = -radius; y <= radius; y++)
+            {
+                for (int z = -radius; z <= radius; z++)
+                {
+                    if (glm::length(glm::vec3(x, y, z)) <= radius)
+                    {
+                        mesh->SetVoxel(glm::vec3(x, y, z) + pos, materialID);
+                    }
+                }
+            }
+        }
+        mesh->MeshChanged = true;
+        BK_INFO("Sphere drawn at: {0} {1} {2}", pos.x, pos.y, pos.z);
     }
 
     std::vector<std::string> ModelLoader::CreateCubeToEntity(const glm::vec3 dimensions)
