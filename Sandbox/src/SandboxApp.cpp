@@ -50,7 +50,7 @@ public:
 		m_CameraController.GetCamera().SetPosition({32.0f, 62.0f, 70.0f});
 		m_CameraController.GetCamera().SetForwardDirection({0, 0, -1});
 
-		Boksi::ModelLoader::LoadModel(res_path + "Models/medieval_fantasy_book_70x30x50.txt", m_VoxelMesh, {0, 30, 0}, 1);
+		Boksi::ModelLoader::LoadModel(res_path + "Models/medieval_fantasy_book_70x30x50.txt", m_VoxelMesh, {0, 30, 0}, {0,0,0} ,1);
 
 		std::shared_ptr<Boksi::ComputeShader> m_ComputeShader = m_VoxelRendererArray->GetComputeShader();
 		m_ComputeShader->Bind();
@@ -66,19 +66,22 @@ public:
 		// if mouse click
 
 		if (drawing)
+
 		{
+			glm::vec3 position = m_CameraController.GetCamera().GetPosition() / VOXEL_SIZE;
+			glm::vec3 direction = m_CameraController.GetCamera().GetForwardDirection();
+
 			if (Boksi::Input::IsKeyPressed(Boksi::Key::F))
 
 			{
-				glm::vec3 position = m_CameraController.GetCamera().GetPosition() / VOXEL_SIZE + m_CameraController.GetCamera().GetForwardDirection() * 5.0f;
-				Boksi::ModelLoader::LoadModel(loadedPath, m_VoxelMesh, position, 1);
+
+				Boksi::ModelLoader::LoadModel(loadedPath, m_VoxelMesh, position, direction, 1);
 				m_VoxelMesh->MeshChanged = true;
 			}
 			else if (Boksi::Input::IsKeyPressed(Boksi::Key::R))
 			{
-				glm::vec3 position = m_CameraController.GetCamera().GetPosition() / VOXEL_SIZE + m_CameraController.GetCamera().GetForwardDirection() * 5.0f;
-				position = position / VOXEL_SIZE;
-				Boksi::ModelLoader::LoadModel(loadedPath, m_VoxelMesh, position, 1, true);
+				glm::vec3 position = m_CameraController.GetCamera().GetPosition() / VOXEL_SIZE;
+				Boksi::ModelLoader::LoadModel(loadedPath, m_VoxelMesh, position, direction, 1, true);
 				m_VoxelMesh->MeshChanged = true;
 			}
 		}
@@ -216,9 +219,9 @@ public:
 			if (ImGui::Button("Load"))
 			{
 				// get voxel pos
-				glm::vec3 position = m_CameraController.GetCamera().GetPosition() + m_CameraController.GetCamera().GetForwardDirection() * 5.0f;
+				glm::vec3 position = m_CameraController.GetCamera().GetPosition();
 				position = position * VOXEL_SIZE;
-				Boksi::ModelLoader::LoadModel(loadedPath, m_VoxelMesh, position, 1);
+				Boksi::ModelLoader::LoadModel(loadedPath, m_VoxelMesh, position, m_CameraController.GetCamera().GetForwardDirection() * 5.0f, 1);
 				m_VoxelMesh->MeshChanged = true;
 			}
 

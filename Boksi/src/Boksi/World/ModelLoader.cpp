@@ -17,7 +17,7 @@ namespace Boksi
         }
     };
 
-    void ModelLoader::LoadModel(const std::string path, Ref<VoxelMesh> mesh, glm::uvec3 pos, int scale, bool del)
+    void ModelLoader::LoadModel(const std::string path, Ref<VoxelMesh> mesh, glm::vec3 pos, glm::vec3 direction, int scale, bool del)
     {
         // load file from path in read mode
 
@@ -32,6 +32,8 @@ namespace Boksi
             BK_CORE_ERROR("Could not open file: {0}", path);
             return;
         }
+
+        glm::vec3 smallest = glm::vec3(0, 0, 0);
 
         // read the file
         std::string line;
@@ -54,9 +56,9 @@ namespace Boksi
             {
                 std::vector<std::string> data = SplitString(line, ' ');
                 BK_CORE_ASSERT(data.size() == 6, "Invalid data format");
-                int x = pos.x + std::stoi(data[0]) * scale;
-                int y = pos.y + std::stoi(data[1]) * scale;
-                int z = pos.z + std::stoi(data[2]) * scale;
+                int x = std::stoi(data[0]) * scale;
+                int y = std::stoi(data[1]) * scale;
+                int z = std::stoi(data[2]) * scale;
 
                 int r = std::stoi(data[3]);
                 int g = std::stoi(data[4]);
@@ -72,13 +74,16 @@ namespace Boksi
                     break;
                 }
 
+                if (x < smallest.x)
+                    smallest.x = x;
+
                 glm::uvec3 pos = {x, y, z};
                 glm::vec3 color = {r / 255.0, g / 255.0, b / 255.0};
 
                 MATERIAL_ID_TYPE materialID = 0;
 
                 // Check if the color exists in the materials map
-                if (materials.find(color) == materials.end())
+                if (materials.find(color) == materials.end() && !del)
                 {
                     // Add the color to the materials map
                     Material material;
@@ -108,16 +113,23 @@ namespace Boksi
             int z = std::stoi(tokens[2]);
             MATERIAL_ID_TYPE materialID = std::stoi(tokens[3]);
 
+            x -= smallest.x;
+            y -= smallest.y;
+            z -= smallest.z;
+
+            glm::vec3 drawPos  = glm::vec3(x, y, z) * direction + pos;
+
             if (del)
             {
-                mesh->SetVoxel(glm::vec3(x, y, z), EMPTY_VOXEL);
+                mesh->SetVoxel(drawPos, EMPTY_VOXEL);
             }
             else
             {
-                mesh->SetVoxel(glm::vec3(x, y, z), materialID);
+                mesh->SetVoxel(drawPos, materialID);
             }
         }
 
+        BK_INFO("Model loaded at: {0} {1} {2}", pos.x, pos.y, pos.z);
         mesh->MeshChanged = true;
     }
 
