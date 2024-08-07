@@ -11,7 +11,9 @@ imgui_addons::ImGuiFileBrowser file_dialog; // As a class member or globally
 constexpr int WORLD_SIZE = 512;
 constexpr glm::uvec3 WORLD_DIMENSIONS = {WORLD_SIZE, WORLD_SIZE, WORLD_SIZE};
 
-constexpr float VOXEL_SIZE = 1.0f;
+constexpr float VOXEL_SIZE = .5f;
+
+const bool UPDATE_MODEL = false;
 
 const Boksi::WindowProps WINDOW_PROPS = {
 	"Voxel Ray Tracer",
@@ -30,10 +32,10 @@ public:
 
 		// Add entities
 
-		// std::shared_ptr<Boksi::Object> object = std::make_shared<Boksi::Object>(glm::vec3(100, 30, 100), glm::vec3(0, 0, 0), 1, "Donut");
-		// object->CreateModel(Boksi::ModelLoader::LoadModelToEntity(res_path + "Models/donut.txt" , 1));
+		std::shared_ptr<Boksi::Object> object = std::make_shared<Boksi::Object>(glm::vec3(100, 30, 100), glm::vec3(0, 0, 0), 1, "Donut");
+		object->CreateModel(Boksi::ModelLoader::LoadModelToEntity(res_path + "Models/donut.txt", 1));
 
-		// m_EntitiesArray->AddEntity(object);
+		m_EntitiesArray->AddEntity(object);
 
 		// Set Camera
 		m_CameraController.GetCamera().OnResize(1280, 720);
@@ -48,7 +50,7 @@ public:
 		m_CameraController.GetCamera().SetPosition({32.0f, 62.0f, 70.0f});
 		m_CameraController.GetCamera().SetForwardDirection({0, 0, -1});
 
-		Boksi::ModelLoader::LoadModel(res_path + "Models/hello.txt", m_VoxelMesh, {0, 30, 0}, 1);
+		Boksi::ModelLoader::LoadModel(res_path + "Models/imagetostl.com_medieval_fantasy_book_500x212x352.txt", m_VoxelMesh, {0, 30, 0}, 1);
 
 		std::shared_ptr<Boksi::ComputeShader> m_ComputeShader = m_VoxelRendererArray->GetComputeShader();
 		m_ComputeShader->Bind();
@@ -64,8 +66,11 @@ public:
 		// Render
 		Boksi::Renderer::BeginScene();
 
-		// m_EntitiesArray->OnUpdate();
-		// Boksi::VoxelModifier::Draw(m_VoxelMesh, *m_EntitiesArray);
+		if (UPDATE_MODEL)
+		{
+			m_EntitiesArray->OnUpdate();
+			Boksi::VoxelModifier::Draw(m_VoxelMesh, *m_EntitiesArray);
+		}
 
 		// Array Renderer
 
@@ -174,7 +179,7 @@ public:
 			std::cout << file_dialog.selected_fn << std::endl;	 // The name of the selected file or directory in case of Select Directory dialog mode
 			std::cout << file_dialog.selected_path << std::endl; // The absolute path to the selected file
 			std::cout << file_dialog.ext << std::endl;			 // Access ext separately (For SAVE mode)
-			
+
 			Boksi::ModelLoader::SaveMeshToFile(file_dialog.selected_path, m_VoxelMesh);
 		}
 
@@ -190,7 +195,8 @@ public:
 
 			if (ImGui::Button("Load"))
 			{
-				glm::vec3 position = m_CameraController.GetCamera().GetPosition() + m_CameraController.GetCamera().GetForwardDirection() * 10.0f * VOXEL_SIZE;
+				// get voxel pos
+				glm::vec3 position =  m_CameraController.GetCamera().GetPosition() + m_CameraController.GetCamera().GetForwardDirection() * 10.0f;
 				Boksi::ModelLoader::LoadModel(loadedPath, m_VoxelMesh, position, 1);
 				m_VoxelMesh->MeshChanged = true;
 			}
