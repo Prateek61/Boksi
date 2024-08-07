@@ -9,6 +9,8 @@
 
 #include "Input.h"
 
+#include "GLFW/glfw3.h"
+
 namespace Boksi
 {
 	Application *Application::s_Instance = nullptr;
@@ -33,13 +35,16 @@ namespace Boksi
 	{
 		while (m_Running)
 		{
+			float time = static_cast<float>(glfwGetTime());
+			TimeStep time_step = time - m_LastFrameTime;
+			m_LastFrameTime = time;
 
 			for (Layer *layer : m_LayerStack)
-				layer->OnUpdate();
+				layer->OnUpdate(time_step);
 
 			m_ImGuiLayer->Begin();
 			for (Layer *layer : m_LayerStack)
-				layer->OnImGuiRender();
+				layer->OnImGuiRender(time_step);
 			m_ImGuiLayer->End();
 
 			m_Window->OnUpdate();

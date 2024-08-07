@@ -4,25 +4,25 @@
 
 #include "Boksi/World/Mesh/VoxelMeshModifier.h"
 
-const std::string res_path = "../Boksi/res/";
+const std::string res_path = "Boksi/res/";
 
 constexpr int WORLD_SIZE = 512;
-constexpr glm::uvec3 WORLD_DIMENSIONS = {WORLD_SIZE, WORLD_SIZE, WORLD_SIZE};
+constexpr glm::uvec3 WORLD_DIMENSIONS = { WORLD_SIZE, WORLD_SIZE, WORLD_SIZE };
 
 constexpr float VOXEL_SIZE = 1.0f;
 
 const Boksi::WindowProps WINDOW_PROPS = {
 	"Voxel Ray Tracer",
 	1280,
-	720};
+	720 };
 
 class ExampleLayer : public Boksi::Layer
 {
 public:
 	ExampleLayer()
 		: Layer("Example"),
-		  m_CameraController(45.0f, 0.1f, 100.0f),
-		  m_EntitiesArray(std::make_shared<Boksi::EntitiesArray>())
+		m_CameraController(45.0f, 0.1f, 100.0f),
+		m_EntitiesArray(std::make_shared<Boksi::EntitiesArray>())
 	{
 		AttachShadersAndBuffers();
 
@@ -35,31 +35,28 @@ public:
 
 		// Set Camera
 		m_CameraController.GetCamera().OnResize(1280, 720);
-		m_CameraController.SetCameraMoveSpeed(3.0f);
-		m_CameraController.SetCameraMouseSensitivity(0.01f);
+		m_CameraController.SetCameraMoveSpeed(0.05f);
+		m_CameraController.SetCameraMouseSensitivity(0.0003f);
 		m_CameraController.OnUpdate(0.0f);
 
 		// Set the clear color
-		Boksi::RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
+		Boksi::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
 
 		// Set the camera position and direction
-		m_CameraController.GetCamera().SetPosition({-1, -1, -1});
-		m_CameraController.GetCamera().SetForwardDirection({1, 1, 1});
+		m_CameraController.GetCamera().SetPosition({ 32.0f, 62.0f, 70.0f });
+		m_CameraController.GetCamera().SetForwardDirection({ 0, 0, -1 });
 
-		
-		Boksi::ModelLoader::LoadModel(res_path + "Models/medieval_fantasy_book_70x30x50.txt", m_VoxelMesh, {0, 30, 0}, 1);
+
+		Boksi::ModelLoader::LoadModel(res_path + "Models/medieval_fantasy_book_70x30x50.txt", m_VoxelMesh, { 0, 30, 0 }, 1);
 
 		std::shared_ptr<Boksi::ComputeShader> m_ComputeShader = m_VoxelRendererArray->GetComputeShader();
 		m_ComputeShader->Bind();
 		m_ComputeShader->UniformUploader->UploadUniformFloat3("u_LightPosition", glm::vec3(15.0f, 240.0f, 10.0f));
 	}
 
-	void OnUpdate() override
+	void OnUpdate(Boksi::TimeStep ts) override
 	{
-		// Time calculation
-		auto now = std::chrono::high_resolution_clock::now();
-		m_LastFrameTime = std::chrono::duration<float, std::milli>(now - m_Time).count();
-		m_Time = now;
+		m_CumulativeTime += ts;
 
 		Boksi::RenderCommand::Clear();
 
@@ -80,7 +77,9 @@ public:
 		}
 		// Array Renderer
 		// m_VoxelRendererArray->Render(m_CameraController.GetCamera(), m_Texture, m_VoxelMesh, VOXEL_SIZE, {1280, 720}, {16, 16, 1});
-		m_VoxelRendererSvo->Render(m_CameraController.GetCamera(), m_Texture, VOXEL_SIZE, m_VoxelMesh, {1280, 720}, {16, 16, 1});
+		m_VoxelRendererSvo->GetComputeShader()->Bind();
+		m_VoxelRendererSvo->GetComputeShader()->UniformUploader->UploadUniformFloat("u_Time", m_CumulativeTime.GetSeconds() / 5);
+		m_VoxelRendererSvo->Render(m_CameraController.GetCamera(), m_Texture, VOXEL_SIZE, m_VoxelMesh, { 1280, 720 }, { 16, 16, 1 });
 
 		// Check for errors
 		Boksi::RenderCommand::CheckForErrors();
@@ -91,19 +90,20 @@ public:
 		m_TextureShader->UniformUploader->UploadUniformInt("screenTexture", 0);
 		Boksi::Renderer::Submit(m_TextureShader, m_TextureVertexArray);
 
-		m_CameraController.OnUpdate(1);
+		m_CameraController.OnUpdate(ts);
 		Boksi::Renderer::EndScene();
 	}
 
-	virtual void OnImGuiRender() override
+	virtual void OnImGuiRender(Boksi::TimeStep ts) override
 	{
 		ImGui::Begin("Data");
-		auto &camera = m_CameraController.GetCamera();
+		auto& camera = m_CameraController.GetCamera();
 		ImGui::Text("Camera Position: (%f, %f, %f)", camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
 		ImGui::Text("Camera Direction: (%f, %f, %f)", camera.GetForwardDirection().x, camera.GetForwardDirection().y, camera.GetForwardDirection().z);
 		ImGui::Text("Camera Up: (%f, %f, %f)", camera.GetUpDirection().x, camera.GetUpDirection().y, camera.GetUpDirection().z);
 		ImGui::Text("Camera FOV: %f", camera.GetVerticalFOV());
-		ImGui::Text("Last frame time: %f", m_LastFrameTime);
+		ImGui::Text("Last frame time: %f ms", ts.GetMilliseconds());
+		ImGui::Text("FPS: %f", 1.0f / ts.GetSeconds());
 		ImGui::End();
 
 		ImGui::Begin("World");
@@ -112,7 +112,7 @@ public:
 
 		if (ImGui::Button("Recenter Camera"))
 		{
-			m_CameraController.GetCamera().SetPosition({10, 5, -10});
+			m_CameraController.GetCamera().SetPosition({ 10, 5, -10 });
 			glm::vec3 forward = glm::normalize(glm::vec3(glm::vec3(0, 0, 0)) - m_CameraController.GetCamera().GetPosition());
 			m_CameraController.GetCamera().SetForwardDirection(forward);
 			;
@@ -152,7 +152,7 @@ public:
 		ImGui::End();
 	}
 
-	void OnEvent(Boksi::Event &event) override
+	void OnEvent(Boksi::Event& event) override
 	{
 	}
 
@@ -171,12 +171,8 @@ private:
 
 	std::shared_ptr<Boksi::EntitiesArray> m_EntitiesArray;
 	std::shared_ptr<Boksi::StorageBuffer> m_MaterialStorageBuffer;
+	Boksi::TimeStep m_CumulativeTime;
 
-	std::chrono::time_point<std::chrono::high_resolution_clock> m_Time = std::chrono::high_resolution_clock::now();
-	glm::vec3 m_LightPosition = {0, 0, 0};
-	float m_LastFrameTime = 0.0f;
-
-public:
 	void AttachShadersAndBuffers();
 };
 
@@ -190,11 +186,8 @@ public:
 	~Sandbox() override = default;
 };
 
-Boksi::Application *Boksi::CreateApplication()
+Boksi::Application* Boksi::CreateApplication()
 {
-	// Display size of material
-	BK_INFO("Material size: {0}", sizeof(Boksi::Material));
-
 	return new Sandbox();
 }
 
@@ -231,7 +224,7 @@ void ExampleLayer::AttachShadersAndBuffers()
 										"Yellow");
 										*/
 
-	// Material Storage Buffer
+										// Material Storage Buffer
 	m_MaterialStorageBuffer.reset(Boksi::StorageBuffer::Create());
 
 	// Compute Shader
@@ -253,14 +246,14 @@ void ExampleLayer::AttachShadersAndBuffers()
 		-1.0f, 1.0f, 0.0f, 1.0f,
 		-1.0f, -1.0f, 0.0f, 0.0f,
 		1.0f, -1.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f};
+		1.0f, 1.0f, 1.0f, 1.0f };
 	unsigned int indices[] = {
 		0, 1, 2,
-		2, 3, 0};
+		2, 3, 0 };
 
 	Boksi::BufferLayout layout = {
 		{Boksi::ShaderDataType::Float2, "a_Position"},
-		{Boksi::ShaderDataType::Float2, "a_TexCoord"}};
+		{Boksi::ShaderDataType::Float2, "a_TexCoord"} };
 	std::shared_ptr<Boksi::VertexBuffer> vertex_buffer;
 	vertex_buffer.reset(Boksi::VertexBuffer::Create(quad_vertices, sizeof(quad_vertices)));
 	vertex_buffer->SetLayout(layout);

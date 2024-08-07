@@ -14,6 +14,7 @@
 #include "Boksi/Core/MouseCodes.h"
 #include "Boksi/World/World.h"
 #include "Boksi/World/Material.h"
+#include "Boksi/Core/Timestep.h"
 
 // ---Mesh---------------------
 #include "Boksi/World/Mesh/VoxelMeshArray.h"

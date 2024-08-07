@@ -5,6 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "Boksi/Renderer/Camera.h"
+#include "Boksi/Core/Timestep.h"
 
 namespace Boksi
 {
@@ -15,7 +16,7 @@ namespace Boksi
 			: m_Camera(verticalFOV, nearClip, farClip)
 		{}
 
-		void OnUpdate(float deltaTime);
+		void OnUpdate(TimeStep ts);
 
 		Camera& GetCamera() { return m_Camera; }
 		const Camera& GetCamera() const { return m_Camera; }
@@ -26,7 +27,7 @@ namespace Boksi
 		void SetCameraMouseSensitivity(float cameraMouseSensitivity) { m_CameraMouseSensitivity = cameraMouseSensitivity; }
 
 	private:
-		void HandleInput(float deltaTime);
+		void HandleInput(TimeStep ts);
 
 	private:
 		Camera m_Camera;
