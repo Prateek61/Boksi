@@ -2,6 +2,7 @@
 #include "ModelLoader.h"
 #include "Mesh/VoxelMesh.h"
 #include "Boksi/World/Material.h"
+#include <glm/gtx/quaternion.hpp>
 
 namespace Boksi
 {
@@ -17,15 +18,11 @@ namespace Boksi
         }
     };
 
-    void ModelLoader::LoadModel(const std::string path, Ref<VoxelMesh> mesh, glm::vec3 pos, int scale, bool del)
+    void ModelLoader::LoadModel(const std::string path, Ref<VoxelMesh> mesh, glm::vec3 pos, glm::vec3 direction, int scale, bool del)
     {
-        // load file from path in read mode
-
-        // Storage an array of materials
+        // Load file from path in read mode
         std::map<glm::vec3, MATERIAL_ID_TYPE, Vec3Comparator> materials;
-
         std::vector<std::string> model;
-
         std::ifstream file(path, std::ios::in | std::ios::binary);
         if (!file.is_open())
         {
@@ -36,11 +33,11 @@ namespace Boksi
         glm::vec3 low = glm::vec3(std::numeric_limits<int>::max());
         glm::vec3 high = glm::vec3(std::numeric_limits<int>::min());
 
-        // read the file
+        // Read the file
         std::string line;
         while (std::getline(file, line))
         {
-            // first line is the dimension
+            // First line is the dimension
             if (line[0] == 'D')
             {
                 std::string dim = line.substr(2);
@@ -49,10 +46,8 @@ namespace Boksi
                 int x = std::stoi(dims[0]);
                 int y = std::stoi(dims[1]);
                 int z = std::stoi(dims[2]);
-
                 BK_CORE_ASSERT(x > 0 && y > 0 && z > 0, "Invalid dimensions");
             }
-
             else
             {
                 std::vector<std::string> data = SplitString(line, ' ');
@@ -69,12 +64,6 @@ namespace Boksi
                 BK_CORE_ASSERT(y >= 0 && y < mesh->GetSize().y, "Invalid y coordinate");
                 BK_CORE_ASSERT(z >= 0 && z < mesh->GetSize().z, "Invalid z coordinate");
 
-                if (x < 0 || x >= mesh->GetSize().x || y < 0 || y >= mesh->GetSize().y || z < 0 || z >= mesh->GetSize().z)
-                {
-                    BK_CORE_ERROR("Invalid coordinate: {0} {1} {2}", x, y, z);
-                    break;
-                }
-
                 if (x < low.x)
                     low.x = x;
                 if (y < low.y)
@@ -90,16 +79,12 @@ namespace Boksi
                     high.z = z;
 
                 glm::uvec3 pos = {x, y, z};
-                glm::vec3 color = {r / 255.0, g / 255.0, b / 255.0};
+                glm::vec3 color = {r / 255.0f, g / 255.0f, b / 255.0f};
 
                 MATERIAL_ID_TYPE materialID = 0;
-
-                // Check if the color exists in the materials map
                 if (materials.find(color) == materials.end() && !del)
                 {
-                    // Add the color to the materials map
                     Material material;
-                    // material.Color = glm::vec3(LinearToGamma(color.r), LinearToGamma(color.g), LinearToGamma(color.b));
                     material.Color = color;
                     material.Ambient = glm::vec3(1.0f, 1.0f, 1.0f);
                     material.Specular = glm::vec3(0.5f, 0.5f, 0.5f);
@@ -115,6 +100,9 @@ namespace Boksi
             }
         }
 
+        // Create a quaternion from the direction vector
+        glm::quat rotation = glm::rotation(glm::vec3(0, 0, 1), direction);
+
         for (const std::string &data : model)
         {
             std::vector<std::string> tokens = SplitString(data, ' ');
@@ -125,7 +113,16 @@ namespace Boksi
             int z = std::stoi(tokens[2]);
             MATERIAL_ID_TYPE materialID = std::stoi(tokens[3]);
 
-            glm::vec3 drawPos = glm::vec3(x, y, z) - low + pos + (high - low) / 2.0f;
+            glm::vec3 drawPos = glm::vec3(x, y, z) - low;
+
+            // Rotate the position based on direction quaternion
+            drawPos = glm::rotate(rotation, drawPos) + pos;
+
+            if (drawPos.x < 0 || drawPos.x >= mesh->GetSize().x || drawPos.y < 0 || drawPos.y >= mesh->GetSize().y || drawPos.z < 0 || drawPos.z >= mesh->GetSize().z)
+            {
+                BK_CORE_ERROR("Invalid position: {0} {1} {2}", drawPos.x, drawPos.y, drawPos.z);
+                return;
+            }
 
             if (del)
             {
