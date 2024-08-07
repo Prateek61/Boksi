@@ -70,14 +70,13 @@ public:
 			if (Boksi::Input::IsKeyPressed(Boksi::Key::F))
 
 			{
-				glm::vec3 position = m_CameraController.GetCamera().GetPosition() + m_CameraController.GetCamera().GetForwardDirection() * 5.0f;
-				position = position / VOXEL_SIZE;
+				glm::vec3 position = m_CameraController.GetCamera().GetPosition() / VOXEL_SIZE + m_CameraController.GetCamera().GetForwardDirection() * 5.0f;
 				Boksi::ModelLoader::LoadModel(loadedPath, m_VoxelMesh, position, 1);
 				m_VoxelMesh->MeshChanged = true;
 			}
 			else if (Boksi::Input::IsKeyPressed(Boksi::Key::R))
 			{
-				glm::vec3 position = m_CameraController.GetCamera().GetPosition() + m_CameraController.GetCamera().GetForwardDirection() * 5.0f;
+				glm::vec3 position = m_CameraController.GetCamera().GetPosition() / VOXEL_SIZE + m_CameraController.GetCamera().GetForwardDirection() * 5.0f;
 				position = position / VOXEL_SIZE;
 				Boksi::ModelLoader::LoadModel(loadedPath, m_VoxelMesh, position, 1, true);
 				m_VoxelMesh->MeshChanged = true;
@@ -257,7 +256,7 @@ private:
 	Boksi::TimeStep m_CumulativeTime;
 	bool drawing = false;
 
-	std::string loadedPath;
+	std::string loadedPath = "Boksi/res/Models/uploads_files_4195286_soccer+ball_42x42x42.txt";
 
 	void AttachShadersAndBuffers();
 };
