@@ -6,23 +6,25 @@
 
 const std::string res_path = "Boksi/res/";
 
+imgui_addons::ImGuiFileBrowser file_dialog; // As a class member or globally
+
 constexpr int WORLD_SIZE = 512;
-constexpr glm::uvec3 WORLD_DIMENSIONS = { WORLD_SIZE, WORLD_SIZE, WORLD_SIZE };
+constexpr glm::uvec3 WORLD_DIMENSIONS = {WORLD_SIZE, WORLD_SIZE, WORLD_SIZE};
 
 constexpr float VOXEL_SIZE = 1.0f;
 
 const Boksi::WindowProps WINDOW_PROPS = {
 	"Voxel Ray Tracer",
 	1280,
-	720 };
+	720};
 
 class ExampleLayer : public Boksi::Layer
 {
 public:
 	ExampleLayer()
 		: Layer("Example"),
-		m_CameraController(45.0f, 0.1f, 100.0f),
-		m_EntitiesArray(std::make_shared<Boksi::EntitiesArray>())
+		  m_CameraController(45.0f, 0.1f, 100.0f),
+		  m_EntitiesArray(std::make_shared<Boksi::EntitiesArray>())
 	{
 		AttachShadersAndBuffers();
 
@@ -40,14 +42,13 @@ public:
 		m_CameraController.OnUpdate(0.0f);
 
 		// Set the clear color
-		Boksi::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
+		Boksi::RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
 
 		// Set the camera position and direction
-		m_CameraController.GetCamera().SetPosition({ 32.0f, 62.0f, 70.0f });
-		m_CameraController.GetCamera().SetForwardDirection({ 0, 0, -1 });
+		m_CameraController.GetCamera().SetPosition({32.0f, 62.0f, 70.0f});
+		m_CameraController.GetCamera().SetForwardDirection({0, 0, -1});
 
-
-		Boksi::ModelLoader::LoadModel(res_path + "Models/medieval_fantasy_book_70x30x50.txt", m_VoxelMesh, { 0, 30, 0 }, 1);
+		Boksi::ModelLoader::LoadModel(res_path + "Models/medieval_fantasy_book_70x30x50.txt", m_VoxelMesh, {0, 30, 0}, 1);
 
 		std::shared_ptr<Boksi::ComputeShader> m_ComputeShader = m_VoxelRendererArray->GetComputeShader();
 		m_ComputeShader->Bind();
@@ -79,7 +80,7 @@ public:
 		// m_VoxelRendererArray->Render(m_CameraController.GetCamera(), m_Texture, m_VoxelMesh, VOXEL_SIZE, {1280, 720}, {16, 16, 1});
 		m_VoxelRendererSvo->GetComputeShader()->Bind();
 		m_VoxelRendererSvo->GetComputeShader()->UniformUploader->UploadUniformFloat("u_Time", m_CumulativeTime.GetSeconds() / 5);
-		m_VoxelRendererSvo->Render(m_CameraController.GetCamera(), m_Texture, VOXEL_SIZE, m_VoxelMesh, { 1280, 720 }, { 16, 16, 1 });
+		m_VoxelRendererSvo->Render(m_CameraController.GetCamera(), m_Texture, VOXEL_SIZE, m_VoxelMesh, {1280, 720}, {16, 16, 1});
 
 		// Check for errors
 		Boksi::RenderCommand::CheckForErrors();
@@ -97,7 +98,7 @@ public:
 	virtual void OnImGuiRender(Boksi::TimeStep ts) override
 	{
 		ImGui::Begin("Data");
-		auto& camera = m_CameraController.GetCamera();
+		auto &camera = m_CameraController.GetCamera();
 		ImGui::Text("Camera Position: (%f, %f, %f)", camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
 		ImGui::Text("Camera Direction: (%f, %f, %f)", camera.GetForwardDirection().x, camera.GetForwardDirection().y, camera.GetForwardDirection().z);
 		ImGui::Text("Camera Up: (%f, %f, %f)", camera.GetUpDirection().x, camera.GetUpDirection().y, camera.GetUpDirection().z);
@@ -112,7 +113,7 @@ public:
 
 		if (ImGui::Button("Recenter Camera"))
 		{
-			m_CameraController.GetCamera().SetPosition({ 10, 5, -10 });
+			m_CameraController.GetCamera().SetPosition({10, 5, -10});
 			glm::vec3 forward = glm::normalize(glm::vec3(glm::vec3(0, 0, 0)) - m_CameraController.GetCamera().GetPosition());
 			m_CameraController.GetCamera().SetForwardDirection(forward);
 			;
@@ -149,10 +150,31 @@ public:
 			m_ComputeShader->UniformUploader->UploadUniformFloat3("u_LightPosition", m_CameraController.GetCamera().GetPosition());
 		}
 
+		bool open = false, save = false;
+
+		if (ImGui::Button("Open File Dialog"))
+			open = true;
+		ImGui::SameLine();
+		if (ImGui::Button("Save File Dialog"))
+			save = true;
+
+		// Remember the name to ImGui::OpenPopup() and showFileDialog() must be same...
+		if (open)
+			ImGui::OpenPopup("Open File");
+		if (save)
+			ImGui::OpenPopup("Save File");
+
+		if (file_dialog.showFileDialog("Open File", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ImVec2(700, 310), ".txt"))
+		{
+			// action to take on "select"
+			BK_CORE_INFO("Selected file: {0}", file_dialog.selected_path.c_str());
+			Boksi::ModelLoader::LoadModel(file_dialog.selected_path.c_str(), m_VoxelMesh, {0, 30, 0}, 1);
+		}
+
 		ImGui::End();
 	}
 
-	void OnEvent(Boksi::Event& event) override
+	void OnEvent(Boksi::Event &event) override
 	{
 	}
 
@@ -186,7 +208,7 @@ public:
 	~Sandbox() override = default;
 };
 
-Boksi::Application* Boksi::CreateApplication()
+Boksi::Application *Boksi::CreateApplication()
 {
 	return new Sandbox();
 }
@@ -224,7 +246,7 @@ void ExampleLayer::AttachShadersAndBuffers()
 										"Yellow");
 										*/
 
-										// Material Storage Buffer
+	// Material Storage Buffer
 	m_MaterialStorageBuffer.reset(Boksi::StorageBuffer::Create());
 
 	// Compute Shader
@@ -246,14 +268,14 @@ void ExampleLayer::AttachShadersAndBuffers()
 		-1.0f, 1.0f, 0.0f, 1.0f,
 		-1.0f, -1.0f, 0.0f, 0.0f,
 		1.0f, -1.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f };
+		1.0f, 1.0f, 1.0f, 1.0f};
 	unsigned int indices[] = {
 		0, 1, 2,
-		2, 3, 0 };
+		2, 3, 0};
 
 	Boksi::BufferLayout layout = {
 		{Boksi::ShaderDataType::Float2, "a_Position"},
-		{Boksi::ShaderDataType::Float2, "a_TexCoord"} };
+		{Boksi::ShaderDataType::Float2, "a_TexCoord"}};
 	std::shared_ptr<Boksi::VertexBuffer> vertex_buffer;
 	vertex_buffer.reset(Boksi::VertexBuffer::Create(quad_vertices, sizeof(quad_vertices)));
 	vertex_buffer->SetLayout(layout);

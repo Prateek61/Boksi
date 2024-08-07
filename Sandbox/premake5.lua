@@ -18,8 +18,9 @@ project "Sandbox"
         "%{wks.location}/Boksi/src",
         "%{IncludeDir.glm}",
         "%{IncludeDir.spdlog}",
-        "%{wks.location}/Boksi/vendor",
+        "%{wks.location}/Boksi/vendor",        
         "%{IncludeDir.gvox}",
+        "%{IncludeDir.ImGui}",
     }
 
     links

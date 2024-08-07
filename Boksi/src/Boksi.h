@@ -7,6 +7,7 @@
 #include "Boksi/Core/Application.h"
 #include "Boksi/Core/Layer.h"
 #include "Boksi/ImGui/ImGuiLayer.h"
+#include "Boksi/ImGui/ImGuiFileBrowser.h"
 #include "Boksi/Core/Log.h"
 #include "Boksi/Core/Assert.h"
 #include "Boksi/Core/Input.h"

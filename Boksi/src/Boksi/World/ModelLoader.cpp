@@ -89,6 +89,7 @@ namespace Boksi
                 mesh->SetVoxel(pos, materialID);
             }
         }
+        mesh->MeshChanged = true;
     }
 
     std::vector<std::string> ModelLoader::CreateCubeToEntity(const glm::vec3 dimensions)
