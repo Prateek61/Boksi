@@ -17,7 +17,7 @@ namespace Boksi
         }
     };
 
-    void ModelLoader::LoadModel(const std::string path, Ref<VoxelMesh> mesh, glm::uvec3 pos, int scale)
+    void ModelLoader::LoadModel(const std::string path, Ref<VoxelMesh> mesh, glm::uvec3 pos, int scale, bool del)
     {
         // load file from path in read mode
 
@@ -108,7 +108,14 @@ namespace Boksi
             int z = std::stoi(tokens[2]);
             MATERIAL_ID_TYPE materialID = std::stoi(tokens[3]);
 
-            mesh->SetVoxel(glm::vec3(x, y, z), materialID);
+            if (del)
+            {
+                mesh->SetVoxel(glm::vec3(x, y, z), EMPTY_VOXEL);
+            }
+            else
+            {
+                mesh->SetVoxel(glm::vec3(x, y, z), materialID);
+            }
         }
 
         mesh->MeshChanged = true;
