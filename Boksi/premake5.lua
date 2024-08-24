@@ -1,7 +1,7 @@
 project "Boksi"
     kind "StaticLib"
     language "C++"
-    cppdialect "C++17"
+    cppdialect "C++20"
     staticruntime "off"
 
     targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
@@ -29,8 +29,7 @@ project "Boksi"
         "%{IncludeDir.Glad}",
         "%{IncludeDir.glm}",
         "%{IncludeDir.ImGui}",
-        "%{IncludeDir.spdlog}",
-        "%{IncludeDir.gvox}"
+        "%{IncludeDir.spdlog}"
     }
 
     links
@@ -38,7 +37,6 @@ project "Boksi"
         "GLFW",
         "Glad",
         "ImGui",
-        "GVOX",
         "opengl32.lib"
     }
      
@@ -78,9 +76,4 @@ project "Boksi"
         optimize "on"
 
     -- Clear the filter
-    filter {}
-    
-    -- Add command to copy shaders to the build directory every time
-    
-
-        
+    filter {}    

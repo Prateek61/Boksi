@@ -1,7 +1,7 @@
 project "Sandbox"
     kind "ConsoleApp"
     language "C++"
-    cppdialect "C++17"
+    cppdialect "C++20"
     staticruntime "off"
 
     targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
@@ -19,7 +19,6 @@ project "Sandbox"
         "%{IncludeDir.glm}",
         "%{IncludeDir.spdlog}",
         "%{wks.location}/Boksi/vendor",        
-        "%{IncludeDir.gvox}",
         "%{IncludeDir.ImGui}",
     }
 
@@ -39,7 +38,6 @@ project "Sandbox"
                 "GLFW",
                 "GLAD",
                 "ImGui",
-                "GVOX",
                 "%{Library.User32}",
                 "%{Library.GDI32}"
             }

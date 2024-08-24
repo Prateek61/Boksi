@@ -6,7 +6,6 @@ IncludeDir["Glad"] = "%{wks.location}/Boksi/vendor/GLAD/include"
 IncludeDir["glm"] = "%{wks.location}/Boksi/vendor/GLM"
 IncludeDir["ImGui"] = "%{wks.location}/Boksi/vendor/imgui/imgui"
 IncludeDir["spdlog"] = "%{wks.location}/Boksi/vendor/spdlog/include"
-IncludeDir["gvox"] = "%{wks.location}/Boksi/vendor/gvox/gvox/include"
 
 Library = {}
 
