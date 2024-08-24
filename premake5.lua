@@ -17,7 +17,6 @@ group "Dependencies"
     include "Boksi/vendor/GLAD"
     include "Boksi/vendor/GLFW"
     include "Boksi/vendor/imgui"
-    include "Boksi/vendor/gvox"
 group ""
 
 group "Core"
