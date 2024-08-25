@@ -1,7 +1,8 @@
 #pragma once
+#include "Boksi/Core/PlatformDetection.h"
 #include "bkpch.h"
-
 #define BK_ENABLE_ASSERTS
+#define BK_PROFILE 1
 
 // GLM experimental stuff
 #define GLM_ENABLE_EXPERIMENTAL

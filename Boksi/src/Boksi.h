@@ -17,6 +17,8 @@
 #include "Boksi/World/Material.h"
 #include "Boksi/Core/Timestep.h"
 
+#include "Boksi/Debug/Instrumentor.h"
+
 // ---Mesh---------------------
 #include "Boksi/World/Mesh/VoxelMeshArray.h"
 #include "Boksi/World/Mesh/VoxelMeshSVO.h"

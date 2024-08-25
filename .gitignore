@@ -1,4 +1,4 @@
-# Editor directories
+# VS Code
 .vscode/
 
 # Visual Studio Project Files
@@ -19,6 +19,8 @@ Intermediates/
 
 # Log files
 **.log
+# Profile files
+**.profile.json
 
 # MakeFile
 **/MakeFile

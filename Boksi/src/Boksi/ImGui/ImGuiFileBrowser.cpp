@@ -1,3 +1,5 @@
+#include "bkpch.h"
+
 #ifndef IMGUI_DEFINE_MATH_OPERATORS
 #define IMGUI_DEFINE_MATH_OPERATORS
 #endif
@@ -121,7 +123,7 @@ namespace imgui_addons
         max_size.x = io.DisplaySize.x;
         max_size.y = io.DisplaySize.y;
         ImGui::SetNextWindowSizeConstraints(min_size, max_size);
-        ImGui::SetNextWindowPos(io.DisplaySize * 0.5f, ImGuiCond_Appearing, ImVec2(0.5f,0.5f));
+        ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5, io.DisplaySize.y * 0.5), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
         ImGui::SetNextWindowSize(ImVec2(std::max<float>(sz_xy.x, min_size.x), std::max<float>(sz_xy.y, min_size.y)), ImGuiCond_Appearing);
 
         //Set Proper Filter Mode.
@@ -1137,7 +1139,7 @@ namespace imgui_addons
 
     ImVec2 ImGuiFileBrowser::getButtonSize(std::string button_text)
     {
-        return (ImGui::CalcTextSize(button_text.c_str()) + ImGui::GetStyle().FramePadding * 2.0);
+        return (ImGui::CalcTextSize(button_text.c_str()), ImGui::GetStyle().FramePadding * 2.0);
     }
 
     void ImGuiFileBrowser::parsePathTabs(std::string path)

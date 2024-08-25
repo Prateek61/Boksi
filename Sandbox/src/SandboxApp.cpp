@@ -4,7 +4,7 @@
 
 #include "Boksi/World/Mesh/VoxelMeshModifier.h"
 
-const std::string res_path = "Boksi/res/";
+const std::string res_path = "../Boksi/res/";
 
 imgui_addons::ImGuiFileBrowser file_dialog; // As a class member or globally
 
@@ -28,6 +28,7 @@ public:
 		  m_CameraController(45.0f, 0.1f, 100.0f),
 		  m_EntitiesArray(std::make_shared<Boksi::EntitiesArray>())
 	{
+		BK_PROFILE_FUNCTION();
 		AttachShadersAndBuffers();
 
 		// Add entities
@@ -59,6 +60,8 @@ public:
 
 	void OnUpdate(Boksi::TimeStep ts) override
 	{
+		BK_PROFILE_FUNCTION();
+
 		m_CumulativeTime += ts;
 
 		Boksi::RenderCommand::Clear();
@@ -122,6 +125,8 @@ public:
 
 	virtual void OnImGuiRender(Boksi::TimeStep ts) override
 	{
+		BK_PROFILE_FUNCTION();
+
 		ImGui::Begin("Data");
 		auto &camera = m_CameraController.GetCamera();
 		ImGui::Text("Camera Position: (%f, %f, %f)", camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
@@ -256,7 +261,7 @@ private:
 	Boksi::TimeStep m_CumulativeTime;
 	bool drawing = false;
 
-	std::string loadedPath = "Boksi/res/Models/uploads_files_4195286_soccer+ball_42x42x42.txt";
+	std::string loadedPath = res_path + "Models/donut.txt";
 
 	void AttachShadersAndBuffers();
 };
@@ -266,6 +271,7 @@ class Sandbox : public Boksi::Application
 public:
 	Sandbox()
 	{
+		BK_PROFILE_FUNCTION();
 		PushLayer(new ExampleLayer());
 	}
 	~Sandbox() override = default;
@@ -278,6 +284,7 @@ Boksi::Application *Boksi::CreateApplication()
 
 void ExampleLayer::AttachShadersAndBuffers()
 {
+	BK_PROFILE_FUNCTION();
 	/*
 	// Define some materials
 	Boksi::MaterialLibrary::AddMaterial({

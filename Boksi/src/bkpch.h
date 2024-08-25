@@ -21,7 +21,7 @@
 #include "Boksi/Core/Base.h"
 #include "Boksi/Core/Log.h"
 #include "Boksi/Core/Assert.h"
-
+#include "Boksi/Debug/Instrumentor.h"
 
 
 #ifdef BK_PLATFORM_WINDOWS
