@@ -48,8 +48,8 @@ public:
 		Boksi::RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
 
 		// Set the camera position and direction
-		m_CameraController.GetCamera().SetPosition({32.0f, 62.0f, 70.0f});
-		m_CameraController.GetCamera().SetForwardDirection({0, 0, -1});
+		m_CameraController.GetCamera().SetPosition({20.0f, 29.0f, 24.0f});
+		m_CameraController.GetCamera().SetForwardDirection({0.1, -0.5, -0.8});
 
 		Boksi::ModelLoader::LoadModel(res_path + "Models/medieval_fantasy_book_70x30x50.txt", m_VoxelMesh, {0, 30, 0});
 

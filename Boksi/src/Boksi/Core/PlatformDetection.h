@@ -1,4 +1,6 @@
-// Platform detectionn using predefined macros
+// Platform detection using predefined macros
+#pragma once
+
 #ifdef _WIN32
 	#ifdef _WIN64
 		#define BK_PLATFORM_WINDOWS
