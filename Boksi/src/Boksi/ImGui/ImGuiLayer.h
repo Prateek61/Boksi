@@ -1,10 +1,6 @@
 #pragma once
-#include "bkpch.h"
 
 #include "Boksi/Core/Layer.h"
-#include "Boksi/Events/ApplicationEvent.h"
-#include "Boksi/Events/KeyEvent.h"
-#include "Boksi/Events/MouseEvent.h"
 
 namespace Boksi
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "bkpch.h"
+#include <cstdint>
 
 namespace Boksi
 {
@@ -59,10 +59,10 @@ namespace Boksi
 			Y = 89,
 			Z = 90,
 
-			LeftBracket = 91,  /* [ */
-			Backslash = 92,  /* \ */
-			RightBracket = 93,  /* ] */
-			GraveAccent = 96,  /* ` */
+			LeftBracket = 91, /* [ */
+			Backslash = 92, /* \ */
+			RightBracket = 93, /* ] */
+			GraveAccent = 96, /* ` */
 
 			World1 = 161, /* non-US #1 */
 			World2 = 162, /* non-US #2 */
@@ -142,7 +142,7 @@ namespace Boksi
 			RightSuper = 347,
 			Menu = 348
 		};
-	}
 
-	std::string KeyCodeToString(KeyCode keycode);
+		const char* KeyCodeToString(KeyCode keycode);
+	}
 }

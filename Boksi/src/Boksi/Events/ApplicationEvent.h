@@ -1,15 +1,16 @@
 #pragma once
-#include "bkpch.h"
 
 #include "Boksi/Events/Event.h"
 
-namespace Boksi 
+namespace Boksi
 {
 	class WindowResizeEvent : public Event
 	{
 	public:
 		WindowResizeEvent(const uint32_t width, const uint32_t height)
-			: m_Width(width), m_Height(height) {}
+			: m_Width(width), m_Height(height)
+		{
+		}
 
 		unsigned int GetWidth() const { return m_Width; }
 		unsigned int GetHeight() const { return m_Height; }
@@ -23,6 +24,7 @@ namespace Boksi
 
 		EVENT_CLASS_TYPE(WindowResize)
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+
 	private:
 		uint32_t m_Width, m_Height;
 	};

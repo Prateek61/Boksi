@@ -1,5 +1,6 @@
 #pragma once
-#include "bkpch.h"
+
+#include <cstdint>
 
 namespace Boksi
 {

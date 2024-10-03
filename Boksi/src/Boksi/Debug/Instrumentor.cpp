@@ -62,7 +62,7 @@ namespace Boksi
 		json << "}";
 
 		std::lock_guard lock(m_Mutex);
-		if (m_CurrentSession)
+		if ( m_CurrentSession )
 		{
 			m_OutputStream << json.str();
 			m_OutputStream.flush();
@@ -114,7 +114,7 @@ namespace Boksi
 
 	void Instrumentor::InternalEndSession()
 	{
-		if (m_CurrentSession)
+		if ( m_CurrentSession )
 		{
 			WriteFooter();
 			m_OutputStream.close();
@@ -132,7 +132,7 @@ namespace Boksi
 
 	InstrumentationTimer::~InstrumentationTimer()
 	{
-		if (!m_Stopped) Stop();
+		if ( !m_Stopped ) Stop();
 	}
 
 	void InstrumentationTimer::Stop()
@@ -140,10 +140,11 @@ namespace Boksi
 		auto& instrumentor = Instrumentor::Get();
 
 		auto end_time_point = std::chrono::steady_clock::now();
-		auto high_res_start = FloatingPointMicroseconds{ m_StartTimePoint.time_since_epoch() };
-		auto elapsed_time = std::chrono::time_point_cast<std::chrono::microseconds>(end_time_point).time_since_epoch() - std::chrono::time_point_cast<std::chrono::microseconds>(m_StartTimePoint).time_since_epoch();
+		auto high_res_start = FloatingPointMicroseconds{m_StartTimePoint.time_since_epoch()};
+		auto elapsed_time = std::chrono::time_point_cast<std::chrono::microseconds>(end_time_point).time_since_epoch() -
+				std::chrono::time_point_cast<std::chrono::microseconds>(m_StartTimePoint).time_since_epoch();
 
-		instrumentor.WriteProfile({ m_Name, high_res_start, elapsed_time, std::this_thread::get_id() });
+		instrumentor.WriteProfile({m_Name, high_res_start, elapsed_time, std::this_thread::get_id()});
 
 		m_Stopped = true;
 	}

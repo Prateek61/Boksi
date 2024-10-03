@@ -18,6 +18,8 @@ namespace Boksi
 	Application::Application()
 		: m_Window(Window::Create())
 	{
+		BK_PROFILE_FUNCTION();
+
 		m_Window->SetVSync(true);
 		BK_CORE_ASSERT(!s_Instance, "Application already exists!");
 
@@ -33,8 +35,12 @@ namespace Boksi
 
 	void Application::Run()
 	{
+		BK_PROFILE_FUNCTION();
+
 		while (m_Running)
 		{
+			BK_PROFILE_SCOPE("Applciation::Run each frame");;
+
 			float time = static_cast<float>(glfwGetTime());
 			TimeStep time_step = time - m_LastFrameTime;
 			m_LastFrameTime = time;
@@ -53,10 +59,10 @@ namespace Boksi
 
 	void Application::OnEvent(Event &e)
 	{
+		BK_PROFILE_FUNCTION();
+
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(BK_BIND_EVENT_FN(OnWindowClose));
-
-		// BK_CORE_TRACE("{0}", e.ToString());
 
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
 		{
@@ -78,6 +84,8 @@ namespace Boksi
 
 	bool Application::OnWindowClose(WindowCloseEvent &e)
 	{
+		BK_PROFILE_FUNCTION();
+
 		m_Running = false;
 		return true;
 	}

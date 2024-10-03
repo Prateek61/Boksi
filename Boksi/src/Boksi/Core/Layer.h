@@ -1,9 +1,7 @@
 #pragma once
 
-#include "bkpch.h"
-
-#include "Timestep.h"
-
+#include "Boksi/Core/Base.h"
+#include "Boksi/Core/Timestep.h"
 #include "Boksi/Events/Event.h"
 
 namespace Boksi
@@ -20,7 +18,7 @@ namespace Boksi
 		virtual void OnEvent(Event& event) {}
 		virtual void OnImGuiRender(TimeStep ts) {}
 
-		inline const std::string& GetName() const { return m_DebugName; }
+		const std::string& GetName() const { return m_DebugName; }
 
 	protected:
 		std::string m_DebugName;

@@ -6,7 +6,6 @@
 #include <algorithm>
 #include <chrono>
 #include <fstream>
-#include <iomanip>
 #include <string>
 #include <thread>
 #include <mutex>
@@ -97,8 +96,9 @@ namespace Boksi
 			while ( src_index < N )
 			{
 				size_t match_index = 0;
-				while (match_index < K - 1 && src_index + match_index < N - 1 && expr[src_index + match_index] == remove[match_index]) match_index++;
-				if (match_index == K - 1) src_index += match_index;
+				while ( match_index < K - 1 && src_index + match_index < N - 1 && expr[src_index + match_index] ==
+					remove[match_index] ) match_index++;
+				if ( match_index == K - 1 ) src_index += match_index;
 				result.Data[dst_index++] = expr[src_index] == '"' ? '\'' : expr[src_index];
 				src_index++;
 			}

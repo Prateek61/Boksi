@@ -1,5 +1,4 @@
 #pragma once
-#include "bkpch.h"
 
 #include "Boksi/Events/Event.h"
 #include "Boksi/Core/MouseCodes.h"

@@ -1,8 +1,9 @@
-// Material Class
 #pragma once
-#include "bkpch.h"
 
 #include <glm/glm.hpp>
+
+#include <vector>
+#include <unordered_map>
 
 namespace Boksi
 {

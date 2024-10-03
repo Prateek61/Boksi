@@ -1,5 +1,4 @@
 #pragma once
-#include "bkpch.h"
 
 #include "Boksi/Events/Event.h"
 #include "Boksi/Core/KeyCodes.h"
@@ -36,8 +35,8 @@ namespace Boksi
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "KeyPressedEvent: " << KeyCodeToString(m_KeyCode) << " (" << (m_IsRepeat ? "Repeat" : "Not Repeat") <<
-					")";
+			ss << "KeyPressedEvent: " << Key::KeyCodeToString(m_KeyCode) << " ("
+					<< (m_IsRepeat ? "Repeat" : "Not Repeat") << ")";
 			return ss.str();
 		}
 
@@ -59,7 +58,7 @@ namespace Boksi
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "KeyReleasedEvent: " << KeyCodeToString(m_KeyCode);
+			ss << "KeyReleasedEvent: " << Key::KeyCodeToString(m_KeyCode);
 			return ss.str();
 		}
 
@@ -78,7 +77,7 @@ namespace Boksi
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "KeyTypedEvent: " << KeyCodeToString(m_KeyCode);
+			ss << "KeyTypedEvent: " << Key::KeyCodeToString(m_KeyCode);
 			return ss.str();
 		}
 

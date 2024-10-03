@@ -1,8 +1,6 @@
 #pragma once
-#include "bkpch.h"
 
 #include "Boksi/Core/Application.h"
-#include "Boksi/Events/ApplicationEvent.h"
 
 extern Boksi::Application* Boksi::CreateApplication();
 

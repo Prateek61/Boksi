@@ -1,5 +1,4 @@
 #pragma once
-#include "bkpch.h"
 
 #include "Boksi/Core/Window.h"
 #include "Boksi/Core/LayerStack.h"
@@ -9,6 +8,25 @@
 
 namespace Boksi
 {
+	struct ApplicationCommandLineArgs
+	{
+		int Count = 0;
+		char** Args = nullptr;
+
+		const char* operator[](int index) const
+		{
+			BK_CORE_ASSERT(index < Count);
+			return Args[index];
+		}
+	};
+
+	struct ApplicationSpecification
+	{
+		std::string Name = "Boksi Application";
+		std::string WorkingDirectory;
+		ApplicationCommandLineArgs CommandLineArgs;
+	};
+
 	class Application
 	{
 	public:
@@ -16,41 +34,26 @@ namespace Boksi
 		virtual ~Application();
 		void Run();
 
-		void OnEvent(Event &e);
+		void OnEvent(Event& e);
 
-		void PushLayer(Layer *layer);
-		void PushOverlay(Layer *overlay);
+		void PushLayer(Layer* layer);
+		void PushOverlay(Layer* overlay);
 
-		inline Window &GetWindow();
-		inline static Application &Get();
+		Window& GetWindow() { return *m_Window; }
+		static Application& Get() { return *s_Instance; }
 
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
 
-	private:
 		std::unique_ptr<Window> m_Window;
-		ImGuiLayer *m_ImGuiLayer;
+		ImGuiLayer* m_ImGuiLayer;
 		bool m_Running = true;
 		LayerStack m_LayerStack;
 		TimeStep m_TimeStep;
-		float m_LastFrameTime = 0.0f;
-	private:
-		static Application *s_Instance;
+		float m_LastFrameTime = 1.0f;
+		static Application* s_Instance;
 	};
 
 	// To be defined in CLIENT
-	Application *CreateApplication();
-}
-
-namespace Boksi
-{
-	Window &Application::GetWindow()
-	{
-		return *m_Window;
-	}
-
-	Application &Application::Get()
-	{
-		return *s_Instance;
-	}
+	Application* CreateApplication();
 }

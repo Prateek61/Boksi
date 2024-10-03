@@ -1,5 +1,7 @@
 #pragma once
-#include "bkpch.h"
+
+#include "Boksi/Core/Base.h"
+#include "Boksi/Debug/Instrumentor.h"
 
 namespace Boksi
 {
@@ -58,7 +60,6 @@ namespace Boksi
 			return GetCategoryFlags() & category;
 		}
 
-	public:
 		/// To be set to true if the event has been handled
 		bool Handled = false;
 	};
@@ -68,14 +69,17 @@ namespace Boksi
 	{
 	public:
 		EventDispatcher(Event& event)
-			: m_Event(event) {}
+			: m_Event(event)
+		{
+		}
 
 		// F will be deduced by the compiler
 		template <typename T, typename F>
 		bool Dispatch(const F& func)
 		{
 			BK_PROFILE_FUNCTION();
-			if (m_Event.GetEventType() == T::GetStaticType())
+
+			if ( m_Event.GetEventType() == T::GetStaticType() )
 			{
 				// Call the function with the event and bitwise OR the result with Handled
 				m_Event.Handled |= func(static_cast<T&>(m_Event));
@@ -83,6 +87,7 @@ namespace Boksi
 			}
 			return false;
 		}
+
 	private:
 		Event& m_Event;
 	};

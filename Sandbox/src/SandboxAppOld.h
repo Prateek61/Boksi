@@ -1,3 +1,5 @@
+#pragma once
+
 #include <Boksi.h>
 #include "imgui/imgui/imgui.h"
 #include <chrono>
@@ -277,10 +279,10 @@ public:
 	~Sandbox() override = default;
 };
 
-Boksi::Application *Boksi::CreateApplication()
-{
-	return new Sandbox();
-}
+//Boksi::Application *Boksi::CreateApplication()
+//{
+//	return new Sandbox();
+//}
 
 void ExampleLayer::AttachShadersAndBuffers()
 {
