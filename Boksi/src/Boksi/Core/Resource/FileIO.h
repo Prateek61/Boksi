@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Boksi/Core/Buffer.h"
+#include "Boksi/Core/Resource/Buffer.h"
 
 #include <filesystem>
 #include <cstdint>

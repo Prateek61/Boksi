@@ -17,6 +17,7 @@
 #include <initializer_list>
 #include <unordered_map>
 #include <unordered_set>
+#include <ranges>
 
 #include "Boksi/Core/Base.h"
 #include "Boksi/Core/Log.h"
