@@ -21,6 +21,7 @@ namespace Boksi
         }
 
         s_Instance = new ResourceManager();
+        s_Instance->m_BasePath = basePath;
     }
 
     void ResourceManager::Shutdown()

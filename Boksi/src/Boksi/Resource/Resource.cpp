@@ -1,7 +1,7 @@
 #include "bkpch.h"
 #include "Resource.h"
 
-#include "Boksi/Core/Resource/FileIO.h"
+#include "Boksi/Resource/FileIO.h"
 
 namespace Boksi
 {

@@ -19,6 +19,11 @@
 
 #include "Boksi/Debug/Instrumentor.h"
 
+// ---Resource-----------------
+#include "Boksi/Resource/Buffer.h"
+#include "Boksi/Resource/FileIO.h"
+#include "Boksi/Resource/ResourceManager.h"
+
 // ---Mesh---------------------
 #include "Boksi/World/Mesh/VoxelMeshArray.h"
 #include "Boksi/World/Mesh/VoxelMeshSVO.h"
@@ -48,8 +53,3 @@
 #include "Boksi/Entity/EntitiesArray.h"
 #include "Boksi/Entity/Object.h"
 // -----------------------------
-
-
-// ---Entry Point---
-#include "Boksi/Core/Entrypoint.h"
-// -----------------

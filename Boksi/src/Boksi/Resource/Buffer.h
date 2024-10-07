@@ -8,7 +8,7 @@ namespace Boksi
 	// Non owning buffer
 	struct Buffer
 	{
-		uint8_t* Data;
+		uint8_t* Data = nullptr;
 		uint64_t Size = 0;
 
 		Buffer() = default;
@@ -39,6 +39,7 @@ namespace Boksi
 		void Release()
 		{
 			delete[] Data;
+
 			Data = nullptr;
 			Size = 0;
 		}

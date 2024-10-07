@@ -5,7 +5,7 @@
 #include <memory>
 
 #define BK_ENABLE_ASSERTS
-#define BK_PROFILE 1
+#define BK_PROFILE 0
 
 // GLM experimental stuff
 #define GLM_ENABLE_EXPERIMENTAL

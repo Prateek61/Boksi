@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Boksi/Core/Resource/Resource.h"
-#include "Boksi/Core/Resource/Buffer.h"
+#include "Boksi/Resource/Resource.h"
+#include "Boksi/Resource/Buffer.h"
 
 namespace Boksi
 {
