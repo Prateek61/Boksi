@@ -41,7 +41,8 @@ project "Sandbox"
                 "ImGui",
                 "flecs",
                 "%{Library.User32}",
-                "%{Library.GDI32}"
+                "%{Library.GDI32}",
+                "%{Library.WinSockGG}",
             }
         end
 
