@@ -1,5 +1,7 @@
 #include "SandboxLayer.h"
 
+#include "flecs.h"
+
 void SandboxLayer::OnAttach()
 {
 	BK_INFO("SandboxLayer OnAttach");
@@ -22,6 +24,14 @@ void SandboxLayer::OnAttach()
 		}
 	}
 
+	// Flecs test
+	flecs::world ecs;
+	auto _ = ecs.progress();
 
 	BK_INFO("Sandbox Layer OnAttach Complete");
+}
+
+void SandboxLayer::OnUpdate(Boksi::TimeStep ts)
+{
+
 }

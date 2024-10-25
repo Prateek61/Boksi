@@ -29,7 +29,8 @@ project "Boksi"
         "%{IncludeDir.Glad}",
         "%{IncludeDir.glm}",
         "%{IncludeDir.ImGui}",
-        "%{IncludeDir.spdlog}"
+        "%{IncludeDir.spdlog}",
+        "%{IncludeDir.flecs}"
     }
 
     links
@@ -37,6 +38,7 @@ project "Boksi"
         "GLFW",
         "Glad",
         "ImGui",
+        "flecs",
         "opengl32.lib"
     }
      

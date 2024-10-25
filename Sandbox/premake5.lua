@@ -20,6 +20,7 @@ project "Sandbox"
         "%{IncludeDir.spdlog}",
         "%{wks.location}/Boksi/vendor",        
         "%{IncludeDir.ImGui}",
+        "%{IncludeDir.flecs}",
     }
 
     links
@@ -38,6 +39,7 @@ project "Sandbox"
                 "GLFW",
                 "GLAD",
                 "ImGui",
+                "flecs",
                 "%{Library.User32}",
                 "%{Library.GDI32}"
             }
