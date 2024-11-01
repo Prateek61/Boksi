@@ -9,6 +9,10 @@ namespace Boksi
 {
     using MATERIAL_ID_TYPE = uint16_t;
 
+#define EMPTY_MATERIAL 0
+#define DEFAULT_MATERIAL 1
+#define NO_MATERIAL 2
+
     struct Material
     {
         Material()

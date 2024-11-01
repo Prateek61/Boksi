@@ -11,8 +11,8 @@ namespace Boksi
     class VoxelModifier
     {
     public:
-        static void DrawCircle(const int radius, const glm::uvec3& maxSize, const glm::uvec3& center, const Ref<VoxelMesh> mesh, Voxel voxel);
+        static void DrawCircle(const int radius, const glm::uvec3& maxSize, const glm::uvec3& center, const Ref<VoxelMesh> mesh, VoxelOld voxel);
         static void Draw(const Ref<VoxelMesh> mesh, EntitiesArray& entitiesArray);
-        static void DrawFloor(const Ref<VoxelMesh> mesh, Voxel voxel);
+        static void DrawFloor(const Ref<VoxelMesh> mesh, VoxelOld voxel);
     };
 }

@@ -5,7 +5,7 @@
 
 namespace Boksi
 {
-    void VoxelModifier::DrawCircle(const int radius, const glm::uvec3 &maxSize, const glm::uvec3 &center, const Ref<VoxelMesh> mesh, Voxel voxel)
+    void VoxelModifier::DrawCircle(const int radius, const glm::uvec3 &maxSize, const glm::uvec3 &center, const Ref<VoxelMesh> mesh, VoxelOld voxel)
     {
         for (int i = -radius; i <= radius; i++)
         {
@@ -34,7 +34,7 @@ namespace Boksi
         }
     }
 
-    void VoxelModifier::DrawFloor(const Ref<VoxelMesh> mesh, Voxel voxel)
+    void VoxelModifier::DrawFloor(const Ref<VoxelMesh> mesh, VoxelOld voxel)
     {
         FastNoiseLite noise;
         

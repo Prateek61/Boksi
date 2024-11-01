@@ -26,7 +26,7 @@
 #define BK_EXPAND_MACRO(x) x
 #define BK_STRINGIFY_MACRO(x) #x
 
-#define BIT(x) (1 << x)
+#define BIT(x) (1 << (x))
 
 #define PI 3.14159265359f
 

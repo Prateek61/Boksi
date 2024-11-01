@@ -17,6 +17,6 @@ namespace Boksi
 		// ⣀⠽⣿⣿⣿⣷⡆⢸⣿⣿⣿⡇⢀⣀⠀⠀⠈⣀⣴⣾⣿⣿⠿⠛⠁⣈⣉⠛
 		// ⣻⣿⣿⣿⣿⡿⠁⣼⣿⣿⣿⠁⣈⣀⣤⣾⣿⣿⠿⠟⠉⣀⣤⣶⣿⠿⠛
 		// ⣿⣿⣿⣿⠏⠁⢀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣯⣶⣶⡄⢹⡿⠟⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-		m_Voxels.resize(static_cast<std::vector<Boksi::Voxel, std::allocator<Boksi::Voxel>>::size_type>(size.x) * size.y * size.z, EMPTY_VOXEL);
+		m_Voxels.resize(static_cast<std::vector<Boksi::VoxelOld, std::allocator<Boksi::VoxelOld>>::size_type>(size.x) * size.y * size.z, EMPTY_VOXEL);
 	}
 }

@@ -18,7 +18,7 @@ namespace Boksi
             m_Voxels.resize(size.x * size.y * size.z);
         }
 
-        World(const glm::uvec3& size, const Voxel fillVoxel)
+        World(const glm::uvec3& size, const VoxelOld fillVoxel)
 	        : m_Size(size)
         {
 	        m_Voxels.resize(size.x * size.y * size.z, fillVoxel);
@@ -27,16 +27,16 @@ namespace Boksi
         // Getters
         const glm::uvec3& GetSize() const { return m_Size; }
         const uint32_t GetVoxelCount() const { return m_Size.x * m_Size.y * m_Size.z; }
-        const Voxel& GetVoxel(const glm::uvec3& position) const { return m_Voxels[position.x + position.y * m_Size.x + position.z * m_Size.x * m_Size.y]; }
-        const std::vector<Voxel>& GetVoxels() const { return m_Voxels; }
-        std::vector<Voxel>& GetVoxels() { return m_Voxels; }
+        const VoxelOld& GetVoxel(const glm::uvec3& position) const { return m_Voxels[position.x + position.y * m_Size.x + position.z * m_Size.x * m_Size.y]; }
+        const std::vector<VoxelOld>& GetVoxels() const { return m_Voxels; }
+        std::vector<VoxelOld>& GetVoxels() { return m_Voxels; }
         const void* GetVoxelsData() const { return m_Voxels.data(); }
         void* GetVoxelsData() { return m_Voxels.data(); }
         
 
         // Setters
         // void SetVoxel(const glm::uvec3& position, const MATERIAL_ID_TYPE materialID) { m_Voxels[position.x + position.y * m_Size.x + position.z * m_Size.x * m_Size.y] = materialID; }
-        void SetVoxel(const glm::uvec3& position, const Voxel& voxel) { m_Voxels[position.x + position.y * m_Size.x + position.z * m_Size.x * m_Size.y] = voxel; }
+        void SetVoxel(const glm::uvec3& position, const VoxelOld& voxel) { m_Voxels[position.x + position.y * m_Size.x + position.z * m_Size.x * m_Size.y] = voxel; }
         void UnfillVoxel(const glm::uvec3& position) { m_Voxels[position.x + position.y * m_Size.x + position.z * m_Size.x * m_Size.y] = 0; }
 
         void DrawCircle(const int x , const int y , const int z , const int radius , const MATERIAL_ID_TYPE materialID);
@@ -67,7 +67,7 @@ namespace Boksi
         }
 
     private:
-        std::vector<Voxel> m_Voxels;
+        std::vector<VoxelOld> m_Voxels;
         glm::uvec3 m_Size;
     };
 }

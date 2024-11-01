@@ -297,7 +297,7 @@ namespace Boksi
             {
                 for (int z = 0; z < size.z; z++)
                 {
-                    Voxel voxel = mesh->GetVoxel(glm::vec3(x, y, z));
+                    VoxelOld voxel = mesh->GetVoxel(glm::vec3(x, y, z));
                     if (voxel == EMPTY_VOXEL)
                         continue;
                     glm::vec3 color = MaterialLibrary::GetMaterial(voxel).Color;

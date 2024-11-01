@@ -10,7 +10,7 @@ namespace Boksi
 		m_MaxSize = glm::uvec3(1 << m_MaxDepth);
 	}
 
-	VoxelMeshSVO::VoxelMeshSVO(const std::vector<Voxel>& voxels, const glm::uvec3& size)
+	VoxelMeshSVO::VoxelMeshSVO(const std::vector<VoxelOld>& voxels, const glm::uvec3& size)
 	{
 		m_Root = new OctreeNode();
 		m_Size = size;
@@ -24,7 +24,7 @@ namespace Boksi
 			{
 				for (unsigned int z = 0; z < size.z; z++)
 				{
-					const Voxel voxel = voxels[x + y * size.x + z * size.x * size.y];
+					const VoxelOld voxel = voxels[x + y * size.x + z * size.x * size.y];
 					if (voxel != EMPTY_VOXEL)
 					{
 						SetVoxel(glm::uvec3(x, y, z), voxel);
@@ -39,12 +39,12 @@ namespace Boksi
 		DeleteNode(m_Root);
 	}
 
-	inline Voxel VoxelMeshSVO::GetVoxel(const glm::uvec3& position) const
+	inline VoxelOld VoxelMeshSVO::GetVoxel(const glm::uvec3& position) const
 	{
 		return GetVoxel(m_Root, glm::uvec3(0), m_MaxSize, position, m_MaxDepth);
 	}
 
-	void VoxelMeshSVO::SetVoxel(const glm::uvec3& position, const Voxel& voxel)
+	void VoxelMeshSVO::SetVoxel(const glm::uvec3& position, const VoxelOld& voxel)
 	{
 
 		if (position.x >= m_Size.x || position.y >= m_Size.y || position.z >= m_Size.z)
@@ -62,7 +62,7 @@ namespace Boksi
 		return depth;
 	}
 
-	Voxel VoxelMeshSVO::GetVoxel(const OctreeNode* node, const glm::uvec3& min, const glm::uvec3& max, const glm::uvec3& position, unsigned int depth) const
+	VoxelOld VoxelMeshSVO::GetVoxel(const OctreeNode* node, const glm::uvec3& min, const glm::uvec3& max, const glm::uvec3& position, unsigned int depth) const
 	{
 		if (depth == 0)
 		{
@@ -94,7 +94,7 @@ namespace Boksi
 		return GetVoxel(node->Children[child_index], new_min, new_max, position, depth - 1);
 	}
 
-	bool VoxelMeshSVO::SetVoxel(OctreeNode* node, const glm::uvec3& min, const glm::uvec3& max, const glm::uvec3& position, unsigned int depth, const Voxel& voxel)
+	bool VoxelMeshSVO::SetVoxel(OctreeNode* node, const glm::uvec3& min, const glm::uvec3& max, const glm::uvec3& position, unsigned int depth, const VoxelOld& voxel)
 	{
 		// Calculate the octant the position is in
 		const glm::uvec3 mid = glm::uvec3(min + max) / 2u;

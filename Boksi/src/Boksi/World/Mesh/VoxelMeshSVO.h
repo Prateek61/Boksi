@@ -9,7 +9,7 @@ namespace Boksi
 	{
 		uint8_t ChildrenMask;
 		OctreeNode* Children[8];
-		Voxel ChildrenVoxels[8];
+		VoxelOld ChildrenVoxels[8];
 
 		OctreeNode()
 			: ChildrenMask(0), Children{ nullptr }, ChildrenVoxels{ EMPTY_VOXEL }
@@ -21,7 +21,7 @@ namespace Boksi
 		uint8_t ChildrenMask;
 		uint8_t ValidMask;
 		uint8_t Padding[2]; // Align next member to 4 byte
-		Voxel ChildrenVoxels[8];
+		VoxelOld ChildrenVoxels[8];
 		int Children[8];
 
 		GPUOctreeNode() = default;
@@ -51,23 +51,23 @@ namespace Boksi
 	{
 	public:
 		VoxelMeshSVO(const glm::uvec3& size);
-		VoxelMeshSVO(const std::vector<Voxel>& voxels, const glm::uvec3& size);
+		VoxelMeshSVO(const std::vector<VoxelOld>& voxels, const glm::uvec3& size);
 		~VoxelMeshSVO() override;
 
 	public:
 		inline glm::uvec3 GetSize() const override;
 		inline uint32_t GetVoxelCount() const override;
 
-		Voxel GetVoxel(const glm::uvec3& position) const override;
-		void SetVoxel(const glm::uvec3& position, const Voxel& voxel) override;
+		VoxelOld GetVoxel(const glm::uvec3& position) const override;
+		void SetVoxel(const glm::uvec3& position, const VoxelOld& voxel) override;
 		OctreeNode *GetRoot() { return m_Root; }
 		unsigned int GetMaximumDepth() const { return m_MaxDepth; }
 
 	private:
 		unsigned int GetMaximumDepth(const glm::uvec3& size) const;
 
-		Voxel GetVoxel(const OctreeNode* node, const glm::uvec3& min, const glm::uvec3& max, const glm::uvec3& position, unsigned int depth) const;
-		bool SetVoxel(OctreeNode* node, const glm::uvec3& min, const glm::uvec3& max, const glm::uvec3& position, unsigned int depth, const Voxel& voxel);
+		VoxelOld GetVoxel(const OctreeNode* node, const glm::uvec3& min, const glm::uvec3& max, const glm::uvec3& position, unsigned int depth) const;
+		bool SetVoxel(OctreeNode* node, const glm::uvec3& min, const glm::uvec3& max, const glm::uvec3& position, unsigned int depth, const VoxelOld& voxel);
 		bool CheckIfNodePurgeable(const OctreeNode* node) const;
 
 
