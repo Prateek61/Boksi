@@ -1,11 +1,11 @@
 # Boksi
 
-## Clone the repository
+### Clone the repository
 ```bash
 git clone --recurse-submodules git@github.com:Prateek61/Boksi.git 
 ```
 
-## Generate project files
+### Generate project files
 
 Note: premake5 required
 
